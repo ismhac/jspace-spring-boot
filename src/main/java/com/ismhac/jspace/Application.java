@@ -1,18 +1,20 @@
 package com.ismhac.jspace;
 
-//import com.ismhac.jspace.service.AdminService;
+import com.ismhac.jspace.service.AdminService;
+import com.ismhac.jspace.service.RoleService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @RequiredArgsConstructor
-@Slf4j
 public class Application implements CommandLineRunner {
 
-//    private final AdminService adminService;
+    private final RoleService roleService;
+    private final AdminService adminService;
+
+
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -20,8 +22,7 @@ public class Application implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-//        boolean initialized = adminService.initRootAdmin();
-//        if (initialized) log.info("Successfully created super admin account");
-//        else log.info("The supper admin account is ready");
+        roleService.initRoles();
+        adminService.initRootAdmin();
     }
 }
