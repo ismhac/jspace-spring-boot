@@ -1,5 +1,6 @@
 package com.ismhac.jspace.model;
 
+import com.ismhac.jspace.model.primaryKey.AdminID;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,13 +13,9 @@ import lombok.*;
 @Table(name = "tbl_admin")
 public class Admin extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private int id;
+    @EmbeddedId
+    private AdminID adminID;
 
-    @OneToOne
-    @JoinColumn(name = "base_user_id", referencedColumnName = "id", nullable = false)
-    private BaseUser baseUser;
-
+    @Column(name = "name")
     private String name;
 }

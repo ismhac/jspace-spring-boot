@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 public interface RoleRepository extends JpaRepository<Role, Integer> {
 
     boolean existsByCode(String code);
+
+    Role getRoleByCode(String code);
 }
