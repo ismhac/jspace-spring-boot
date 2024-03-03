@@ -1,0 +1,73 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'maven-3.9.5'
+    }
+
+    environment {
+        SERVICE_NAME = "jspace-service"
+        IMAGE_NAME = "jspace-service:${env.GIT_COMMIT}"
+        DOCKER_HUB_REPO = "your-docker-hub-username/jspace-service"
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building..'
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Testing..'
+                sh 'mvn test'
+            }
+        }
+
+        stage('Package Image') {
+            steps {
+                echo 'Docker build image....'
+                echo "Git SHA:  ${env.GIT_COMMIT}"
+                echo "Git branch: ${env.GIT_BRANCH}"
+
+                script {
+                    sh "docker build -t ${IMAGE_NAME} ."
+                    sh "docker images"
+                }
+            }
+        }
+
+        stage('Push Image To Docker Hub') {
+            steps {
+                echo "Push Image to Docker Hub"
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-account', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh "docker login -u ${USERNAME} -p ${PASSWORD}"
+                        sh "docker tag ${IMAGE_NAME} ${DOCKER_HUB_REPO}:${env.GIT_COMMIT}"
+                        sh "docker push ${DOCKER_HUB_REPO}:${env.GIT_COMMIT}"
+                    }
+                }
+            }
+        }
+
+        stage('Clean up') {
+            steps {
+                echo "Clean up local Docker images"
+                sh "docker rmi ${IMAGE_NAME} ${DOCKER_HUB_REPO}:${env.GIT_COMMIT}"
+            }
+        }
+
+        stage('Clean up Docker Hub') {
+            steps {
+                echo "Clean up Docker Hub"
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-account', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh "curl -X DELETE -u ${USERNAME}:${PASSWORD} https://hub.docker.com/v2/repositories/${DOCKER_HUB_REPO}/tags/${env.GIT_COMMIT}"
+                    }
+                }
+            }
+        }
+    }
+}

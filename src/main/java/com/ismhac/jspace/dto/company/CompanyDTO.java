@@ -1,4 +1,4 @@
-package com.ismhac.jspace.dto;
+package com.ismhac.jspace.dto.company;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;

@@ -1,5 +1,6 @@
 package com.ismhac.jspace.model;
 
+import com.ismhac.jspace.model.primaryKey.CandidateID;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,13 +13,8 @@ import lombok.*;
 @Table(name = "tbl_candidate")
 public class Candidate extends BaseEntity{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private int id;
-
-    @OneToOne
-    @JoinColumn(name = "base_user_id", referencedColumnName = "id", nullable = false)
-    private BaseUser baseUser;
+    @EmbeddedId
+    private CandidateID candidateID;
 
     @Column(name = "name")
     private String name;
