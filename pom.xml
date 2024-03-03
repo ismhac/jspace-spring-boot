@@ -10,8 +10,8 @@
     </parent>
     <groupId>com.ismhac</groupId>
     <artifactId>jspace</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>jspace</name>
+    <version>1.0</version>
+    <name>jspace-service</name>
     <description>JSpace</description>
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
