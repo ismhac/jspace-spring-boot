@@ -14,8 +14,6 @@ public class Application implements CommandLineRunner {
     private final RoleService roleService;
     private final AdminService adminService;
 
-
-
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }

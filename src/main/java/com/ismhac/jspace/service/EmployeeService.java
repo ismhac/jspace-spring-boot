@@ -1,2 +1,4 @@
-package com.ismhac.jspace.service;public interface EmployeeService {
+package com.ismhac.jspace.service;
+
+public interface EmployeeService {
 }

@@ -4,9 +4,9 @@ import com.ismhac.jspace.model.Admin;
 import com.ismhac.jspace.model.primaryKey.AdminID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
+@Repository
 public interface AdminRepository extends JpaRepository<Admin, AdminID> {
     @Query("""
             select (count(t1) > 0)
