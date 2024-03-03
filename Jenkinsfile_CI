@@ -8,7 +8,7 @@ pipeline {
     environment {
         SERVICE_NAME = "jspace-service"
         IMAGE_NAME = "jspace-service:${env.GIT_COMMIT}"
-        DOCKER_HUB_REPO = "your-docker-hub-username/jspace-service"
+        DOCKER_HUB_REPO = "hacit1412/jspace-service"
     }
 
     stages {
