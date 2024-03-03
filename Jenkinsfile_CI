@@ -61,15 +61,30 @@ pipeline {
             }
         }
 
-        stage('Clean up Docker Hub') {
-            steps {
-                echo "Clean up Docker Hub"
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-account', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        sh "curl -X DELETE -u ${USERNAME}:${PASSWORD} https://hub.docker.com/v2/repositories/${DOCKER_HUB_REPO}/tags/${env.GIT_COMMIT}"
-                    }
-                }
-            }
-        }
+       stage('Clean up Docker Hub') {
+           steps {
+               echo "Clean up Docker Hub"
+               script {
+                   withCredentials([usernamePassword(credentialsId: 'docker-hub-account', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                       def repoUrl = "https://hub.docker.com/v2/repositories/${DOCKER_HUB_REPO}/tags"
+                       def response = sh(script: "curl -X GET -u ${USERNAME}:${PASSWORD} ${repoUrl}", returnStatus: true)
+
+                       if (response == 0) {
+                           // Successfully retrieved the list of tags, now parse and delete
+                           def tagsResponse = sh(script: "curl -X GET -u ${USERNAME}:${PASSWORD} ${repoUrl}", returnStdout: true).trim()
+                           def tagsJson = new groovy.json.JsonSlurper().parseText(tagsResponse)
+
+                           tagsJson.results.each { tag ->
+                               def tagName = tag.name
+                               echo "Deleting tag: ${tagName}"
+                               sh "curl -X DELETE -u ${USERNAME}:${PASSWORD} ${repoUrl}/${tagName}"
+                           }
+                       } else {
+                           echo "Failed to retrieve tags from Docker Hub"
+                       }
+                   }
+               }
+           }
+       }
     }
 }
