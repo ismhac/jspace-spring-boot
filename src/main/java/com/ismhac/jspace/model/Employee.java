@@ -14,7 +14,7 @@ import lombok.*;
 public class Employee extends BaseEntity{
 
     @EmbeddedId
-    private EmployeeID employeeID;
+    private EmployeeID id;
 
     @Column(name = "name")
     private String name;

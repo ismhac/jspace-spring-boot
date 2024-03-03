@@ -13,7 +13,7 @@ import lombok.*;
 public class Company extends BaseEntity{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int  id;
 
     @Column(name = "name", unique = true)
