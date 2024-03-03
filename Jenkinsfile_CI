@@ -8,6 +8,7 @@ pipeline {
     environment {
         SERVICE_NAME = "jspace-service"
         IMAGE_NAME = "jspace-service:${env.GIT_COMMIT}"
+        IMAGE_TAR = "jspace-service.tar"
         DOCKER_HUB_REPO = "hacit1412/jspace-service"
     }
 
@@ -35,6 +36,7 @@ pipeline {
                 script {
                     sh "docker build -t ${IMAGE_NAME} ."
                     sh "docker images"
+                    sh "docker save -o ${IMAGE_NAME}.tar ${IMAGE_NAME}"
                 }
             }
         }
