@@ -17,4 +17,6 @@ public interface BaseUserRepository extends JpaRepository<BaseUser, Integer> {
                 and t2.code = :roleCode
             """)
     Optional<BaseUser> findByEmailAndRoleCode(String email, String roleCode);
+
+    Optional<BaseUser> findBaseUserByEmail(String email);
 }

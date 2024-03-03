@@ -48,7 +48,7 @@ public class AdminServiceImpl implements AdminService {
             BaseUser newBaseUser = BaseUser.builder()
                     .email(adminEmail)
                     .password(passwordEncoder.encode(adminPassword))
-                    .isActivated(true)
+                    .activated(true)
                     .role(adminRole)
                     .build();
 
