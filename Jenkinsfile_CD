@@ -27,7 +27,8 @@ pipeline {
         PROFILE_CONFIGURATION = "-e SPRING_PROFILES_ACTIVE=${params.ENV}"
     }
 
-    stage('Pull Image From Docker Hub') {
+    stages{
+        stage('Pull Image From Docker Hub') {
                 steps {
                     echo "Pull Image from Docker Hub"
                     script {
