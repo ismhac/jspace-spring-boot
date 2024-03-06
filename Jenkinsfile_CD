@@ -20,51 +20,70 @@ pipeline {
 
     environment {
         ENVIRONMENT = "${params.ENV}"
-        SERVICE_NAME = "jspace-service"
+        SERVICE_NAME = "erp-service"
         IMAGE_NAME = "${SERVICE_NAME}:${params.GIT_SHA}"
         PORT_CONFIGURATION = "-p 8081:8081"
         CONTAINER_NAME = "${SERVICE_NAME}-${params.GIT_SHA}"
         PROFILE_CONFIGURATION = "-e SPRING_PROFILES_ACTIVE=${params.ENV}"
-        ENCRYPTION_CONFIGURATION = "-e jasypt_encryptor_password=${params.JASYPT_PW}"
-        DOCKER_HUB_REPO = "${params.DOCKER_HUB_REPO}"
     }
 
-    stages {
-        stage('Check Parameters') {
-            steps {
-                script {
-                    requiredParameters()
-                }
-            }
-        }
-
-        stage('Pull Image From Docker Hub') {
-            steps {
-                echo "Pull Image from Docker Hub"
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-account', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        sh "docker login -u ${USERNAME} -p ${PASSWORD}"
-                        sh "docker pull ${DOCKER_HUB_REPO}:${params.GIT_SHA}"
+    stage('Pull Image From Docker Hub') {
+                steps {
+                    echo "Pull Image from Docker Hub"
+                    script {
+                        withCredentials([usernamePassword(credentialsId: 'docker-hub-account', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                            sh "docker login -u ${USERNAME} -p ${PASSWORD}"
+                            sh "docker pull ${DOCKER_HUB_REPO}:${params.GIT_SHA}"
+                        }
                     }
                 }
             }
-        }
 
         stage('Stop current') {
             steps {
                 script {
+                    requiredParameters()
                     echo "Stop previous version"
-                    sh "docker ps -q --filter name=${SERVICE_NAME} | xargs -r docker rm -f"
+
+                    if (ENVIRONMENT == "staging-naver") {
+                        echo "Load docker image: ${IMAGE_NAME}"
+                        withCredentials([usernamePassword(credentialsId: 'naver-server-account', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                            def remote = [:]
+                            remote.user = USERNAME
+                            remote.password = PASSWORD
+
+                            remote.name = "Naver dev"
+                            remote.host = "175.45.200.78"
+                            remote.allowAnyHosts = true
+                            sshCommand remote: remote, command: "docker ps -q --filter name=${SERVICE_NAME} | xargs -r docker rm -f"
+                        }
+                    } else {
+                        sh "docker ps -q --filter name=${SERVICE_NAME} | xargs -r docker rm -f"
+                    }
                 }
             }
         }
-
         stage('Deploy EC2') {
             steps {
                 script {
                     echo "Deploy to ${ENVIRONMENT}"
-                    sh "docker run -dit --name ${CONTAINER_NAME} ${PORT_CONFIGURATION} ${PROFILE_CONFIGURATION} ${ENCRYPTION_CONFIGURATION} ${IMAGE_NAME}"
-                    sh "docker ps"
+
+                    if (ENVIRONMENT == "staging-naver") {
+                        echo "Load docker image: ${IMAGE_NAME}"
+                        withCredentials([usernamePassword(credentialsId: 'naver-server-account', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                            def remote = [:]
+                            remote.user = USERNAME
+                            remote.password = PASSWORD
+
+                            remote.name = "Naver dev"
+                            remote.host = "175.45.200.78"
+                            remote.allowAnyHosts = true
+                            sshCommand remote: remote, command: "docker run -dit --name ${CONTAINER_NAME} ${PORT_CONFIGURATION} ${NAVER_VOLUME_CONFIGURATINON} ${VOLUME_CONFIGURATINON} ${PROFILE_CONFIGURATION} ${ENCRYPTION_CONFIGURATION} ${IMAGE_NAME}"
+                        }
+                    } else {
+                        sh "docker run -dit --name ${CONTAINER_NAME} ${PORT_CONFIGURATION} ${PROFILE_CONFIGURATION} ${ENCRYPTION_CONFIGURATION} ${IMAGE_NAME}"
+                        sh "docker ps"
+                    }
                 }
             }
         }
