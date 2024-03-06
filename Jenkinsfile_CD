@@ -82,7 +82,7 @@ pipeline {
                             sshCommand remote: remote, command: "docker run -dit --name ${CONTAINER_NAME} ${PORT_CONFIGURATION} ${NAVER_VOLUME_CONFIGURATINON} ${VOLUME_CONFIGURATINON} ${PROFILE_CONFIGURATION} ${ENCRYPTION_CONFIGURATION} ${IMAGE_NAME}"
                         }
                     } else {
-                        sh "docker run -dit --name ${CONTAINER_NAME} ${PORT_CONFIGURATION} ${PROFILE_CONFIGURATION} ${ENCRYPTION_CONFIGURATION} ${IMAGE_NAME}"
+                        sh "docker run -dit --name ${CONTAINER_NAME} ${PORT_CONFIGURATION} ${PROFILE_CONFIGURATION} ${JASYPT_PW} ${IMAGE_NAME}"
                         sh "docker ps"
                     }
                 }
