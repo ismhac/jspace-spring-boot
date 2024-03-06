@@ -14,6 +14,8 @@ pipeline {
     parameters {
         string(name: 'GIT_SHA', defaultValue: '', description: 'Input GIT SHA to deploy')
         choice(name: 'ENV', choices: ['dev', 'production'], description: 'Select environment to deploy')
+        string(name: 'DOCKER_HUB_REPO', defaultValue: '', description: 'Input Docker Hub Repository')
+        string(name: 'JASYPT_PW', defaultValue: '', description: 'Input Jasypt Password')
     }
 
     environment {
@@ -23,26 +25,34 @@ pipeline {
         PORT_CONFIGURATION = "-p 8081:8081"
         CONTAINER_NAME = "${SERVICE_NAME}-${params.GIT_SHA}"
         PROFILE_CONFIGURATION = "-e SPRING_PROFILES_ACTIVE=${params.ENV}"
-        ENCRYPTION_CONFIGURATION = "-e jasypt_encryptor_password=${JASYPT_PW}"
+        ENCRYPTION_CONFIGURATION = "-e jasypt_encryptor_password=${params.JASYPT_PW}"
+        DOCKER_HUB_REPO = "${params.DOCKER_HUB_REPO}"
     }
 
     stages {
+        stage('Check Parameters') {
+            steps {
+                script {
+                    requiredParameters()
+                }
+            }
+        }
+
         stage('Pull Image From Docker Hub') {
             steps {
                 echo "Pull Image from Docker Hub"
                 script {
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-account', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                                sh "docker login -u ${USERNAME} -p ${PASSWORD}"
-                                sh "docker pull ${DOCKER_HUB_REPO}:${params.GIT_SHA}"
-                            }
-                        }
+                        sh "docker login -u ${USERNAME} -p ${PASSWORD}"
+                        sh "docker pull ${DOCKER_HUB_REPO}:${params.GIT_SHA}"
                     }
                 }
+            }
+        }
 
         stage('Stop current') {
             steps {
                 script {
-                    requiredParameters()
                     echo "Stop previous version"
                     sh "docker ps -q --filter name=${SERVICE_NAME} | xargs -r docker rm -f"
                 }
@@ -53,8 +63,8 @@ pipeline {
             steps {
                 script {
                     echo "Deploy to ${ENVIRONMENT}"
-                        sh "docker run -dit --name ${CONTAINER_NAME} ${PORT_CONFIGURATION} ${AWS_VOLUME_CONFIGURATINON} ${PROFILE_CONFIGURATION} ${ENCRYPTION_CONFIGURATION} ${IMAGE_NAME}"
-                        sh "docker ps"
+                    sh "docker run -dit --name ${CONTAINER_NAME} ${PORT_CONFIGURATION} ${PROFILE_CONFIGURATION} ${ENCRYPTION_CONFIGURATION} ${IMAGE_NAME}"
+                    sh "docker ps"
                 }
             }
         }
