@@ -1,5 +1,6 @@
 package com.ismhac.jspace.config.security.jwt;
 
+import com.ismhac.jspace.model.BaseUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -40,6 +41,8 @@ public class JwtService {
     public String generateToken(
             Map<String, Object> extractClaims,
             UserDetails userDetails) {
+        BaseUser baseUser = (BaseUser) userDetails;
+        extractClaims.put("role_id", baseUser.getRole().getId());
         extractClaims.put("role_code", userDetails.getAuthorities());
         return Jwts
                 .builder()
