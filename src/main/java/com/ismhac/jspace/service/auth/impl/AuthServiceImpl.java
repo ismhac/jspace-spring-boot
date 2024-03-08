@@ -7,6 +7,7 @@ import com.ismhac.jspace.exception.BadRequestException;
 import com.ismhac.jspace.model.BaseUser;
 import com.ismhac.jspace.model.Employee;
 import com.ismhac.jspace.model.Role;
+import com.ismhac.jspace.model.enums.RoleCode;
 import com.ismhac.jspace.model.primaryKey.EmployeeID;
 import com.ismhac.jspace.repository.BaseUserRepository;
 import com.ismhac.jspace.repository.EmployeeRepository;
@@ -40,13 +41,13 @@ public class AuthServiceImpl implements AuthService {
     @Transactional(rollbackFor = Exception.class)
     public AuthenticationResponse employeeRegisterWithEmailPassword(EmployeeRegisterRequest employeeRegisterRequest) {
         Optional<BaseUser> baseUser = baseUserRepository
-                .findByEmailAndRoleCode(employeeRegisterRequest.getEmail(), employeeRoleCode);
+                .findByEmailAndRoleCode(employeeRegisterRequest.getEmail(), RoleCode.EMPLOYEE);
 
         if(baseUser.isPresent()){
             throw new BadRequestException(Status.EMPLOYEE_EXIST_EMAIL);
         }else {
 
-            Role role = roleRepository.getRoleByCode(employeeRoleCode);
+            Role role = roleRepository.getRoleByCode(RoleCode.EMPLOYEE);
 
             BaseUser newBaseUser = BaseUser.builder()
                     .email(employeeRegisterRequest.getEmail())

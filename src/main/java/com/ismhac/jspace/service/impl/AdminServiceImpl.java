@@ -3,6 +3,7 @@ package com.ismhac.jspace.service.impl;
 import com.ismhac.jspace.model.Admin;
 import com.ismhac.jspace.model.BaseUser;
 import com.ismhac.jspace.model.Role;
+import com.ismhac.jspace.model.enums.RoleCode;
 import com.ismhac.jspace.model.primaryKey.AdminID;
 import com.ismhac.jspace.repository.AdminRepository;
 import com.ismhac.jspace.repository.BaseUserRepository;
@@ -40,41 +41,28 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void initRootAdmin() {
-        Optional<BaseUser> baseUser =  baseUserRepository.findByEmailAndRoleCode(adminEmail, adminRoleCode);
-        if(baseUser.isEmpty()){
+        BaseUser baseUser =  baseUserRepository.findByEmailAndRoleCode(adminEmail, RoleCode.ADMIN)
+                .orElseGet(()->{
+                    Role adminRole = roleRepository.getRoleByCode(RoleCode.SUPER_ADMIN);
 
-            Role adminRole =  roleRepository.getRoleByCode(adminRoleCode);
+                    BaseUser newBaseUser = BaseUser.builder()
+                            .email(adminEmail)
+                            .password(passwordEncoder.encode(adminPassword))
+                            .activated(true)
+                            .role(adminRole)
+                            .build();
+                    return baseUserRepository.save(newBaseUser);
+                });
 
-            BaseUser newBaseUser = BaseUser.builder()
-                    .email(adminEmail)
-                    .password(passwordEncoder.encode(adminPassword))
-                    .activated(true)
-                    .role(adminRole)
-                    .build();
+        AdminID adminID = AdminID.builder()
+                .baseUser(baseUser)
+                .build();
 
-            BaseUser saveBaseUser = baseUserRepository.save(newBaseUser);
+        Admin admin = Admin.builder()
+                .adminID(adminID)
+                .name("jspace")
+                .build();
 
-            AdminID adminID = AdminID.builder()
-                    .baseUser(saveBaseUser)
-                    .build();
-
-            Admin admin = Admin.builder()
-                    .adminID(adminID)
-                    .name("jspace")
-                    .build();
-
-            adminRepository.save(admin);
-        } else {
-            AdminID adminID = AdminID.builder()
-                    .baseUser(baseUser.get())
-                    .build();
-
-            Admin admin = Admin.builder()
-                    .adminID(adminID)
-                    .name("jspace")
-                    .build();
-
-            adminRepository.save(admin);
-        }
+        adminRepository.save(admin);
     }
 }

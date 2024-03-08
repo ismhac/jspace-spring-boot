@@ -1,5 +1,7 @@
 package com.ismhac.jspace.model;
 
+import com.ismhac.jspace.model.converter.RoleCodeConverter;
+import com.ismhac.jspace.model.enums.RoleCode;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,7 +19,8 @@ public class Role {
     private int id;
 
     @Column(name = "code", unique = true, nullable = false)
-    private String code;
+    @Convert(converter = RoleCodeConverter.class)
+    private RoleCode code;
 
     @Column(name = "name")
     private String name;

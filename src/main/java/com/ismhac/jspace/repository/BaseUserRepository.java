@@ -1,6 +1,7 @@
 package com.ismhac.jspace.repository;
 
 import com.ismhac.jspace.model.BaseUser;
+import com.ismhac.jspace.model.enums.RoleCode;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -16,7 +17,7 @@ public interface BaseUserRepository extends JpaRepository<BaseUser, Integer> {
             where t1.email = :email
                 and t2.code = :roleCode
             """)
-    Optional<BaseUser> findByEmailAndRoleCode(String email, String roleCode);
+    Optional<BaseUser> findByEmailAndRoleCode(String email, RoleCode roleCode);
 
     Optional<BaseUser> findBaseUserByEmail(String email);
 }
