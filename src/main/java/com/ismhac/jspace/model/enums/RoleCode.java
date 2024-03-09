@@ -2,13 +2,27 @@ package com.ismhac.jspace.model.enums;
 
 import com.ismhac.jspace.exception.BadRequestException;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
+
 
 public enum RoleCode {
-    SUPER_ADMIN("SU"),
-    ADMIN("AD"),
-    EMPLOYEE("EM"),
-    CANDIDATE("CA");
+    super_admin("su"),
+    admin("ad"),
+    employee("em"),
+    candidate("ca");
+
+
+    private static final Map<String, RoleCode> CODE_TO_ENUM = new HashMap<>();
+    private static final Map<String, RoleCode> NAME_TO_ENUM = new HashMap<>();
+
+    static {
+        for (RoleCode roleType : values()) {
+            CODE_TO_ENUM.put(roleType.code, roleType);
+            NAME_TO_ENUM.put(roleType.name(), roleType);
+        }
+    }
+
     private final String code;
 
     RoleCode(String code) {
@@ -19,26 +33,19 @@ public enum RoleCode {
         return code;
     }
 
-    private static final RoleCode[] VALUES;
-    static {
-        VALUES = values();
+    public static RoleCode resolve(String roleTypeCode) throws BadRequestException {
+        return resolveEnum(roleTypeCode, CODE_TO_ENUM);
     }
 
-    public static RoleCode resolve(String roleTypeCode){
-        for(RoleCode roleType : VALUES){
-            if(Objects.equals(roleType.code, roleTypeCode)){
-                return roleType;
-            }
-        }
-        throw new BadRequestException("No matching role type code constant for [" + roleTypeCode + "]");
+    public static RoleCode getValue(String roleTypeKey) throws BadRequestException {
+        return resolveEnum(roleTypeKey, NAME_TO_ENUM);
     }
 
-    public static RoleCode getValue(String roleTypeKey) {
-        for (RoleCode service: VALUES){
-            if(Objects.equals(service.toString(), roleTypeKey)){
-                return service;
-            }
+    private static RoleCode resolveEnum(String key, Map<String, RoleCode> map) throws BadRequestException {
+        RoleCode result = map.get(key);
+        if (result == null) {
+            throw new BadRequestException("No matching role type code constant for [" + key + "]");
         }
-        throw new BadRequestException("No matching role type code constant for [" + roleTypeKey + "]");
+        return result;
     }
 }

@@ -8,4 +8,6 @@ public interface RoleService {
     void initRoles();
 
     List<RoleDTO> getList();
+
+//    List<RoleDTO> getListWhenRegister();
 }

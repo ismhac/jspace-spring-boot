@@ -16,8 +16,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "tbl_base_user")
-public class BaseUser extends BaseEntity implements UserDetails{
+@Table(name = "tbl_user")
+public class User extends BaseEntity implements UserDetails{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,7 +38,7 @@ public class BaseUser extends BaseEntity implements UserDetails{
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(getRole().getCode().getCode()));
+        return List.of(new SimpleGrantedAuthority(getRole().getCode().toString()));
     }
 
     @Override

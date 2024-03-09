@@ -1,6 +1,6 @@
 package com.ismhac.jspace.model;
 
-import com.ismhac.jspace.model.primaryKey.EmployeeID;
+import com.ismhac.jspace.model.primaryKey.EmployeeId;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,7 +14,7 @@ import lombok.*;
 public class Employee extends BaseEntity{
 
     @EmbeddedId
-    private EmployeeID id;
+    private EmployeeId id;
 
     @Column(name = "name")
     private String name;

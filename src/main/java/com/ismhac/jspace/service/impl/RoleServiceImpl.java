@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -24,17 +25,15 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void initRoles() {
-        for (RoleCode roleCode : RoleCode.values()) {
-            if (!roleRepository.existsByCode(roleCode)) {
-                Role role = Role.builder()
-                        .code(roleCode)
-                        .name(roleCode.name().toLowerCase())
-                        .build();
-                roleRepository.save(role);
-            } else {
-                log.info("Already have the " + roleCode.name() + " role");
-            }
-        }
+        Arrays.stream(RoleCode.values())
+                .filter(roleCode -> !roleRepository.existsByCode(roleCode))
+                .forEach(roleCode -> {
+                    Role role = new Role();
+                    role.setCode(roleCode);
+                    role.setName(roleCode.name());
+                    roleRepository.save(role);
+                    log.info("Created the " + roleCode.name() + " role");
+                });
     }
 
     @Override
@@ -43,4 +42,11 @@ public class RoleServiceImpl implements RoleService {
         List<RoleDTO> roleDTOList = RoleMapper.INSTANCE.toDTOList(roleList);
         return roleDTOList;
     }
+
+//    @Override
+//    public List<RoleDTO> getListWhenRegister() {
+//        List<Role> roleList = roleRepository.getListRoleIsNotInAdmins(RoleCode.SUPER_ADMIN, RoleCode.ADMIN);
+//        List<RoleDTO> roleDTOList = RoleMapper.INSTANCE.toDTOList(roleList);
+//        return roleDTOList;
+//    }
 }

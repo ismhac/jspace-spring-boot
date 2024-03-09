@@ -13,10 +13,10 @@ public interface EmployeeMapper {
     EmployeeMapper INSTANCE = Mappers.getMapper(EmployeeMapper.class);
 
     @Mappings({
-            @Mapping(target = "id", source ="id.baseUser.id"),
-            @Mapping(target = "email", source = "id.baseUser.email"),
-            @Mapping(target = "isActivated", source = "id.baseUser.activated"),
-            @Mapping(target = "roleCode", source = "id.baseUser.role.code")
+            @Mapping(target = "id", source = "id.user.id"),
+            @Mapping(target = "email", source = "id.user.email"),
+            @Mapping(target = "activated", source = "id.user.activated"),
+            @Mapping(target = "roleCode", source = "id.user.role.code")
     })
     EmployeeDTO toDTO(Employee employee);
 }

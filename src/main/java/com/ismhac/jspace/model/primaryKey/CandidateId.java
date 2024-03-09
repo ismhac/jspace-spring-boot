@@ -1,6 +1,6 @@
 package com.ismhac.jspace.model.primaryKey;
 
-import com.ismhac.jspace.model.BaseUser;
+import com.ismhac.jspace.model.User;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
@@ -15,9 +15,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Embeddable
 @EqualsAndHashCode
-public class AdminID implements Serializable {
-
+public class CandidateId implements Serializable {
     @OneToOne
-    @JoinColumn(name = "base_user_id", referencedColumnName = "id", nullable = false)
-    private BaseUser baseUser;
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    private User user;
 }

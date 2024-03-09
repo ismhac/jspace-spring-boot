@@ -2,7 +2,6 @@ package com.ismhac.jspace.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.boot.autoconfigure.web.WebProperties;
 
 import java.time.Instant;
 
@@ -21,7 +20,7 @@ public class RefreshToken {
 
     @ManyToOne
     @JoinColumn(name = "base_user_id", referencedColumnName = "id", nullable = false)
-    private BaseUser baseUser;
+    private User user;
 
     @Column(name = "token", nullable = false)
     private String token;
