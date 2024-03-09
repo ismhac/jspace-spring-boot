@@ -5,7 +5,6 @@ import lombok.*;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmployeeDTO {
@@ -17,7 +16,7 @@ public class EmployeeDTO {
     private String email;
 
     @JsonProperty("is_activated")
-    private boolean isActivated;
+    private boolean activated;
 
     @JsonProperty("role_code")
     private String roleCode;

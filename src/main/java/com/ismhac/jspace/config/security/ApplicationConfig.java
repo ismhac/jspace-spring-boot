@@ -1,6 +1,7 @@
 package com.ismhac.jspace.config.security;
 
-import com.ismhac.jspace.repository.BaseUserRepository;
+
+import com.ismhac.jspace.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,11 +23,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
-    private final BaseUserRepository baseUserRepository;
+    private final UserRepository userRepository;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> baseUserRepository.findBaseUserByEmail(username)
+        return username -> userRepository.findUserByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("user not found"));
     }
 

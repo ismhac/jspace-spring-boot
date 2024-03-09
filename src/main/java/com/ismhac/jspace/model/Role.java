@@ -1,5 +1,7 @@
 package com.ismhac.jspace.model;
 
+import com.ismhac.jspace.model.converter.RoleCodeConverter;
+import com.ismhac.jspace.model.enums.RoleCode;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,14 +12,15 @@ import lombok.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "tbl_role")
-public class Role {
+public class Role extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(name = "code", unique = true, nullable = false)
-    private String code;
+    @Convert(converter = RoleCodeConverter.class)
+    private RoleCode code;
 
     @Column(name = "name")
     private String name;

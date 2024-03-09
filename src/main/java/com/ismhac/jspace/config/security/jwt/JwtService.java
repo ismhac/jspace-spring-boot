@@ -1,6 +1,6 @@
 package com.ismhac.jspace.config.security.jwt;
 
-import com.ismhac.jspace.model.BaseUser;
+import com.ismhac.jspace.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -22,8 +22,11 @@ public class JwtService {
     @Value("${jwt.secret-key}")
     private String secretKey;
 
-    @Value("${jwt.jwt.expiration}")
-    private long expiration;
+    @Value("${jwt.token.expiration}")
+    private long tokenExpiration;
+
+    @Value("${jwt.refresh.token.exppiration}")
+    private long refreshTokenExpiration;
 
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -41,15 +44,24 @@ public class JwtService {
     public String generateToken(
             Map<String, Object> extractClaims,
             UserDetails userDetails) {
-        BaseUser baseUser = (BaseUser) userDetails;
-        extractClaims.put("role_id", baseUser.getRole().getId());
+        User user = (User) userDetails;
+        extractClaims.put("role_id", user.getRole().getId());
         extractClaims.put("role_code", userDetails.getAuthorities());
         return Jwts
                 .builder()
                 .setClaims(extractClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .setExpiration(new Date(System.currentTimeMillis() + tokenExpiration))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(){
+        return Jwts
+                .builder()
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis()+refreshTokenExpiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
