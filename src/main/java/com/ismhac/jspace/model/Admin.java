@@ -5,6 +5,7 @@ import com.ismhac.jspace.model.enums.AdminType;
 import com.ismhac.jspace.model.primaryKey.AdminId;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
@@ -13,16 +14,16 @@ import lombok.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "tbl_admin")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Admin extends BaseEntity {
 
     @EmbeddedId
-    private AdminId id;
+    AdminId id;
 
     @Convert(converter = AdminTypeConverter.class)
     @Column(name = "type", nullable = false)
-    private AdminType type;
+    AdminType type;
 
     @Column(name = "name")
-    private String name;
-
+    String name;
 }

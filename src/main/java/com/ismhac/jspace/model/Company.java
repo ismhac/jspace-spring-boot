@@ -2,6 +2,7 @@ package com.ismhac.jspace.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
@@ -10,21 +11,22 @@ import lombok.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "tbl_company")
-public class Company extends BaseEntity{
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class Company extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int  id;
+    int id;
 
     @Column(name = "name", unique = true)
-    private String name;
+    String name;
 
     @Column(name = "background")
-    private String background;
+    String background;
 
     @Column(name = "logo")
-    private String logo;
+    String logo;
 
     @Column(name = "address")
-    private String address;
+    String address;
 }

@@ -12,14 +12,5 @@ import java.util.Optional;
 
 @Repository
 public interface AdminRepository extends JpaRepository<Admin, AdminId> {
-    @Query("""
-            select admin
-            from Admin admin
-            join User user on admin.id.user.id = user.id
-            join Role role on user.role.id = role.id
-            where user.email = :email
-                and admin.type = :adminType
-                and role.code = :roleCode
-            """)
-    Optional<Admin> findAdminByEmailAndAdminTypeAndRoleCode(String email, AdminType adminType, RoleCode roleCode);
+    Optional<Admin> findAdminById(AdminId adminId);
 }

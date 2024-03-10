@@ -3,6 +3,7 @@ package com.ismhac.jspace.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,24 +18,23 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "tbl_user")
-public class User extends BaseEntity implements UserDetails{
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class User extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    int id;
 
-    @Column(name = "email", unique = true)
-    private String email;
+    @Column(unique = true)
+    String email;
 
-    @Column(name = "password")
-    private String password;
+    String password;
 
-    @Column(name = "activated")
-    private boolean activated;
+    boolean activated;
 
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
-    private Role role;
+    Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

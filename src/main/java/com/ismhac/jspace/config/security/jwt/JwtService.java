@@ -45,8 +45,7 @@ public class JwtService {
             Map<String, Object> extractClaims,
             UserDetails userDetails) {
         User user = (User) userDetails;
-        extractClaims.put("role_id", user.getRole().getId());
-        extractClaims.put("role_code", userDetails.getAuthorities());
+        extractClaims.put("role_code", user.getRole().getCode());
         return Jwts
                 .builder()
                 .setClaims(extractClaims)
@@ -69,6 +68,10 @@ public class JwtService {
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String email = extractEmail(token);
         return (email.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    }
+
+    public boolean isValidRefreshToken(String token){
+        return (!isTokenExpired(token));
     }
 
     private boolean isTokenExpired(String token) {

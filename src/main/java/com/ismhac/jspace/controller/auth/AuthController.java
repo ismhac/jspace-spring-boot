@@ -1,15 +1,24 @@
 package com.ismhac.jspace.controller.auth;
 
 import com.ismhac.jspace.dto.auth.AuthenticationResponse;
-import com.ismhac.jspace.dto.employee.EmployeeRegisterRequest;
-import com.ismhac.jspace.service.auth.AuthService;
+import com.ismhac.jspace.dto.auth.LoginRequest;
+import com.ismhac.jspace.dto.auth.LoginResponse;
+import com.ismhac.jspace.dto.auth.UserRegisterRequest;
+import com.ismhac.jspace.dto.common.ApiResponse;
+import com.ismhac.jspace.dto.role.RoleDto;
+import com.ismhac.jspace.dto.user.UserDto;
+import com.ismhac.jspace.exception.BadRequestException;
+import com.ismhac.jspace.exception.ErrorCode;
+import com.ismhac.jspace.model.enums.RoleCode;
+import com.ismhac.jspace.service.common.AuthService;
+import com.ismhac.jspace.service.common.TokenService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -17,12 +26,45 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-    @PostMapping("/employees/register")
-    public ResponseEntity<AuthenticationResponse> employeeRegisterWithEmailPassword(
-            @RequestBody EmployeeRegisterRequest employeeRegisterRequest
-    ){
-        AuthenticationResponse authenticationResponse = authService
-                .employeeRegisterWithEmailPassword(employeeRegisterRequest);
-        return new ResponseEntity<>(authenticationResponse, HttpStatus.OK);
+    private final TokenService tokenService;
+
+
+    @GetMapping("/roles")
+    public ApiResponse<List<RoleDto>> getRolesForRegister(){
+        List<RoleDto> roleDtoList = authService.getRolesForRegister();
+        ApiResponse<List<RoleDto>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(roleDtoList);
+        return apiResponse;
+    }
+
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<UserDto> register(
+            @RequestParam("role") @Valid String roleCode,
+            @RequestBody @Valid UserRegisterRequest registerRequest){
+        UserDto userDto = authService.register(roleCode, registerRequest);
+        ApiResponse<UserDto> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(userDto);
+        return apiResponse;
+    }
+
+    @PostMapping("/login")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest){
+        return ApiResponse.<LoginResponse>builder()
+                .result(authService.login(loginRequest))
+                .build();
+    }
+
+    @PostMapping("/refresh-token")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ApiResponse<AuthenticationResponse> refreshAccessToken(
+            @RequestHeader("refresh_token") String refreshToken){
+        if(refreshToken == null || refreshToken.isBlank()){
+            throw new BadRequestException(ErrorCode.MISSING_HEADER_VALUE);
+        }
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(tokenService.refreshAccessToken(refreshToken))
+                .build();
     }
 }
