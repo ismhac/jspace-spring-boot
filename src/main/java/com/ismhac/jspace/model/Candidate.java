@@ -3,6 +3,7 @@ package com.ismhac.jspace.model;
 import com.ismhac.jspace.model.primaryKey.CandidateId;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
@@ -11,17 +12,18 @@ import lombok.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "tbl_candidate")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Candidate extends BaseEntity{
 
     @EmbeddedId
-    private CandidateId id;
+    CandidateId id;
 
     @Column(name = "name")
-    private String name;
+    String name;
 
     @Column(name = "avatar")
-    private String avatar;
+    String avatar;
 
     @Column(name = "phone_number")
-    private String phoneNumber;
+    String phoneNumber;
 }

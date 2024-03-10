@@ -1,5 +1,7 @@
 package com.ismhac.jspace.service.impl;
 
+import com.ismhac.jspace.exception.ErrorCode;
+import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.model.Admin;
 import com.ismhac.jspace.model.Role;
 import com.ismhac.jspace.model.User;
@@ -10,7 +12,11 @@ import com.ismhac.jspace.repository.AdminRepository;
 import com.ismhac.jspace.repository.RoleRepository;
 import com.ismhac.jspace.repository.UserRepository;
 import com.ismhac.jspace.service.AdminService;
+import jakarta.persistence.criteria.Root;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.aspectj.weaver.NewConstructorTypeMunger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,28 +43,37 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void initRootAdmin() {
-        Admin admin = adminRepository
-                .findAdminByEmailAndAdminTypeAndRoleCode(superAdminEmail, AdminType.super_admin, RoleCode.super_admin)
-                .orElseGet(() -> {
-                    Role role = roleRepository.getRoleByCode(RoleCode.super_admin).get();
+        Role superAdminRole = roleRepository.findRoleByCode(RoleCode.SUPER_ADMIN).orElseGet(()->{
+           Role newRole = new Role();
 
-                    User user = new User();
-                    user.setEmail(superAdminEmail);
-                    user.setPassword(passwordEncoder.encode(superAdminPassword));
-                    user.setActivated(true);
-                    user.setRole(role);
+           newRole.setCode(RoleCode.SUPER_ADMIN);
+           newRole.setName(RoleCode.SUPER_ADMIN.getName());
 
-                    User savedUser = userRepository.save(user);
+           return roleRepository.save(newRole);
+        });
 
-                    AdminId adminId = AdminId.builder()
-                            .user(savedUser)
-                            .build();
+        User user = userRepository.findUserByEmail(superAdminEmail).orElseGet(()->{
+            User newUser = new User();
 
-                    Admin newAdmin = new Admin();
-                    newAdmin.setId(adminId);
-                    newAdmin.setType(AdminType.super_admin);
+            newUser.setEmail(superAdminEmail);
+            newUser.setPassword(passwordEncoder.encode(superAdminPassword));
+            newUser.setActivated(true);
+            newUser.setRole(superAdminRole);
 
-                    return adminRepository.save(newAdmin);
-                });
+            return userRepository.save(newUser);
+        });
+
+        AdminId adminId = AdminId.builder()
+                .user(user)
+                .build();
+
+        Admin admin = adminRepository.findAdminById(adminId).orElseGet(()->{
+           Admin newAdmin = new Admin();
+
+           newAdmin.setId(adminId);
+           newAdmin.setType(AdminType.ROOT);
+
+           return adminRepository.save(newAdmin);
+        });
     }
 }

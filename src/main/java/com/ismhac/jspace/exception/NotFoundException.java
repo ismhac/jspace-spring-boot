@@ -1,12 +1,18 @@
 package com.ismhac.jspace.exception;
 
-import com.ismhac.jspace.util.response.ApiError;
-import com.ismhac.jspace.util.response.Status;
-import lombok.Getter;
+public class NotFoundException extends RuntimeException{
+    private ErrorCode errorCode;
 
-@Getter
-public class NotFoundException extends Exception {
-    public NotFoundException(String message){
-        super(message);
+    public NotFoundException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.errorCode = errorCode;
+    }
+
+    public ErrorCode getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(ErrorCode errorCode) {
+        this.errorCode = errorCode;
     }
 }

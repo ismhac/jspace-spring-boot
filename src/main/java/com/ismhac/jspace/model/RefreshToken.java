@@ -2,8 +2,8 @@ package com.ismhac.jspace.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
-import java.time.Instant;
 
 @Getter
 @Setter
@@ -12,19 +12,17 @@ import java.time.Instant;
 @AllArgsConstructor
 @Entity
 @Table(name = "tbl_refresh_token")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class RefreshToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    int id;
 
     @ManyToOne
-    @JoinColumn(name = "base_user_id", referencedColumnName = "id", nullable = false)
-    private User user;
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    User user;
 
     @Column(name = "token", nullable = false)
-    private String token;
-
-    @Column(name = "expiry_date", nullable = false)
-    private Instant expiryDate;
+    String token;
 }
