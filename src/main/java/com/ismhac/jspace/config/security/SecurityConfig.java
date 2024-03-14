@@ -27,15 +27,20 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("/user", true)
+                )
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/api/v1/auth/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated()
                 )
-                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                ;
+
         return http.build();
     }
 }

@@ -20,7 +20,9 @@ public enum ErrorCode {
 
     REFRESH_TOKEN_EXPIRE(1010, "Token Expire"),
 
-    MISSING_HEADER_VALUE(1011, "Missing header value");
+    MISSING_HEADER_VALUE(1011, "Missing header value"),
+
+    WRONG_USERNAME_OR_PASSWORD(1012, "wrong username or password")
     ;
     private final int code;
     private final String message;

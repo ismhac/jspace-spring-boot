@@ -26,8 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
 
-    @Value("${init.admin.email}")
-    private String superAdminEmail;
+    @Value("${init.admin.username}")
+    private String superAdminUsername;
 
     @Value("${init.admin.password}")
     private String superAdminPassword;
@@ -52,10 +52,10 @@ public class AdminServiceImpl implements AdminService {
            return roleRepository.save(newRole);
         });
 
-        User user = userRepository.findUserByEmail(superAdminEmail).orElseGet(()->{
+        User user = userRepository.findUserByUsername(superAdminUsername).orElseGet(()->{
             User newUser = new User();
 
-            newUser.setEmail(superAdminEmail);
+            newUser.setUsername(superAdminUsername);
             newUser.setPassword(passwordEncoder.encode(superAdminPassword));
             newUser.setActivated(true);
             newUser.setRole(superAdminRole);

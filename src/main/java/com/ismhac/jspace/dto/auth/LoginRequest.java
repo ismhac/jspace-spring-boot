@@ -13,8 +13,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoginRequest {
 
-    @Email(message = "NOT_EMAIL_FORMAT")
-    String email;
+    String username;
 
     @NotBlank(message = "PASSWORD_IS_BLANK")
     @Size(min = 8, max = 20, message = "INVALID_PASSWORD_LENGTH")

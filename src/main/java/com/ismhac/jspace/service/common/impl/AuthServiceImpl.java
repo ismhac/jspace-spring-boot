@@ -8,6 +8,7 @@ import com.ismhac.jspace.dto.user.UserDto;
 import com.ismhac.jspace.exception.BadRequestException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
+import com.ismhac.jspace.exception.UnauthorizedException;
 import com.ismhac.jspace.mapper.RoleMapper;
 import com.ismhac.jspace.mapper.UserMapper;
 import com.ismhac.jspace.model.Candidate;
@@ -28,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -59,24 +61,28 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String accessToken = tokenService.generateAccessToken(userDetails);
-        String refreshToken = tokenService.generateRefreshToken(userDetails);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String accessToken = tokenService.generateAccessToken(userDetails);
+            String refreshToken = tokenService.generateRefreshToken(userDetails);
 
-        log.info(String.format("User %s login success", userDetails.getUsername()));
-        return LoginResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+            log.info(String.format("User %s login success", userDetails.getUsername()));
+            return LoginResponse.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .build();
+        } catch (AuthenticationException exception) {
+            throw new UnauthorizedException(ErrorCode.WRONG_USERNAME_OR_PASSWORD);
+        }
     }
 
     @Override
     public UserDto register(String roleCode, UserRegisterRequest registerRequest) {
-        boolean userExisted = userRepository.existsByEmail(registerRequest.getEmail());
+        boolean userExisted = userRepository.existsByUsername(registerRequest.getUsername());
         if (userExisted) {
             throw new BadRequestException(ErrorCode.USER_EXISTED);
         }
@@ -98,7 +104,7 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ROLE));
 
         User user = User.builder()
-                .email(registerRequest.getEmail())
+                .username(registerRequest.getUsername())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .activated(true)
                 .role(role)
@@ -125,7 +131,7 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ROLE));
 
         User user = User.builder()
-                .email(registerRequest.getEmail())
+                .username(registerRequest.getUsername())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .activated(true)
                 .role(role)
