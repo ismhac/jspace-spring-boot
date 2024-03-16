@@ -1,9 +1,9 @@
 package com.ismhac.jspace.exception;
 
-public class UnauthorizedException extends RuntimeException{
+public class AppException extends RuntimeException{
     private ErrorCode errorCode;
 
-    public UnauthorizedException(ErrorCode errorCode) {
+    public AppException(ErrorCode errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }

@@ -9,18 +9,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-@RestController
-@Slf4j
-//@RequestMapping("")
-public class TestController {
-    @GetMapping("/user")
-    public Map<String, Object> getUser(@AuthenticationPrincipal OAuth2User oAuth2User) {
-        log.info("{}",oAuth2User);
-        return oAuth2User.getAttributes();
-    }
-
+//@RestController
+//@Slf4j
+////@RequestMapping("")
+//public class TestController {
 //    @GetMapping("/user")
-//    public String getUser(@AuthenticationPrincipal OAuth2User oAuth2User) {
-//        return "hello";
+//    public Map<String, Object> getUser(@AuthenticationPrincipal OAuth2User oAuth2User) {
+//        log.info("{}",oAuth2User);
+//        return oAuth2User.getAttributes();
 //    }
-}
+//}

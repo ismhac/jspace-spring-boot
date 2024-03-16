@@ -21,5 +21,5 @@ public class OAuth2Info {
 
     String name;
     String email;
-    String imageUrl;
+    String picture;
 }

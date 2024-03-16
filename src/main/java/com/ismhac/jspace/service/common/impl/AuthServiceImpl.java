@@ -1,42 +1,29 @@
 package com.ismhac.jspace.service.common.impl;
 
-import com.ismhac.jspace.dto.auth.LoginRequest;
-import com.ismhac.jspace.dto.auth.LoginResponse;
-import com.ismhac.jspace.dto.auth.UserRegisterRequest;
+import com.ismhac.jspace.config.security.jwt.JwtService;
+import com.ismhac.jspace.dto.auth.*;
 import com.ismhac.jspace.dto.role.RoleDto;
 import com.ismhac.jspace.dto.user.UserDto;
-import com.ismhac.jspace.exception.BadRequestException;
-import com.ismhac.jspace.exception.ErrorCode;
-import com.ismhac.jspace.exception.NotFoundException;
-import com.ismhac.jspace.exception.UnauthorizedException;
+import com.ismhac.jspace.exception.*;
 import com.ismhac.jspace.mapper.RoleMapper;
 import com.ismhac.jspace.mapper.UserMapper;
-import com.ismhac.jspace.model.Candidate;
-import com.ismhac.jspace.model.Employee;
-import com.ismhac.jspace.model.Role;
-import com.ismhac.jspace.model.User;
+import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.enums.RoleCode;
 import com.ismhac.jspace.model.primaryKey.CandidateId;
 import com.ismhac.jspace.model.primaryKey.EmployeeId;
-import com.ismhac.jspace.repository.CandidateRepository;
-import com.ismhac.jspace.repository.EmployeeRepository;
-import com.ismhac.jspace.repository.RoleRepository;
-import com.ismhac.jspace.repository.UserRepository;
+import com.ismhac.jspace.repository.*;
 import com.ismhac.jspace.service.common.AuthService;
-import com.ismhac.jspace.service.common.TokenService;
+import com.ismhac.jspace.util.HashUtils;
+import com.nimbusds.jose.JOSEException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -49,9 +36,14 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final EmployeeRepository employeeRepository;
     private final CandidateRepository candidateRepository;
-    private final AuthenticationManager authenticationManager;
-    private final TokenService tokenService;
 
+    private final RefreshTokenRepository refreshTokenRepository;
+
+    private final JwtService jwtService;
+
+    private final HashUtils hashUtils;
+
+    /* */
     @Override
     public List<RoleDto> getRolesForRegister() {
         List<Role> roleList = roleRepository.findNonAdminRoles(RoleCode.SUPER_ADMIN, RoleCode.ADMIN);
@@ -59,36 +51,17 @@ public class AuthServiceImpl implements AuthService {
         return roleMapper.toRoleDtoList(roleList);
     }
 
+    /* */
     @Override
-    public LoginResponse login(LoginRequest loginRequest) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String accessToken = tokenService.generateAccessToken(userDetails);
-            String refreshToken = tokenService.generateRefreshToken(userDetails);
-
-            log.info(String.format("User %s login success", userDetails.getUsername()));
-            return LoginResponse.builder()
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken)
-                    .build();
-        } catch (AuthenticationException exception) {
-            throw new UnauthorizedException(ErrorCode.WRONG_USERNAME_OR_PASSWORD);
-        }
-    }
-
-    @Override
+    @Transactional(rollbackFor = Exception.class)
     public UserDto register(String roleCode, UserRegisterRequest registerRequest) {
         boolean userExisted = userRepository.existsByUsername(registerRequest.getUsername());
         if (userExisted) {
-            throw new BadRequestException(ErrorCode.USER_EXISTED);
+            throw new AppException(ErrorCode.USER_EXISTED);
         }
 
         if (!roleCode.equals(RoleCode.EMPLOYEE.toString()) && !roleCode.equals(RoleCode.CANDIDATE.toString())) {
-            throw new BadRequestException(ErrorCode.INVALID_ROLE_REGISTER);
+            throw new AppException(ErrorCode.INVALID_ROLE_REGISTER);
         } else {
             if (RoleCode.EMPLOYEE.equals(roleCode)) {
                 return saveEmployee(registerRequest);
@@ -98,6 +71,55 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    /* */
+    @Override
+    public AuthenticationResponse<Object> authentication(LoginRequest loginRequest) {
+        var user = userRepository.findUserByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        boolean authenticated = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
+
+        if (!authenticated) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        var accessToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
+
+        return AuthenticationResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    /* */
+    @Override
+    public IntrospectResponse introspect(IntrospectRequest introspectRequest)
+            throws ParseException, JOSEException {
+        boolean valid = jwtService.introspect(introspectRequest.getToken());
+        return IntrospectResponse.builder()
+                .valid(valid)
+                .build();
+    }
+
+    /* */
+    @Override
+    public AuthenticationResponse<Object> refreshAccessToken(String token)
+            throws ParseException, JOSEException {
+
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(hashUtils.hmacSHA512(token.trim()))
+                .orElseThrow(()-> new AppException(ErrorCode.INVALID_TOKEN));
+        if(!jwtService.introspect(token)){
+            throw new BadRequestException(ErrorCode.INVALID_TOKEN);
+        }
+        User user = refreshToken.getUser();
+        String accessToken = jwtService.generateToken(user);
+
+        return AuthenticationResponse.builder()
+                .accessToken(accessToken)
+                .build();
+    }
+
+    /* */
     @Transactional(rollbackFor = Exception.class)
     protected UserDto saveEmployee(UserRegisterRequest registerRequest) {
         Role role = roleRepository.findRoleByCode(RoleCode.EMPLOYEE)
@@ -125,6 +147,7 @@ public class AuthServiceImpl implements AuthService {
         return userMapper.toUserDto(savedUser);
     }
 
+    /* */
     @Transactional(rollbackFor = Exception.class)
     protected UserDto saveCandidate(UserRegisterRequest registerRequest) {
         Role role = roleRepository.findRoleByCode(RoleCode.CANDIDATE)

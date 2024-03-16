@@ -10,24 +10,28 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.util.Objects;
+
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-//    @ExceptionHandler(value = Exception.class)
-//    ResponseEntity<ApiResponse> handlingException(RuntimeException exception) {
-//        ApiResponse apiResponse = new ApiResponse();
-//
-//        apiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
-//        apiResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
-//        return ResponseEntity.badRequest().body(apiResponse);
-//    }
-
-    @ExceptionHandler(value = BadRequestException.class)
-    ResponseEntity<ApiResponse> handlingBadRequestException(BadRequestException exception) {
+    @ExceptionHandler(value = AppException.class)
+    ResponseEntity<ApiResponse<Object>> handlingAppException(AppException exception) {
         ErrorCode errorCode = exception.getErrorCode();
 
-        ApiResponse apiResponse = new ApiResponse();
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
+        apiResponse.setCode(errorCode.getCode());
+        apiResponse.setMessage(errorCode.getMessage());
+
+        return ResponseEntity.badRequest().body(apiResponse);
+    }
+
+    @ExceptionHandler(value = BadRequestException.class)
+    ResponseEntity<ApiResponse<Object>> handlingBadRequestException(BadRequestException exception) {
+        ErrorCode errorCode = exception.getErrorCode();
+
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
         apiResponse.setCode(errorCode.getCode());
         apiResponse.setMessage(errorCode.getMessage());
 
@@ -35,10 +39,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = NotFoundException.class)
-    ResponseEntity<ApiResponse> handlingNotFoundException(NotFoundException exception) {
+    ResponseEntity<ApiResponse<Object>> handlingNotFoundException(NotFoundException exception) {
         ErrorCode errorCode = exception.getErrorCode();
 
-        ApiResponse apiResponse = new ApiResponse();
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
         apiResponse.setCode(errorCode.getCode());
         apiResponse.setMessage(errorCode.getMessage());
 
@@ -46,8 +50,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    ResponseEntity<ApiResponse> handlingMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
-        String enumKey = exception.getFieldError().getDefaultMessage();
+    ResponseEntity<ApiResponse<Object>> handlingMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+        String enumKey = Objects.requireNonNull(exception.getFieldError()).getDefaultMessage();
         ErrorCode errorCode = ErrorCode.INVALID_KEY;
 
         try {
@@ -56,21 +60,10 @@ public class GlobalExceptionHandler {
 
         }
 
-        ApiResponse apiResponse = new ApiResponse();
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
         apiResponse.setCode(errorCode.getCode());
         apiResponse.setMessage(errorCode.getMessage());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiResponse);
-    }
-
-    @ExceptionHandler(value = UnauthorizedException.class)
-    ResponseEntity<ApiResponse> handlingUnauthorizedException(UnauthorizedException exception) {
-        ErrorCode errorCode = exception.getErrorCode();
-
-        ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setCode(errorCode.getCode());
-        apiResponse.setMessage(exception.getMessage());
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiResponse);
     }
 }
