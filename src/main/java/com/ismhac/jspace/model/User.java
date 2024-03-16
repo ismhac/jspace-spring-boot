@@ -26,9 +26,12 @@ public class User extends BaseEntity implements UserDetails {
     int id;
 
     @Column(unique = true)
-    String email;
+    String username;
 
     String password;
+
+    @Column(unique = true)
+    String email;
 
     boolean activated;
 
@@ -43,7 +46,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return getEmail();
+        return username;
     }
 
     @Override
@@ -63,6 +66,6 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return isActivated();
+        return activated;
     }
 }

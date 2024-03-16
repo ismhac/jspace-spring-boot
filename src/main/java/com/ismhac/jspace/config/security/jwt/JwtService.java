@@ -1,98 +1,98 @@
 package com.ismhac.jspace.config.security.jwt;
 
+import com.ismhac.jspace.model.RefreshToken;
 import com.ismhac.jspace.model.User;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import com.ismhac.jspace.repository.RefreshTokenRepository;
+import com.ismhac.jspace.util.HashUtils;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
+import java.text.ParseException;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class JwtService {
 
+    @NonFinal
     @Value("${jwt.secret-key}")
-    private String secretKey;
+    protected String SECRET_KEY;
 
     @Value("${jwt.token.expiration}")
-    private long tokenExpiration;
+    private long TOKEN_EXPIRATION;
 
     @Value("${jwt.refresh.token.exppiration}")
-    private long refreshTokenExpiration;
+    private long REFRESH_TOKEN_EXPIRATION;
 
-    public String extractEmail(String token) {
-        return extractClaim(token, Claims::getSubject);
+    private final HashUtils hashUtils;
+    private final RefreshTokenRepository refreshTokenRepository;
+
+    public String generateToken(User user) {
+        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
+
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(user.getUsername())
+                .issuer("jspace")
+                .issueTime(new Date(System.currentTimeMillis()))
+                .expirationTime(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION))
+                .claim("role", user.getRole().getCode())
+                .build();
+
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
+        JWSObject jwsObject = new JWSObject(jwsHeader, payload);
+
+        try {
+            jwsObject.sign(new MACSigner(SECRET_KEY.getBytes()));
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            log.error("can not create token", e);
+            throw new RuntimeException(e);
+        }
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
+    public String generateRefreshToken(User user){
+        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
+
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .issuer("jspace")
+                .issueTime(new Date(System.currentTimeMillis()))
+                .expirationTime(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
+                .build();
+
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
+        JWSObject jwsObject = new JWSObject(jwsHeader, payload);
+
+        try {
+            jwsObject.sign(new MACSigner(SECRET_KEY.getBytes()));
+
+            RefreshToken refreshToken = RefreshToken.builder()
+                    .user(user)
+                    .token(hashUtils.hmacSHA512(jwsObject.serialize().trim()))
+                    .build();
+            refreshTokenRepository.save(refreshToken);
+
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            log.error("can not create token", e);
+            throw new RuntimeException(e);
+        }
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
-    }
-
-    public String generateToken(
-            Map<String, Object> extractClaims,
-            UserDetails userDetails) {
-        User user = (User) userDetails;
-        extractClaims.put("role_code", user.getRole().getCode());
-        return Jwts
-                .builder()
-                .setClaims(extractClaims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + tokenExpiration))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
-
-    public String generateRefreshToken(){
-        return Jwts
-                .builder()
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+refreshTokenExpiration))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
-
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String email = extractEmail(token);
-        return (email.equals(userDetails.getUsername())) && !isTokenExpired(token);
-    }
-
-    public boolean isValidRefreshToken(String token){
-        return (!isTokenExpired(token));
-    }
-
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
-    private Claims extractAllClaims(String token) {
-        return Jwts
-                .parserBuilder()
-                .setSigningKey(getSignInKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-    }
-
-    private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
+    public boolean introspect(String token) throws JOSEException, ParseException {
+        JWSVerifier jwsVerifier = new MACVerifier(SECRET_KEY.getBytes());
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        return signedJWT.verify(jwsVerifier) && expiryTime.after(new Date());
     }
 }

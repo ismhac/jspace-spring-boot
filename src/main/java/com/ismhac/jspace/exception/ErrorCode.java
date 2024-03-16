@@ -6,6 +6,12 @@ public enum ErrorCode {
     NOT_FOUND_SUPPER_ADMIN(1002, "Not found super admin"),
     USER_EXISTED(1003, "User is existed"),
 
+    USER_NOT_EXISTED(1004, "user not existed"),
+
+    UNAUTHENTICATED(1004, "unauthenticated"),
+
+    INVALID_TOKEN(1004, "Invalid token"),
+
     NOT_FOUND_ROLE(1004, "Not found role"),
 
     NOT_EMAIL_FORMAT(1005, "Not email format"),
@@ -14,13 +20,15 @@ public enum ErrorCode {
 
     INVALID_PASSWORD_LENGTH(1007, "Password length must be from 8 to 20 characters"),
 
-    INVALID_ROLE_REGISTER(1008, "Can only register with employee and candidate role"),
+    INVALID_ROLE_REGISTER(1008, "Can only register with employee or candidate role"),
 
     NOT_FOUND_REFRESH_TOKEN(1009, "Not found refresh token"),
 
     REFRESH_TOKEN_EXPIRE(1010, "Token Expire"),
 
-    MISSING_HEADER_VALUE(1011, "Missing header value");
+    MISSING_HEADER_VALUE(1011, "Missing header value"),
+
+    WRONG_USERNAME_OR_PASSWORD(1012, "wrong username or password")
     ;
     private final int code;
     private final String message;
