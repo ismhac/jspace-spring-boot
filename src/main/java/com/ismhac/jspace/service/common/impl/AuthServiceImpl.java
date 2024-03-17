@@ -63,7 +63,7 @@ public class AuthServiceImpl implements AuthService {
         if (!roleCode.equals(RoleCode.EMPLOYEE.toString()) && !roleCode.equals(RoleCode.CANDIDATE.toString())) {
             throw new AppException(ErrorCode.INVALID_ROLE_REGISTER);
         } else {
-            if (RoleCode.EMPLOYEE.equals(roleCode)) {
+            if (RoleCode.EMPLOYEE.getName().equalsIgnoreCase(roleCode)) {
                 return saveEmployee(registerRequest);
             } else {
                 return saveCandidate(registerRequest);

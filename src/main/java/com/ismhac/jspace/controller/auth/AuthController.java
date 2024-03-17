@@ -9,19 +9,19 @@ import com.ismhac.jspace.exception.BadRequestException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.service.common.AuthService;
 import com.nimbusds.jose.JOSEException;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.net.URI;
 import java.text.ParseException;
 import java.util.List;
 
@@ -30,10 +30,10 @@ import java.util.List;
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Authentication")
 public class AuthController {
 
     private final AuthService authService;
-//    private final OAuth2Service oAuth2Service;
 
     /* */
     @GetMapping("/roles")
@@ -49,7 +49,9 @@ public class AuthController {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<UserDto> register(
+            @Schema(name = "role", allowableValues = {"EMPLOYEE", "CANDIDATE"})
             @RequestParam("role") @Valid String roleCode,
+            
             @RequestBody @Valid UserRegisterRequest registerRequest) {
         UserDto userDto = authService.register(roleCode, registerRequest);
         ApiResponse<UserDto> apiResponse = new ApiResponse<>();
@@ -106,6 +108,6 @@ public class AuthController {
 
         String role = (String) session.getAttribute("role");
         log.info("{}", oAuth2User);
-        return  oAuth2User;
+        return oAuth2User;
     }
 }

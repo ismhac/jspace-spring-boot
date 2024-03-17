@@ -44,7 +44,7 @@ public class JwtService {
                 .issuer("jspace")
                 .issueTime(new Date(System.currentTimeMillis()))
                 .expirationTime(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION))
-                .claim("role", user.getRole().getCode())
+                .claim("scope", user.getRole().getCode())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
