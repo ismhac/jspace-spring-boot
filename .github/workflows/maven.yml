@@ -7,10 +7,6 @@ on:
   pull_request:
     branches:
       - 'develop'
-  workflow_run:
-    workflows: ["CI/CD Pipeline"]
-    types:
-      - completed
 
 env:
   SERVICE_NAME: "jspace-service"
