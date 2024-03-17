@@ -32,7 +32,12 @@ public class SecurityConfig {
     protected String SECRET_KEY;
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/auth/**"
+            "/api/v1/auth/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/api-docs/**",
+            "/swagger-ui.html",
+            "/favicon.ico"
     };
 
     @Bean
@@ -67,6 +72,11 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain oauth2LoginSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable);
         http.oauth2Login(oauth2 -> oauth2
                 .defaultSuccessUrl("/api/v1/auth/login/oauth2/callback", true)
         );
