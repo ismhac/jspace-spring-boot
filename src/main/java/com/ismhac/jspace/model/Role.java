@@ -6,6 +6,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
 @Setter
 @Builder
@@ -14,7 +17,7 @@ import lombok.experimental.FieldDefaults;
 @Entity
 @Table(name = "tbl_role")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Role extends BaseEntity{
+public class Role extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,5 +33,7 @@ public class Role extends BaseEntity{
     @Column(name = "description")
     String description;
 
-
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    Set<User> users = new HashSet<>();
 }

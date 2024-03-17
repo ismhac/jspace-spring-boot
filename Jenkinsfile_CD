@@ -20,7 +20,7 @@ pipeline {
 
     environment {
         ENVIRONMENT = "${params.ENV}"
-        SERVICE_NAME = "erp-service"
+        SERVICE_NAME = "jspace-service"
         IMAGE_NAME = "${SERVICE_NAME}:${params.GIT_SHA}"
         PORT_CONFIGURATION = "-p 8081:8081"
         CONTAINER_NAME = "${SERVICE_NAME}-${params.GIT_SHA}"
