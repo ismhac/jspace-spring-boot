@@ -23,8 +23,6 @@ public class RoleServiceImpl implements RoleService {
 
     private final RoleRepository roleRepository;
 
-    private final RoleMapper roleMapper;
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void initRoles() {
