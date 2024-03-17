@@ -51,4 +51,7 @@ jobs:
         tags: ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }}
 
     - name: Remove Docker image
-      run: docker rmi ${{ env.IMAGE_NAME }} ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }}
+      run: docker image inspect ${{ env.IMAGE_NAME }} > /dev/null 2>&1 && docker rmi ${{ env.IMAGE_NAME }}
+
+    - name: Remove Docker Hub image
+      run: docker image inspect ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }} > /dev/null 2>&1 && docker rmi ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }}
