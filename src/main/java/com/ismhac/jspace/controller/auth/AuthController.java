@@ -1,39 +1,41 @@
 package com.ismhac.jspace.controller.auth;
 
 
-import com.ismhac.jspace.dto.auth.*;
+import com.ismhac.jspace.config.security.oauth2.OAuth2Service;
+import com.ismhac.jspace.dto.auth.AuthenticationResponse;
+import com.ismhac.jspace.dto.auth.IntrospectRequest;
+import com.ismhac.jspace.dto.auth.IntrospectResponse;
+import com.ismhac.jspace.dto.auth.LoginRequest;
 import com.ismhac.jspace.dto.common.ApiResponse;
 import com.ismhac.jspace.dto.role.RoleDto;
-import com.ismhac.jspace.dto.user.UserDto;
 import com.ismhac.jspace.exception.BadRequestException;
 import com.ismhac.jspace.exception.ErrorCode;
+import com.ismhac.jspace.model.enums.RoleCode;
 import com.ismhac.jspace.service.common.AuthService;
 import com.nimbusds.jose.JOSEException;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
-
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Authentication")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthController {
 
-    private final AuthService authService;
+    AuthService authService;
+    OAuth2Service oAuth2Service;
 
     /* */
     @GetMapping("/roles")
@@ -44,31 +46,34 @@ public class AuthController {
         return apiResponse;
     }
 
-
-    /* */
-    @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<UserDto> register(
-            @Schema(name = "role", allowableValues = {"EMPLOYEE", "CANDIDATE"})
-            @RequestParam("role") @Valid String roleCode,
-            
-            @RequestBody @Valid UserRegisterRequest registerRequest) {
-        UserDto userDto = authService.register(roleCode, registerRequest);
-        ApiResponse<UserDto> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(userDto);
-        return apiResponse;
-    }
-
-    /* */
-    @PostMapping("/authentication")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public ApiResponse<AuthenticationResponse<Object>> authentication(@RequestBody @Valid LoginRequest loginRequest) {
+    /* USER AUTHENTICATION */
+    @PostMapping("/users/login")
+    public ApiResponse<AuthenticationResponse<Object>> userLogin(@RequestBody Map<String, Object> data) {
+//        log.info("data: {}", data);
         return ApiResponse.<AuthenticationResponse<Object>>builder()
-                .result(authService.authentication(loginRequest))
+                .result(oAuth2Service.userLogin(data))
                 .build();
     }
 
-    /* */
+    @PostMapping("/users/register")
+    public ApiResponse<AuthenticationResponse<Object>> userRegister(@RequestParam("role") RoleCode roleCode, @RequestBody Map<String, Object> data) {
+//        log.info("data: {}", data);
+
+        return ApiResponse.<AuthenticationResponse<Object>>builder()
+                .result(oAuth2Service.userRegister(data, roleCode))
+                .build();
+    }
+
+    /* ADMIN AUTHENTICATION */
+    @PostMapping("/admin/login")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ApiResponse<AuthenticationResponse<Object>> adminLogin(@RequestBody @Valid LoginRequest loginRequest) {
+        return ApiResponse.<AuthenticationResponse<Object>>builder()
+                .result(authService.adminLogin(loginRequest))
+                .build();
+    }
+
+    /* TOKEN */
     @PostMapping("/introspect")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ApiResponse<IntrospectResponse> introspect(@RequestBody @Valid IntrospectRequest introspectRequest)
@@ -90,24 +95,5 @@ public class AuthController {
                 .result(authService.refreshAccessToken(refreshToken))
                 .build();
     }
-
     /* */
-
-    @GetMapping("/api/v1/auth/login/oauth2")
-    public void redirectToGoogleLogin(@RequestParam String myParam, HttpServletResponse response) throws IOException {
-        String state = myParam;
-        String redirectUrl = "/oauth2/authorization/google?state=" + state;
-        response.sendRedirect(redirectUrl);
-    }
-
-    @GetMapping("/login/oauth2/callback")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public OAuth2User handleGoogleCallback(
-            @AuthenticationPrincipal OAuth2User oAuth2User,
-            HttpSession session) {
-
-        String role = (String) session.getAttribute("role");
-        log.info("{}", oAuth2User);
-        return oAuth2User;
-    }
 }

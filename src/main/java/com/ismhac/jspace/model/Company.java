@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Set;
+
 @Getter
 @Setter
 @Builder
@@ -29,4 +31,10 @@ public class Company extends BaseEntity {
 
     @Column(name = "address")
     String address;
+
+//    @OneToMany
+//    Set<Employee> employees;
+//
+//    @OneToMany
+//    Set<Post> posts;
 }

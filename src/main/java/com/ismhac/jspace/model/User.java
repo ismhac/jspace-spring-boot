@@ -33,6 +33,10 @@ public class User extends BaseEntity {
     @Column(unique = true)
     String email;
 
+    String name;
+
+    String picture;
+
     boolean activated;
 
     @ManyToOne

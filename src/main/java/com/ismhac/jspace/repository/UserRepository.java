@@ -15,12 +15,4 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     boolean existsByUsername(String username);
 
     Optional<User> findUserByUsername(String username);
-
-    @Query("""
-            select user
-            from User user
-            join OAuth2Info oAuth2Info on user.id = oAuth2Info.id.user.id
-            where oAuth2Info.email = :email
-            """)
-    Optional<User> findUserByOAuth2Info(String email);
 }

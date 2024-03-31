@@ -1,7 +1,4 @@
 package com.ismhac.jspace.service.impl;
-
-import com.ismhac.jspace.exception.ErrorCode;
-import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.model.Admin;
 import com.ismhac.jspace.model.Role;
 import com.ismhac.jspace.model.User;
@@ -12,11 +9,7 @@ import com.ismhac.jspace.repository.AdminRepository;
 import com.ismhac.jspace.repository.RoleRepository;
 import com.ismhac.jspace.repository.UserRepository;
 import com.ismhac.jspace.service.AdminService;
-import jakarta.persistence.criteria.Root;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import org.aspectj.weaver.NewConstructorTypeMunger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
