@@ -8,12 +8,12 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public enum RoleCode {
-    SUPER_ADMIN("SU", "super admin"),
-    ADMIN("AD", "admin"),
-    EMPLOYEE("EM", "employee"),
-    CANDIDATE("CA", "candidate");
+public enum ApplyStatus {
 
-    String code;
-    String name;
+    PROGRESS("progress"),
+    APPROVE("approve"),
+    REJECT("reject")
+    ;
+
+    String status;
 }
