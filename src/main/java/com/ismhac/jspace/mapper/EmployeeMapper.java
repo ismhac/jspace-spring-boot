@@ -7,12 +7,12 @@ import com.ismhac.jspace.model.User;
 import org.mapstruct.*;
 import org.springframework.data.domain.Page;
 
-@Mapper(componentModel = "spring", uses = {UserMapper.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring")
 public interface EmployeeMapper {
 
     @Mappings({
             @Mapping(target = "id", source = "id.user.id"),
-            @Mapping(target = "user", source = "id.user",qualifiedByName = "convertToUser")
+            @Mapping(target = "user", source = "id.user",qualifiedByName = "convertToUserDto")
     })
     EmployeeDto toEmployeeDto(Employee employee);
 
@@ -20,8 +20,8 @@ public interface EmployeeMapper {
         return employeePage.map(this::toEmployeeDto);
     }
 
-    @Named("convertToUser")
-    default UserDto convertToUser(User user) {
+    @Named("convertToUserDto")
+    default UserDto convertToUserDto(User user) {
         return UserMapper.INSTANCE.toUserDto(user);
     }
 }
