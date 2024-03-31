@@ -31,9 +31,9 @@ public class BaseEntity {
 
     @CreatedBy
     @Column(name = "created_by",updatable = false)
-    String createdBy = "system";
+    Integer createdBy = 0;
 
     @LastModifiedBy
     @Column(name = "updated_by")
-    String updatedBy = "system";
+    Integer updatedBy = 0;
 }

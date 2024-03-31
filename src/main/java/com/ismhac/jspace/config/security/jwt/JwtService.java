@@ -36,11 +36,35 @@ public class JwtService {
     private final HashUtils hashUtils;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    public String generateToken(User user) {
+    public String generateAdminToken(User user) {
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername())
+                .issuer("jspace")
+                .issueTime(new Date(System.currentTimeMillis()))
+                .expirationTime(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION))
+                .claim("scope", user.getRole().getCode())
+                .build();
+
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
+        JWSObject jwsObject = new JWSObject(jwsHeader, payload);
+
+        try {
+            jwsObject.sign(new MACSigner(SECRET_KEY.getBytes()));
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            log.error("can not create token", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String generateUserToken(User user) {
+        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
+
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(user.getEmail())
                 .issuer("jspace")
                 .issueTime(new Date(System.currentTimeMillis()))
                 .expirationTime(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION))

@@ -15,7 +15,9 @@ import com.ismhac.jspace.repository.*;
 import com.ismhac.jspace.service.common.AuthService;
 import com.ismhac.jspace.util.HashUtils;
 import com.nimbusds.jose.JOSEException;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,20 +30,18 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthServiceImpl implements AuthService {
-    private final RoleMapper roleMapper;
-    private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository;
-    private final UserRepository userRepository;
-    private final EmployeeRepository employeeRepository;
-    private final CandidateRepository candidateRepository;
+    RoleMapper roleMapper;
+    PasswordEncoder passwordEncoder;
+    RoleRepository roleRepository;
+    UserRepository userRepository;
 
-    private final RefreshTokenRepository refreshTokenRepository;
+    RefreshTokenRepository refreshTokenRepository;
 
-    private final JwtService jwtService;
+    JwtService jwtService;
 
-    private final HashUtils hashUtils;
+    HashUtils hashUtils;
 
     /* */
     @Override
@@ -51,29 +51,10 @@ public class AuthServiceImpl implements AuthService {
         return roleMapper.toRoleDtoList(roleList);
     }
 
+    
     /* */
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public UserDto register(String roleCode, UserRegisterRequest registerRequest) {
-        boolean userExisted = userRepository.existsByUsername(registerRequest.getUsername());
-        if (userExisted) {
-            throw new AppException(ErrorCode.USER_EXISTED);
-        }
-
-        if (!roleCode.equals(RoleCode.EMPLOYEE.toString()) && !roleCode.equals(RoleCode.CANDIDATE.toString())) {
-            throw new AppException(ErrorCode.INVALID_ROLE_REGISTER);
-        } else {
-            if (RoleCode.EMPLOYEE.getName().equalsIgnoreCase(roleCode)) {
-                return saveEmployee(registerRequest);
-            } else {
-                return saveCandidate(registerRequest);
-            }
-        }
-    }
-
-    /* */
-    @Override
-    public AuthenticationResponse<Object> authentication(LoginRequest loginRequest) {
+    public AuthenticationResponse<Object> adminLogin(LoginRequest loginRequest) {
         var user = userRepository.findUserByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         boolean authenticated = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
@@ -82,7 +63,7 @@ public class AuthServiceImpl implements AuthService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-        var accessToken = jwtService.generateToken(user);
+        var accessToken = jwtService.generateAdminToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
 
         return AuthenticationResponse.builder()
@@ -112,66 +93,10 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException(ErrorCode.INVALID_TOKEN);
         }
         User user = refreshToken.getUser();
-        String accessToken = jwtService.generateToken(user);
+        String accessToken = jwtService.generateAdminToken(user);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
                 .build();
-    }
-
-    /* */
-    @Transactional(rollbackFor = Exception.class)
-    protected UserDto saveEmployee(UserRegisterRequest registerRequest) {
-        Role role = roleRepository.findRoleByCode(RoleCode.EMPLOYEE)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ROLE));
-
-        User user = User.builder()
-                .username(registerRequest.getUsername())
-                .password(passwordEncoder.encode(registerRequest.getPassword()))
-                .activated(true)
-                .role(role)
-                .build();
-
-        User savedUser = userRepository.save(user);
-
-        EmployeeId employeeId = EmployeeId.builder()
-                .user(savedUser)
-                .build();
-
-        Employee employee = Employee.builder()
-                .id(employeeId)
-                .build();
-
-        employeeRepository.save(employee);
-
-        return userMapper.toUserDto(savedUser);
-    }
-
-    /* */
-    @Transactional(rollbackFor = Exception.class)
-    protected UserDto saveCandidate(UserRegisterRequest registerRequest) {
-        Role role = roleRepository.findRoleByCode(RoleCode.CANDIDATE)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ROLE));
-
-        User user = User.builder()
-                .username(registerRequest.getUsername())
-                .password(passwordEncoder.encode(registerRequest.getPassword()))
-                .activated(true)
-                .role(role)
-                .build();
-
-        User savedUser = userRepository.save(user);
-
-        CandidateId candidateId = CandidateId.builder()
-                .user(savedUser)
-                .build();
-
-        Candidate candidate = Candidate.builder()
-                .id(candidateId)
-                .build();
-
-        candidateRepository.save(candidate);
-
-        return userMapper.toUserDto(savedUser);
     }
 }

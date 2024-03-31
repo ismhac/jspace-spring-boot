@@ -13,9 +13,9 @@ import java.util.Map;
 public interface AuthService {
     List<RoleDto> getRolesForRegister();
 
-    UserDto register(String roleCode, UserRegisterRequest registerRequest);
+//    UserDto register(String roleCode, UserRegisterRequest registerRequest);
 
-    AuthenticationResponse<Object> authentication(LoginRequest loginRequest);
+    AuthenticationResponse<Object> adminLogin(LoginRequest loginRequest);
 
     IntrospectResponse introspect(IntrospectRequest introspectRequest) throws ParseException, JOSEException;
 
