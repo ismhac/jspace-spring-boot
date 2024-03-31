@@ -16,7 +16,9 @@ public interface EmployeeMapper {
     })
     EmployeeDto toEmployeeDto(Employee employee);
 
-    Page<EmployeeDto> toEmployeeDtoPage(Page<Employee> employeePage);
+    default Page<EmployeeDto> toEmployeeDtoPage(Page<Employee> employeePage){
+        return employeePage.map(this::toEmployeeDto);
+    }
 
     @Named("convertToUser")
     default UserDto convertToUser(User user) {
