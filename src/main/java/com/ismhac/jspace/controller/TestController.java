@@ -5,13 +5,11 @@ import com.ismhac.jspace.dto.auth.AuthenticationResponse;
 import com.ismhac.jspace.dto.common.ApiResponse;
 import com.ismhac.jspace.dto.role.RoleDto;
 import com.ismhac.jspace.mapper.UserMapper;
-import com.ismhac.jspace.model.User;
 import com.ismhac.jspace.model.enums.RoleCode;
 import com.ismhac.jspace.service.common.AuthService;
-import lombok.Getter;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+
+@Hidden
 @RestController
 @Slf4j
 @RequestMapping("/test")
@@ -46,7 +46,7 @@ public class TestController {
     }
 
     @PostMapping("/login_test")
-    public ApiResponse<AuthenticationResponse<Object>> testLoginOAuth2(@RequestBody Map<String, Object> data){
+    public ApiResponse<AuthenticationResponse<Object>> testLoginOAuth2(@RequestBody Map<String, Object> data) {
         log.info("data: {}", data);
 
         return ApiResponse.<AuthenticationResponse<Object>>builder()
@@ -55,7 +55,7 @@ public class TestController {
     }
 
     @PostMapping("/register_test")
-    public ApiResponse<AuthenticationResponse<Object>> testRegister(@RequestParam("role") RoleCode roleCode,@RequestBody Map<String, Object> data){
+    public ApiResponse<AuthenticationResponse<Object>> testRegister(@RequestParam("role") RoleCode roleCode, @RequestBody Map<String, Object> data) {
 //        log.info("data: {}", data);
 
         return ApiResponse.<AuthenticationResponse<Object>>builder()
@@ -64,7 +64,7 @@ public class TestController {
     }
 
     @GetMapping("test/getPrincipal")
-    public Object test(){
+    public Object test() {
         log.info("{}", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
