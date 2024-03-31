@@ -26,7 +26,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public PageResponse<CompanyDto> getPage(String name, String address, int pageNumber, int pageSize) {
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), (pageSize > 0 ? pageSize : 10));
 
         Page<Company> companyPage = companyRepository.getPage(name, address, pageable);
 
@@ -36,7 +36,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public PageResponse<CompanyDto> getPageHasPost(String name, String address, int pageNumber, int pageSize) {
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), (pageSize > 0 ? pageSize : 10));
 
         Page<Company> companyPage = companyRepository.getPageHasPost(name, address, pageable);
 
@@ -45,7 +45,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public PageResponse<CompanyDto> getPageNoPost(String name, String address, int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), (pageSize > 0 ? pageSize : 10));
 
         Page<Company> companyPage = companyRepository.getPageNoPost(name, address, pageable);
 
