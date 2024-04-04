@@ -104,7 +104,7 @@ public class AdminServiceImpl implements AdminService {
             throw new BadRequestException(ErrorCode.USER_EXISTED);
         }
 
-        Role role = roleRepository.findRoleByCode(RoleCode.ADMIN).orElseThrow(()->new NotFoundException(ErrorCode.NOT_FOUND_ROLE));
+        Role role = roleRepository.findRoleByCode(RoleCode.ADMIN).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ROLE));
 
         User user = User.builder()
                 .username(username)
@@ -128,11 +128,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public PageResponse<AdminDto> getPageAdmin(String name, int pageNumber, int pageSize) {
-
-        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), (pageSize > 0 ? pageSize : 10));
-        Page<Admin> adminPage = adminRepository.getPageAdminByType(AdminType.BASIC, name, pageable);
-
+    public PageResponse<AdminDto> getPageAdmin(String name, Boolean activated, Pageable pageable) {
+        Page<Admin> adminPage = adminRepository.getPageAdminByTypeFilterByNameAndActivated(AdminType.BASIC, name, activated, pageable);
         return pageUtils.toPageResponse(adminMapper.toAdminDtoPage(adminPage));
     }
 }
