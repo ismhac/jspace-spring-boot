@@ -23,10 +23,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final PageUtils pageUtils;
 
     @Override
-    public PageResponse<EmployeeDto> getPage(int companyId, String email, String name, int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(Math.max(pageNumber-1, 0), (pageSize>0?pageSize:10));
+    public PageResponse<EmployeeDto> getPage(int companyId, String email, String name, Pageable pageable) {
         Page<Employee> employeePage = employeeRepository.getPageByCompanyId(companyId, email, name, pageable);
-
         return pageUtils.toPageResponse(employeeMapper.toEmployeeDtoPage(employeePage));
     }
 }

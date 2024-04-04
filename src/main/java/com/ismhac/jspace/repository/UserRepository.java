@@ -23,8 +23,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             select t1
             from User t1
             where (:role is null or t1.role.id = :role_id)
-                and (:email is null or lower(t1.email) like lower(concat('%', :email, '%')))
-                and (:name is null or lower(t1.name) like lower(concat('%', :name, '%')))
+                and (:email is null or lower(t1.email) like lower(concat('%', cast(:email as text), '%')))
+                and (:name is null or lower(t1.name) like lower(concat('%', cast(:name as text), '%')))
             """)
     Page<User> getPage(@Param("role_id") Integer  roleId, @Param("email") String email, @Param("name") String name, Pageable pageable);
 }

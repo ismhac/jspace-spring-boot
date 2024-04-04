@@ -4,8 +4,10 @@ import com.ismhac.jspace.dto.common.ApiResponse;
 import com.ismhac.jspace.dto.common.PageResponse;
 import com.ismhac.jspace.dto.user.employee.EmployeeDto;
 import com.ismhac.jspace.service.EmployeeService;
+import com.ismhac.jspace.util.PageUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,15 +18,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Tag(name = "Employee")
 public class EmployeeController {
+    private final PageUtils pageUtils;
     private final EmployeeService employeeService;
+
     @GetMapping()
     ApiResponse<PageResponse<EmployeeDto>> getPage(
             @RequestParam("company_id") int companyId,
             @RequestParam("email") String email,
             @RequestParam("name") String name,
-            @RequestParam("pageNumber") int pageNumber,
-            @RequestParam("pageSize") int pageSize){
-        var result = employeeService.getPage(companyId, email, name, pageNumber, pageSize);
+            Pageable pageable){
+        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
+
+        var result = employeeService.getPage(companyId, email, name, adjustedPageable);
 
         return ApiResponse.<PageResponse<EmployeeDto>>builder()
                 .result(result)

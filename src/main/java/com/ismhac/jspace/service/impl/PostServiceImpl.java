@@ -44,7 +44,6 @@ public class PostServiceImpl implements PostService {
         /**/
 
         Post post = Post.builder()
-                .description(description)
                 .employeeEmail(employeeEmail)
                 .company(company)
                 .build();

@@ -17,8 +17,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, EmployeeId> 
             select t1
             from Employee t1
             where t1.company.id = :company_id
-                and (:email is null or lower(t1.id.user.email) like lower(concat('%', :email, '%')))
-                and (:name is null or lower(t1.id.user.name) like lower(concat('%', :name, '%')))
+                and (:email is null or lower(t1.id.user.email) like lower(concat('%', cast(:email as text), '%')))
+                and (:name is null or lower(t1.id.user.name) like lower(concat('%', cast(:name as text), '%')))
             """)
     Page<Employee> getPageByCompanyId(@Param("company_id") Integer companyId, @Param("email") String email, @Param("name") String name,Pageable pageable);
 }
