@@ -5,6 +5,7 @@ import com.ismhac.jspace.dto.user.admin.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.AdminDto;
 import com.ismhac.jspace.exception.BadRequestException;
 import com.ismhac.jspace.exception.ErrorCode;
+import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.mapper.AdminMapper;
 import com.ismhac.jspace.model.Admin;
 import com.ismhac.jspace.model.Role;
@@ -103,13 +104,19 @@ public class AdminServiceImpl implements AdminService {
             throw new BadRequestException(ErrorCode.USER_EXISTED);
         }
 
+        Role role = roleRepository.findRoleByCode(RoleCode.ADMIN).orElseThrow(()->new NotFoundException(ErrorCode.NOT_FOUND_ROLE));
+
         User user = User.builder()
                 .username(username)
                 .password(passwordEncoder.encode(password))
+                .role(role)
+                .activated(true)
                 .build();
 
+        User savedUser = userRepository.save(user);
+
         AdminId adminId = AdminId.builder()
-                .user(user)
+                .user(savedUser)
                 .build();
 
         Admin newAdmin = Admin.builder()
