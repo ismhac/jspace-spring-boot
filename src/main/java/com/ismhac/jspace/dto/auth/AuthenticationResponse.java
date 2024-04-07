@@ -11,11 +11,7 @@ import lombok.Setter;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AuthenticationResponse <T>{
-    @JsonProperty("access_token")
     private String accessToken;
-
-    @JsonProperty("refresh_token")
     private String refreshToken;
-
     private T information;
 }

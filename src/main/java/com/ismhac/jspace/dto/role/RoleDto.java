@@ -10,16 +10,12 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RoleDto {
 
-    @JsonProperty("id")
     int id;
-
-    @JsonProperty("code")
+    
     RoleCode code;
 
-    @JsonProperty("name")
     String name;
 
-    @JsonProperty("description")
     String description;
 }
 

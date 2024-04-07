@@ -32,6 +32,5 @@ public class PostDetail extends BaseEntity {
 
     String pay;
 
-    @Column(name = "number_of_open")
-    int numberOfOpen;
+    int quantity;
 }

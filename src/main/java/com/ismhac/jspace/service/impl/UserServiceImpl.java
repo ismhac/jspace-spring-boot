@@ -22,9 +22,8 @@ public class UserServiceImpl implements UserService {
     private final PageUtils pageUtils;
 
     @Override
-    public PageResponse<UserDto> getPage(Integer roleId, String email, String name, int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(Math.max(pageNumber-1, 0), (pageSize>0?pageSize:10));
-        Page<User> userPage = userRepository.getPage(roleId, email, name, pageable);
+    public PageResponse<UserDto> getPageFilterByEmailAndName(Integer roleId, String email, String name, Pageable pageable) {
+        Page<User> userPage = userRepository.getPageFilterByEmailAndName(roleId, email, name, pageable);
         return pageUtils.toPageResponse(userMapper.toUserDtoPage(userPage));
     }
 }

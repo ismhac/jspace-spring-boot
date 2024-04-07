@@ -7,5 +7,5 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface EmployeeService {
-    PageResponse<EmployeeDto> getPage(int companyId, String email, String name, Pageable pageable);
+    PageResponse<EmployeeDto> getPageByCompanyIdFilterByEmailAndName(int companyId, String email, String name, Pageable pageable);
  }

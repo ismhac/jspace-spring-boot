@@ -27,9 +27,10 @@ public class EmployeeController {
             @RequestParam("email") String email,
             @RequestParam("name") String name,
             Pageable pageable){
+
         Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
 
-        var result = employeeService.getPage(companyId, email, name, adjustedPageable);
+        var result = employeeService.getPageByCompanyIdFilterByEmailAndName(companyId, email, name, adjustedPageable);
 
         return ApiResponse.<PageResponse<EmployeeDto>>builder()
                 .result(result)

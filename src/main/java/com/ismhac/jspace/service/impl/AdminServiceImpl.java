@@ -78,7 +78,7 @@ public class AdminServiceImpl implements AdminService {
                 .user(user)
                 .build();
 
-        Admin admin = adminRepository.findAdminById(adminId).orElseGet(() -> {
+        adminRepository.findAdminById(adminId).orElseGet(() -> {
             Admin newAdmin = new Admin();
 
             newAdmin.setId(adminId);
@@ -128,7 +128,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public PageResponse<AdminDto> getPageAdmin(String name, Boolean activated, Pageable pageable) {
+    public PageResponse<AdminDto> getPageAdminByTypeFilterByNameAndActivated(String name, Boolean activated, Pageable pageable) {
         Page<Admin> adminPage = adminRepository.getPageAdminByTypeFilterByNameAndActivated(AdminType.BASIC, name, activated, pageable);
         return pageUtils.toPageResponse(adminMapper.toAdminDtoPage(adminPage));
     }
