@@ -42,7 +42,7 @@ public class AdminController {
     @GetMapping("/users")
     public ApiResponse<PageResponse<UserDto>> getPageUserAndFilterByNameAndEmailAndActivated(
             @RequestParam(value = "roleId", required = false) Integer roleId,
-            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "email", required = false) String email,
             @RequestParam(value = "activated", required = false) Boolean activated,
             Pageable pageable){
