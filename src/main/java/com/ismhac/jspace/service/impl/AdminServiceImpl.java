@@ -21,11 +21,14 @@ import com.ismhac.jspace.repository.UserRepository;
 import com.ismhac.jspace.service.AdminService;
 import com.ismhac.jspace.util.PageUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +36,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AdminServiceImpl implements AdminService {
 
     @Value("${init.admin.username}")
@@ -130,6 +134,18 @@ public class AdminServiceImpl implements AdminService {
                 .build();
 
         return AdminMapper.INSTANCE.toAdminDto(adminRepository.save(newAdmin));
+    }
+
+    @Override
+    public AdminDto getAdminInfoFromToken() {
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        String username = (String) jwt.getClaims().get("sub");
+
+        Admin admin = adminRepository.findAdminByUsername(username)
+                .orElseThrow(()-> new BadRequestException(ErrorCode.INVALID_TOKEN));
+        log.info("{}", jwt.getClaims());
+         return adminMapper.toAdminDto(admin);
     }
 
     @Override

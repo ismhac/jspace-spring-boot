@@ -41,7 +41,9 @@ public enum ErrorCode {
 
     NOT_FOUND_EMPLOYEE(1015, "Not found employee", HttpStatus.NOT_FOUND),
 
-    NOT_FOUND_COMPANY(1016, "Not found company", HttpStatus.NOT_FOUND)
+    NOT_FOUND_COMPANY(1016, "Not found company", HttpStatus.NOT_FOUND),
+
+    SEND_MAIL_FAIL(1017, "Send mail fail!", HttpStatus.BAD_REQUEST)
     ;
     private final int code;
     private final String message;

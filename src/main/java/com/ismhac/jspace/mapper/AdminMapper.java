@@ -16,7 +16,6 @@ public interface AdminMapper {
     AdminMapper INSTANCE = Mappers.getMapper(AdminMapper.class);
 
     @Mappings({
-            @Mapping(target = "id", source = "id.user.id"),
             @Mapping(target = "user", source = "id.user", qualifiedByName = "convertToUserDto")
     })
     AdminDto toAdminDto(Admin admin);

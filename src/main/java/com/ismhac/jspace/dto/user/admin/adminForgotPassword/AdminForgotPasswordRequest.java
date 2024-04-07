@@ -1,5 +1,6 @@
 package com.ismhac.jspace.dto.user.admin.adminForgotPassword;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -19,6 +20,7 @@ public class AdminForgotPasswordRequest {
 
     String subject;
 
+    @JsonIgnore
     String body;
 
     @NotBlank
