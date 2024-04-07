@@ -27,10 +27,19 @@ public interface AdminRepository extends JpaRepository<Admin, AdminId> {
     @Query("""
             select t1
             from Admin t1
-            where t1.id.user.username = :username
+            where t1.type = :adminType
+                and t1.id.user.username = :username
+            """)
+    Optional<Admin> findAdminByAdminTypeAndUsername(@Param("adminType") AdminType adminType,@Param("username") String username);
+
+    @Query("""
+            select t1
+            from Admin t1
+            where t1.type = :adminType
+                and t1.id.user.username = :username
                 and t1.id.user.email = :email
             """)
-    Optional<Admin> findAdminByUsernameAndEmail(@Param("username") String username, @Param("email") String email);
+    Optional<Admin> findAdminByAdminTypeAndUsernameAndEmail(@Param("adminType") AdminType adminType,@Param("username") String username, @Param("email") String email);
 
     @Query("""
             select t1

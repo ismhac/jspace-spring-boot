@@ -107,10 +107,19 @@ public class AdminServiceImpl implements AdminService {
         /* */
 
         /* check exist */
-        Optional<Admin> admin = adminRepository.findAdminByUsernameAndEmail(username, email);
+        Optional<Admin> admin = adminRepository.findAdminByAdminTypeAndUsernameAndEmail(adminType,username, email);
         if (admin.isPresent()) {
             throw new BadRequestException(ErrorCode.USER_EXISTED);
         }
+
+        if(adminRepository.findAdminByAdminTypeAndEmail(adminType, email).isPresent()){
+            throw new BadRequestException(ErrorCode.USER_EXISTED);
+        }
+
+        if(adminRepository.findAdminByAdminTypeAndUsername(adminType, username).isPresent()){
+            throw new BadRequestException(ErrorCode.USER_EXISTED);
+        }
+
 
         Role role = roleRepository.findRoleByCode(RoleCode.ADMIN).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ROLE));
 
