@@ -13,7 +13,5 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EmployeeDto {
     int id;
-
-    @JsonProperty("user")
     UserDto user;
 }

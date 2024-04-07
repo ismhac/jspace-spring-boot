@@ -19,7 +19,7 @@ public class AuditorAwareImpl implements AuditorAware<Integer> {
         if ("anonymousUser".equals(principal)) {
             return Optional.empty();
         }
-        if(principal instanceof User){
+        if (principal instanceof User) {
             return Optional.of(((User) principal).getId());
         }
         return Optional.empty();

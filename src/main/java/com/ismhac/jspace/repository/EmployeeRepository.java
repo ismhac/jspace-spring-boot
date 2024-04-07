@@ -20,5 +20,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, EmployeeId> 
                 and (:email is null or lower(t1.id.user.email) like lower(concat('%', cast(:email as text), '%')))
                 and (:name is null or lower(t1.id.user.name) like lower(concat('%', cast(:name as text), '%')))
             """)
-    Page<Employee> getPageByCompanyId(@Param("company_id") Integer companyId, @Param("email") String email, @Param("name") String name,Pageable pageable);
+    Page<Employee> getPageByCompanyIdFilterByEmailAndName(@Param("company_id") Integer companyId, @Param("email") String email, @Param("name") String name,Pageable pageable);
 }

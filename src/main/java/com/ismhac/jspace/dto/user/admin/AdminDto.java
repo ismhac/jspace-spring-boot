@@ -13,6 +13,5 @@ import lombok.experimental.FieldDefaults;
 public class AdminDto {
     int id;
 
-    @JsonProperty("user")
     UserDto user;
 }

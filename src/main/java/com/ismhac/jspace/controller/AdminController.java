@@ -19,8 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
     private final PageUtils pageUtils;
     private final AdminService adminService;
-
-
+    
     /* create new basic admin */
     @PostMapping()
     public ApiResponse<AdminDto> create(
@@ -31,15 +30,14 @@ public class AdminController {
                 .build();
     }
 
-
-    /* Get page basic admin, filter by name */
+    /* Get page basic admin, filter by name, activated */
     @GetMapping("/basic")
     public ApiResponse<PageResponse<AdminDto>> getBasicAdminPage(
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "activated", required = false) Boolean activated,
             Pageable pageable) {
         Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
-        var result = adminService.getPageAdmin(name, activated, adjustedPageable);
+        var result = adminService.getPageAdminByTypeFilterByNameAndActivated(name, activated, adjustedPageable);
         return ApiResponse.<PageResponse<AdminDto>>builder()
                 .result(result)
                 .build();
