@@ -1,5 +1,6 @@
 package com.ismhac.jspace.config.security.jwt;
 
+import com.ismhac.jspace.model.Admin;
 import com.ismhac.jspace.model.RefreshToken;
 import com.ismhac.jspace.model.User;
 import com.ismhac.jspace.repository.RefreshTokenRepository;
@@ -112,6 +113,32 @@ public class JwtService {
             throw new RuntimeException(e);
         }
     }
+
+
+    public String generateAdminForgotPasswordToken(Admin admin){
+        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
+
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(admin.getId().getUser().getUsername())
+                .issuer("jspace")
+                .issueTime(new Date(System.currentTimeMillis()))
+                .expirationTime(new Date(System.currentTimeMillis() + 600000))
+                .claim("scope", admin.getId().getUser().getRole().getCode())
+                .build();
+
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
+        JWSObject jwsObject = new JWSObject(jwsHeader, payload);
+
+        try {
+            jwsObject.sign(new MACSigner(SECRET_KEY.getBytes()));
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            log.error("can not create token", e);
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public boolean introspect(String token) throws JOSEException, ParseException {
         JWSVerifier jwsVerifier = new MACVerifier(SECRET_KEY.getBytes());

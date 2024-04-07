@@ -24,16 +24,16 @@ public class UserController {
     private final UserService userService;
 
     /* get page, filter by email, name */
-    @GetMapping()
-    public ApiResponse<PageResponse<UserDto>> getPageFilterByEmailAndName(
-            @RequestParam("role_id") Integer roleId,
-            @RequestParam("email") String email,
-            @RequestParam("name") String name,
-            Pageable pageable) {
-        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
-        var result = userService.getPageFilterByEmailAndName(roleId, email, name, adjustedPageable);
-        return ApiResponse.<PageResponse<UserDto>>builder()
-                .result(result)
-                .build();
-    }
+//    @GetMapping()
+//    public ApiResponse<PageResponse<UserDto>> getPageFilterByEmailAndName(
+//            @RequestParam("role_id") Integer roleId,
+//            @RequestParam("email") String email,
+//            @RequestParam("name") String name,
+//            Pageable pageable) {
+//        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
+//        var result = userService.getPageFilterByEmailAndName(roleId, email, name, adjustedPageable);
+//        return ApiResponse.<PageResponse<UserDto>>builder()
+//                .result(result)
+//                .build();
+//    }
 }

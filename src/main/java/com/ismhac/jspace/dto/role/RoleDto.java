@@ -9,13 +9,9 @@ import lombok.experimental.FieldDefaults;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RoleDto {
-
     int id;
-    
     RoleCode code;
-
     String name;
-
     String description;
 }
 

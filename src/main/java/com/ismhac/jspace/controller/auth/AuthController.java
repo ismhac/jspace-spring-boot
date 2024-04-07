@@ -8,6 +8,7 @@ import com.ismhac.jspace.dto.auth.IntrospectResponse;
 import com.ismhac.jspace.dto.auth.LoginRequest;
 import com.ismhac.jspace.dto.common.ApiResponse;
 import com.ismhac.jspace.dto.role.RoleDto;
+import com.ismhac.jspace.dto.user.admin.adminForgotPassword.AdminForgotPasswordRequest;
 import com.ismhac.jspace.exception.BadRequestException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.model.enums.RoleCode;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -96,4 +98,11 @@ public class AuthController {
                 .build();
     }
     /* */
+
+    @PostMapping("/admins/forgot-password")
+    public ResponseEntity<Void> sendMailAdminForgotPassword(
+            @RequestBody AdminForgotPasswordRequest adminForgotPasswordRequest){
+        authService.sendMailAdminForgotPassword(adminForgotPasswordRequest);
+        return null;
+    }
 }

@@ -3,6 +3,7 @@ package com.ismhac.jspace.service.common;
 import com.ismhac.jspace.dto.auth.*;
 import com.ismhac.jspace.dto.role.RoleDto;
 import com.ismhac.jspace.dto.user.UserDto;
+import com.ismhac.jspace.dto.user.admin.adminForgotPassword.AdminForgotPasswordRequest;
 import com.ismhac.jspace.model.enums.RoleCode;
 import com.nimbusds.jose.JOSEException;
 
@@ -20,4 +21,6 @@ public interface AuthService {
     IntrospectResponse introspect(IntrospectRequest introspectRequest) throws ParseException, JOSEException;
 
     AuthenticationResponse<Object> refreshAccessToken(String token) throws ParseException, JOSEException;
+
+    void sendMailAdminForgotPassword(AdminForgotPasswordRequest adminForgotPasswordRequest);
 }
