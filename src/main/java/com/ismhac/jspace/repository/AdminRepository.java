@@ -27,10 +27,19 @@ public interface AdminRepository extends JpaRepository<Admin, AdminId> {
     @Query("""
             select t1
             from Admin t1
-            where t1.id.user.username = :username
+            where t1.type = :adminType
+                and t1.id.user.username = :username
+            """)
+    Optional<Admin> findAdminByAdminTypeAndUsername(@Param("adminType") AdminType adminType,@Param("username") String username);
+
+    @Query("""
+            select t1
+            from Admin t1
+            where t1.type = :adminType
+                and t1.id.user.username = :username
                 and t1.id.user.email = :email
             """)
-    Optional<Admin> findAdminByUsernameAndEmail(@Param("username") String username, @Param("email") String email);
+    Optional<Admin> findAdminByAdminTypeAndUsernameAndEmail(@Param("adminType") AdminType adminType,@Param("username") String username, @Param("email") String email);
 
     @Query("""
             select t1
@@ -44,8 +53,8 @@ public interface AdminRepository extends JpaRepository<Admin, AdminId> {
             select t1
             from Admin t1
             where t1.type = :type
-                and (:name is null or lower(t1.id.user.username) like lower(concat('%', cast(:name as text), '%'))) 
-                and (:activated is null or t1.id.user.activated = :activated) 
+                and (:name is null or :name ='' or lower(t1.id.user.name) like lower(concat('&', :name, '%') ) )
+                and (:activated is null or t1.id.user.activated = :activated)
             """)
     Page<Admin> getPageAdminByTypeFilterByNameAndActivated(@Param("type") AdminType adminType, @Param("name") String name, @Param("activated") Boolean activated,Pageable pageable);
 }
