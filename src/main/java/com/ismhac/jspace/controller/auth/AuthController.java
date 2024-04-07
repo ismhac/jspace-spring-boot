@@ -7,6 +7,7 @@ import com.ismhac.jspace.dto.auth.IntrospectRequest;
 import com.ismhac.jspace.dto.auth.IntrospectResponse;
 import com.ismhac.jspace.dto.auth.LoginRequest;
 import com.ismhac.jspace.dto.common.ApiResponse;
+import com.ismhac.jspace.dto.common.SendMailResponse;
 import com.ismhac.jspace.dto.role.RoleDto;
 import com.ismhac.jspace.dto.user.admin.adminForgotPassword.AdminForgotPasswordRequest;
 import com.ismhac.jspace.exception.BadRequestException;
@@ -100,9 +101,11 @@ public class AuthController {
     /* */
 
     @PostMapping("/admins/forgot-password")
-    public ResponseEntity<Void> sendMailAdminForgotPassword(
+    public ApiResponse<SendMailResponse> sendMailAdminForgotPassword(
             @RequestBody AdminForgotPasswordRequest adminForgotPasswordRequest){
-        authService.sendMailAdminForgotPassword(adminForgotPasswordRequest);
-        return null;
+        var result  = authService.sendMailAdminForgotPassword(adminForgotPasswordRequest);
+        return ApiResponse.<SendMailResponse>builder()
+                .result(result)
+                .build();
     }
 }

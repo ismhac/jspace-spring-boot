@@ -1,6 +1,7 @@
 package com.ismhac.jspace.service.common;
 
 import com.ismhac.jspace.dto.auth.*;
+import com.ismhac.jspace.dto.common.SendMailResponse;
 import com.ismhac.jspace.dto.role.RoleDto;
 import com.ismhac.jspace.dto.user.UserDto;
 import com.ismhac.jspace.dto.user.admin.adminForgotPassword.AdminForgotPasswordRequest;
@@ -22,5 +23,5 @@ public interface AuthService {
 
     AuthenticationResponse<Object> refreshAccessToken(String token) throws ParseException, JOSEException;
 
-    void sendMailAdminForgotPassword(AdminForgotPasswordRequest adminForgotPasswordRequest);
+    SendMailResponse sendMailAdminForgotPassword(AdminForgotPasswordRequest adminForgotPasswordRequest);
 }

@@ -5,6 +5,7 @@ import com.ismhac.jspace.dto.auth.AuthenticationResponse;
 import com.ismhac.jspace.dto.auth.IntrospectRequest;
 import com.ismhac.jspace.dto.auth.IntrospectResponse;
 import com.ismhac.jspace.dto.auth.LoginRequest;
+import com.ismhac.jspace.dto.common.SendMailResponse;
 import com.ismhac.jspace.dto.role.RoleDto;
 import com.ismhac.jspace.dto.user.admin.adminForgotPassword.AdminForgotPasswordRequest;
 import com.ismhac.jspace.event.AdminForgotPasswordEvent;
@@ -116,44 +117,24 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void sendMailAdminForgotPassword(AdminForgotPasswordRequest adminForgotPasswordRequest) {
-
-        String email = adminForgotPasswordRequest.getEmail().trim();
+    public SendMailResponse sendMailAdminForgotPassword(AdminForgotPasswordRequest adminForgotPasswordRequest) {
+        SendMailResponse sendMailResponse = new SendMailResponse();
+        try {
+            String email = adminForgotPasswordRequest.getEmail().trim();
 //        String body = adminForgotPasswordRequest.getBody().trim();
 //        String subject = adminForgotPasswordRequest.getSubject().trim();
 //        String returnUrl = adminForgotPasswordRequest.getReturnUrl().trim();
 
-        Admin admin = adminRepository.findAdminByAdminTypeAndEmail(AdminType.BASIC, email)
-                .orElseThrow(()-> new NotFoundException(ErrorCode.NOT_FOUND_USER));
+            Admin admin = adminRepository.findAdminByAdminTypeAndEmail(AdminType.BASIC, email)
+                    .orElseThrow(()-> new NotFoundException(ErrorCode.NOT_FOUND_USER));
 
-        Optional<AdminForgotPasswordToken> adminForgotPasswordToken = adminForgotPasswordTokenRepository
-                .findLatestByAdminId(admin.getId().getUser().getId());
+            Optional<AdminForgotPasswordToken> adminForgotPasswordToken = adminForgotPasswordTokenRepository
+                    .findLatestByAdminId(admin.getId().getUser().getId());
 
-        AdminForgotPasswordEvent adminForgotPasswordEvent = new AdminForgotPasswordEvent(this,adminForgotPasswordRequest);
+            if(adminForgotPasswordToken.isEmpty()){
 
-        if(adminForgotPasswordToken.isEmpty()){
+                LocalDateTime otpCreatedDateTime = LocalDateTime.now();
 
-            LocalDateTime otpCreatedDateTime = LocalDateTime.now();
-
-            String token = jwtService.generateAdminForgotPasswordToken(admin);
-
-            AdminForgotPasswordToken newAdminForgotPasswordToken = AdminForgotPasswordToken.builder()
-                    .admin(admin)
-                    .otpCreatedDateTime(otpCreatedDateTime)
-                    .token(token)
-                    .build();
-
-            adminForgotPasswordTokenRepository.save(newAdminForgotPasswordToken);
-
-            applicationEventPublisher.publishEvent(adminForgotPasswordEvent);
-        }else {
-            LocalDateTime otpCreatedDateTime = adminForgotPasswordToken.get().getOtpCreatedDateTime();
-            LocalDateTime now = LocalDateTime.now();
-            Duration duration = Duration.between(otpCreatedDateTime, now);
-
-            if(!(duration.compareTo(Duration.ofMinutes(1)) >0)){
-                throw new BadRequestException(ErrorCode.INVALID_TOKEN);
-            }else {
                 String token = jwtService.generateAdminForgotPasswordToken(admin);
 
                 AdminForgotPasswordToken newAdminForgotPasswordToken = AdminForgotPasswordToken.builder()
@@ -161,10 +142,51 @@ public class AuthServiceImpl implements AuthService {
                         .otpCreatedDateTime(otpCreatedDateTime)
                         .token(token)
                         .build();
+
                 adminForgotPasswordTokenRepository.save(newAdminForgotPasswordToken);
 
+                String body = adminForgotPasswordRequest.getReturnUrl().concat(String.format("?token=%s", token));
+
+                adminForgotPasswordRequest.setBody(body);
+
+                AdminForgotPasswordEvent adminForgotPasswordEvent = new AdminForgotPasswordEvent(this,adminForgotPasswordRequest);
+
                 applicationEventPublisher.publishEvent(adminForgotPasswordEvent);
+
+                sendMailResponse.setEmail(email);
+                sendMailResponse.setOtpCreatedDateTime(otpCreatedDateTime);
+            }else {
+                LocalDateTime otpCreatedDateTime = adminForgotPasswordToken.get().getOtpCreatedDateTime();
+                LocalDateTime now = LocalDateTime.now();
+                Duration duration = Duration.between(otpCreatedDateTime, now);
+
+                if(!(duration.compareTo(Duration.ofMinutes(1)) >0)){
+                    throw new BadRequestException(ErrorCode.INVALID_TOKEN);
+                }else {
+                    String token = jwtService.generateAdminForgotPasswordToken(admin);
+
+                    AdminForgotPasswordToken newAdminForgotPasswordToken = AdminForgotPasswordToken.builder()
+                            .admin(admin)
+                            .otpCreatedDateTime(otpCreatedDateTime)
+                            .token(token)
+                            .build();
+                    adminForgotPasswordTokenRepository.save(newAdminForgotPasswordToken);
+
+                    String body = adminForgotPasswordRequest.getReturnUrl().concat(String.format("?token=%s", token));
+
+                    adminForgotPasswordRequest.setBody(body);
+
+                    AdminForgotPasswordEvent adminForgotPasswordEvent = new AdminForgotPasswordEvent(this,adminForgotPasswordRequest);
+
+                    applicationEventPublisher.publishEvent(adminForgotPasswordEvent);
+
+                    sendMailResponse.setEmail(email);
+                    sendMailResponse.setOtpCreatedDateTime(otpCreatedDateTime);
+                }
             }
+            return sendMailResponse;
+        }catch (Exception e){
+            return sendMailResponse;
         }
     }
 }
