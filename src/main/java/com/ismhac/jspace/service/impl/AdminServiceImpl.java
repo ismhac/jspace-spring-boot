@@ -1,12 +1,14 @@
 package com.ismhac.jspace.service.impl;
 
 import com.ismhac.jspace.dto.common.PageResponse;
+import com.ismhac.jspace.dto.user.UserDto;
 import com.ismhac.jspace.dto.user.admin.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.AdminDto;
 import com.ismhac.jspace.exception.BadRequestException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.mapper.AdminMapper;
+import com.ismhac.jspace.mapper.UserMapper;
 import com.ismhac.jspace.model.Admin;
 import com.ismhac.jspace.model.Role;
 import com.ismhac.jspace.model.User;
@@ -50,6 +52,7 @@ public class AdminServiceImpl implements AdminService {
     private final PageUtils pageUtils;
 
     private final AdminMapper adminMapper;
+    private final UserMapper userMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -94,12 +97,13 @@ public class AdminServiceImpl implements AdminService {
         /* prepare data */
         String username = adminCreateRequest.getUsername().trim();
         String password = adminCreateRequest.getPassword().trim();
+        String email = adminCreateRequest.getEmail().trim();
         AdminType adminType = AdminType.BASIC;
 
         /* */
 
         /* check exist */
-        Optional<Admin> admin = adminRepository.findAdminByUsername(username);
+        Optional<Admin> admin = adminRepository.findAdminByUsernameAndEmail(username, email);
         if (admin.isPresent()) {
             throw new BadRequestException(ErrorCode.USER_EXISTED);
         }
@@ -109,6 +113,7 @@ public class AdminServiceImpl implements AdminService {
         User user = User.builder()
                 .username(username)
                 .password(passwordEncoder.encode(password))
+                .email(email)
                 .role(role)
                 .activated(true)
                 .build();
@@ -131,5 +136,11 @@ public class AdminServiceImpl implements AdminService {
     public PageResponse<AdminDto> getPageAdminByTypeFilterByNameAndActivated(String name, Boolean activated, Pageable pageable) {
         Page<Admin> adminPage = adminRepository.getPageAdminByTypeFilterByNameAndActivated(AdminType.BASIC, name, activated, pageable);
         return pageUtils.toPageResponse(adminMapper.toAdminDtoPage(adminPage));
+    }
+
+    @Override
+    public PageResponse<UserDto> getPageUserAndFilterByRoleIdNameAndEmailAndActivated(Integer roleId, String name, String email, Boolean activated, Pageable pageable) {
+        Page<User> userPage = userRepository.getPageUserAndFilterByNameAndEmailAndActivated(roleId, name, email, activated, pageable);
+        return pageUtils.toPageResponse(userMapper.toUserDtoPage(userPage));
     }
 }

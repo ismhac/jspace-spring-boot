@@ -2,6 +2,7 @@ package com.ismhac.jspace.controller;
 
 import com.ismhac.jspace.dto.common.ApiResponse;
 import com.ismhac.jspace.dto.common.PageResponse;
+import com.ismhac.jspace.dto.user.UserDto;
 import com.ismhac.jspace.dto.user.admin.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.AdminDto;
 import com.ismhac.jspace.service.AdminService;
@@ -26,6 +27,20 @@ public class AdminController {
             @RequestBody @Valid AdminCreateRequest adminCreateRequest) {
         var result = adminService.create(adminCreateRequest);
         return ApiResponse.<AdminDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @GetMapping("/users")
+    public ApiResponse<PageResponse<UserDto>> getPageUserAndFilterByNameAndEmailAndActivated(
+            @RequestParam(value = "roleId", required = false) Integer roleId,
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(value = "email", required = false) String email,
+            @RequestParam(value = "activated", required = false) Boolean activated,
+            Pageable pageable){
+        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
+        var result =  adminService.getPageUserAndFilterByRoleIdNameAndEmailAndActivated(roleId, name, email, activated, adjustedPageable);
+        return ApiResponse.<PageResponse<UserDto>>builder()
                 .result(result)
                 .build();
     }

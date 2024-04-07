@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
-//    boolean existsByEmail(String email);
+    //    boolean existsByEmail(String email);
     Optional<User> findUserByEmail(String email);
 
 //    boolean existsByUsername(String username);
@@ -22,9 +22,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("""
             select t1
             from User t1
-            where (:role is null or t1.role.id = :role_id)
-                and (:email is null or lower(t1.email) like lower(concat('%', cast(:email as text), '%')))
+            where (:roleId is null or t1.role.id = :roleId)
                 and (:name is null or lower(t1.name) like lower(concat('%', cast(:name as text), '%')))
+                and (:email is null or lower(t1.email) like lower(concat('%', cast(:email as text), '%')))
+                and (:activated is null or t1.activated = :activated)
             """)
-    Page<User> getPageFilterByEmailAndName(@Param("role_id") Integer  roleId, @Param("email") String email, @Param("name") String name, Pageable pageable);
+    Page<User> getPageUserAndFilterByNameAndEmailAndActivated(@Param("roleId") Integer roleId,@Param("name") String name, @Param("email") String email, @Param("activated") Boolean activated, Pageable pageable);
 }
