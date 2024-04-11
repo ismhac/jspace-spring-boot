@@ -62,7 +62,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(PUBLIC_ENDPOINTS)
                         .permitAll()
-                        .requestMatchers("/test/roles").hasAuthority("ROLE_EMPLOYEE")
                         .anyRequest()
                         .authenticated());
 
