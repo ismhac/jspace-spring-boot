@@ -1,12 +1,14 @@
 package com.ismhac.jspace.dto.auth;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Set;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class IntrospectRequest {
     private String token;
 }

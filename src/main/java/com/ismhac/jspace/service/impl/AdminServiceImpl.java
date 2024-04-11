@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -164,6 +165,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public PageResponse<UserDto> getPageUserAndFilterByRoleIdNameAndEmailAndActivated(Integer roleId, String name, String email, Boolean activated, Pageable pageable) {
         Page<User> userPage = userRepository.getPageUserAndFilterByNameAndEmailAndActivated(roleId, name, email, activated, pageable);
         return pageUtils.toPageResponse(userMapper.toUserDtoPage(userPage));
