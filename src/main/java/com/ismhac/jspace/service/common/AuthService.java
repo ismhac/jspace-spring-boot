@@ -21,7 +21,11 @@ public interface AuthService {
 
     IntrospectResponse introspect(IntrospectRequest introspectRequest) throws ParseException, JOSEException;
 
-    AuthenticationResponse<Object> refreshAccessToken(String token) throws ParseException, JOSEException;
+    AuthenticationResponse<Object> adminRefreshAccessToken(String token) throws ParseException, JOSEException;
+
+    AuthenticationResponse<Object> userRefreshAccessToken(String token) throws ParseException, JOSEException;
+
+    void logout(LogoutRequest logoutRequest) throws ParseException, JOSEException;
 
     SendMailResponse sendMailAdminForgotPassword(AdminForgotPasswordRequest adminForgotPasswordRequest);
 }

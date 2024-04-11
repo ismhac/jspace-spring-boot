@@ -2,10 +2,7 @@ package com.ismhac.jspace.controller.auth;
 
 
 import com.ismhac.jspace.config.security.oauth2.OAuth2Service;
-import com.ismhac.jspace.dto.auth.AuthenticationResponse;
-import com.ismhac.jspace.dto.auth.IntrospectRequest;
-import com.ismhac.jspace.dto.auth.IntrospectResponse;
-import com.ismhac.jspace.dto.auth.LoginRequest;
+import com.ismhac.jspace.dto.auth.*;
 import com.ismhac.jspace.dto.common.ApiResponse;
 import com.ismhac.jspace.dto.common.SendMailResponse;
 import com.ismhac.jspace.dto.role.RoleDto;
@@ -28,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -86,16 +84,29 @@ public class AuthController {
                 .build();
     }
 
-    @PostMapping("/refresh-token")
+    @PostMapping("/admin-refresh-token")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public ApiResponse<AuthenticationResponse<Object>> refreshAccessToken(
-            @RequestHeader("refresh_token") String refreshToken)
+    public ApiResponse<AuthenticationResponse<Object>> adminRefreshAccessToken(
+            @RequestHeader("refreshToken") String refreshToken)
             throws ParseException, JOSEException {
         if (refreshToken == null || refreshToken.isBlank()) {
             throw new BadRequestException(ErrorCode.MISSING_HEADER_VALUE);
         }
         return ApiResponse.<AuthenticationResponse<Object>>builder()
-                .result(authService.refreshAccessToken(refreshToken))
+                .result(authService.adminRefreshAccessToken(refreshToken))
+                .build();
+    }
+
+    @PostMapping("/user-refresh-token")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ApiResponse<AuthenticationResponse<Object>> userRefreshAccessToken(
+            @RequestHeader("refreshToken") String refreshToken)
+            throws ParseException, JOSEException {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new BadRequestException(ErrorCode.MISSING_HEADER_VALUE);
+        }
+        return ApiResponse.<AuthenticationResponse<Object>>builder()
+                .result(authService.userRefreshAccessToken(refreshToken))
                 .build();
     }
     /* */
@@ -106,6 +117,14 @@ public class AuthController {
         var result  = authService.sendMailAdminForgotPassword(adminForgotPasswordRequest);
         return ApiResponse.<SendMailResponse>builder()
                 .result(result)
+                .build();
+    }
+
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout( @RequestBody LogoutRequest logoutRequest)
+            throws ParseException, JOSEException {
+        authService.logout(logoutRequest);
+        return ApiResponse.<Void>builder()
                 .build();
     }
 }

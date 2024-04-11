@@ -1,10 +1,7 @@
 package com.ismhac.jspace.service.common.impl;
 
 import com.ismhac.jspace.config.security.jwt.JwtService;
-import com.ismhac.jspace.dto.auth.AuthenticationResponse;
-import com.ismhac.jspace.dto.auth.IntrospectRequest;
-import com.ismhac.jspace.dto.auth.IntrospectResponse;
-import com.ismhac.jspace.dto.auth.LoginRequest;
+import com.ismhac.jspace.dto.auth.*;
 import com.ismhac.jspace.dto.common.SendMailResponse;
 import com.ismhac.jspace.dto.role.RoleDto;
 import com.ismhac.jspace.dto.user.admin.adminForgotPassword.AdminForgotPasswordRequest;
@@ -21,6 +18,9 @@ import com.ismhac.jspace.repository.*;
 import com.ismhac.jspace.service.common.AuthService;
 import com.ismhac.jspace.util.HashUtils;
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jwt.SignedJWT;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,6 +52,8 @@ public class AuthServiceImpl implements AuthService {
     AdminForgotPasswordTokenRepository adminForgotPasswordTokenRepository;
 
     RefreshTokenRepository refreshTokenRepository;
+
+    InvalidatedTokenRepository invalidatedTokenRepository;
 
     JwtService jwtService;
 
@@ -99,8 +102,7 @@ public class AuthServiceImpl implements AuthService {
 
     /* */
     @Override
-    public AuthenticationResponse<Object> refreshAccessToken(String token)
-            throws ParseException, JOSEException {
+    public AuthenticationResponse<Object> adminRefreshAccessToken(String token) throws ParseException, JOSEException {
 
         RefreshToken refreshToken = refreshTokenRepository.findByToken(hashUtils.hmacSHA512(token.trim()))
                 .orElseThrow(()-> new AppException(ErrorCode.INVALID_TOKEN));
@@ -109,6 +111,21 @@ public class AuthServiceImpl implements AuthService {
         }
         User user = refreshToken.getUser();
         String accessToken = jwtService.generateAdminToken(user);
+
+        return AuthenticationResponse.builder()
+                .accessToken(accessToken)
+                .build();
+    }
+
+    @Override
+    public AuthenticationResponse<Object> userRefreshAccessToken(String token) throws ParseException, JOSEException {
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(hashUtils.hmacSHA512(token.trim()))
+                .orElseThrow(()-> new AppException(ErrorCode.INVALID_TOKEN));
+        if(!jwtService.introspect(token)){
+            throw new BadRequestException(ErrorCode.INVALID_TOKEN);
+        }
+        User user = refreshToken.getUser();
+        String accessToken = jwtService.generateUserToken(user);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
@@ -188,5 +205,21 @@ public class AuthServiceImpl implements AuthService {
         }catch (Exception e){
             return sendMailResponse;
         }
+    }
+
+
+    @Override
+    public void logout(LogoutRequest logoutRequest) throws ParseException, JOSEException {
+        var signToken = jwtService.verifyToken(logoutRequest.getToken());
+
+        String jti = signToken.getJWTClaimsSet().getJWTID();
+        Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+
+        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
+                .id(jti)
+                .expiryTime(expiryTime)
+                .build();
+
+        invalidatedTokenRepository.save(invalidatedToken);
     }
 }
