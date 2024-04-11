@@ -26,4 +26,7 @@ public class File extends BaseEntity {
     long size;
 
     String path;
+
+    @Column(name = "public_id")
+    String publicId;
 }

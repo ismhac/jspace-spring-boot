@@ -154,7 +154,8 @@ public class AdminServiceImpl implements AdminService {
 
         Admin admin = adminRepository.findAdminByUsername(username)
                 .orElseThrow(()-> new BadRequestException(ErrorCode.INVALID_TOKEN));
-        log.info("{}", jwt.getClaims());
+
+//        log.info("{}", jwt.getClaims());
          return adminMapper.toAdminDto(admin);
     }
 

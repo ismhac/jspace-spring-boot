@@ -31,6 +31,8 @@ public class FileServiceImpl implements FileService {
                 .size(multipartFile.getSize())
                 .path((String) uploadResult.get("url"))
                 .build();
-        return fileMapper.toFileDto(fileRepository.save(file));
+
+        File savedFile = fileRepository.save(file);
+        return fileMapper.toFileDto(savedFile);
     }
 }
