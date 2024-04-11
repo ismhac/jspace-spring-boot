@@ -5,6 +5,7 @@ import org.springframework.expression.AccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -75,5 +76,14 @@ public class GlobalExceptionHandler {
         apiResponse.setMessage(errorCode.getMessage());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiResponse);
+    }
+
+    @ExceptionHandler(value = HttpMediaTypeNotSupportedException.class)
+    ResponseEntity<ApiResponse<Object>> handlingHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException exception){
+
+        return ResponseEntity.status(exception.getStatusCode()).body(ApiResponse.builder()
+                .code(exception.getStatusCode().value())
+                .message(exception.getMessage())
+                .build());
     }
 }

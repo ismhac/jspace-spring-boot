@@ -14,6 +14,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Resume {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
 
     String name;

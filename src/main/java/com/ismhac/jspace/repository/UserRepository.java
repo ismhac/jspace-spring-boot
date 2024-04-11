@@ -22,6 +22,13 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("""
             select t1
             from User t1
+            where t1.username = :username or t1.email = :email
+            """)
+    Optional<User> findUserByUsernameOrEmail(String username, String email);
+
+    @Query("""
+            select t1
+            from User t1
             where (:roleId is null or t1.role.id = :roleId)
                 and (:name is null or :name = '' or  lower(t1.name) like lower(concat('%', :name, '%')))
                 and (:email is null or :email = '' or lower(t1.email) like lower(concat('%', :email, '%')))
