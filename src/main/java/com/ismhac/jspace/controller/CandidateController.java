@@ -1,15 +1,13 @@
 package com.ismhac.jspace.controller;
 
-import com.ismhac.jspace.dto.common.ApiResponse;
-import com.ismhac.jspace.dto.resume.ResumeCreateRequest;
-import com.ismhac.jspace.dto.resume.ResumeDto;
+import com.ismhac.jspace.dto.common.response.ApiResponse;
+import com.ismhac.jspace.dto.resume.request.ResumeCreateRequest;
+import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.service.CandidateService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("api/v1/candidates")

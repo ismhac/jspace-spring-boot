@@ -1,7 +1,7 @@
 package com.ismhac.jspace.service.common.impl;
 
 import com.cloudinary.Cloudinary;
-import com.ismhac.jspace.dto.file.FileDto;
+import com.ismhac.jspace.dto.file.response.FileDto;
 import com.ismhac.jspace.mapper.FileMapper;
 import com.ismhac.jspace.model.File;
 import com.ismhac.jspace.repository.FileRepository;

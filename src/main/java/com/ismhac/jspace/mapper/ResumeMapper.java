@@ -1,7 +1,7 @@
 package com.ismhac.jspace.mapper;
 
-import com.ismhac.jspace.dto.file.FileDto;
-import com.ismhac.jspace.dto.resume.ResumeDto;
+import com.ismhac.jspace.dto.file.response.FileDto;
+import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.model.File;
 import com.ismhac.jspace.model.Resume;
 import org.mapstruct.Mapper;

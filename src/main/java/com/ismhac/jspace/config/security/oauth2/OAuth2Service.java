@@ -1,9 +1,8 @@
 package com.ismhac.jspace.config.security.oauth2;
 
 import com.ismhac.jspace.config.security.jwt.JwtService;
-import com.ismhac.jspace.dto.auth.AuthenticationResponse;
+import com.ismhac.jspace.dto.auth.reponse.AuthenticationResponse;
 import com.ismhac.jspace.exception.AppException;
-import com.ismhac.jspace.exception.BadRequestException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.model.Candidate;
 import com.ismhac.jspace.model.Employee;
@@ -65,6 +64,8 @@ public class OAuth2Service {
     public AuthenticationResponse<Object> userRegister(Map<String, Object> data, RoleCode roleCode) {
 
         String email = (String) data.get("email");
+        String name = (String) data.get("name");
+        String picture = (String) data.get("picture");
 
         Role roleCheck = roleRepository.findRoleByCode(roleCode)
                 .orElseThrow(()-> new AppException(ErrorCode.INVALID_TOKEN));
@@ -72,12 +73,14 @@ public class OAuth2Service {
         Optional<User> user = userRepository.findUserByEmail(email);
 
         if(user.isPresent()){
-            throw new BadRequestException(ErrorCode.USER_EXISTED);
+            throw new AppException(ErrorCode.USER_EXISTED);
         }else {
             User newUser = User.builder()
                     .role(roleCheck)
                     .activated(true)
                     .email(email)
+                    .name(name)
+                    .picture(picture)
                     .build();
 
             User savedUser = userRepository.save(newUser);
@@ -99,7 +102,7 @@ public class OAuth2Service {
 
                 candidateRepository.save(candidate);
             } else {
-                throw new BadRequestException(ErrorCode.INVALID_ROLE_REGISTER);
+                throw new AppException(ErrorCode.INVALID_ROLE_REGISTER);
             }
 
             var accessToken = jwtService.generateUserToken(savedUser);

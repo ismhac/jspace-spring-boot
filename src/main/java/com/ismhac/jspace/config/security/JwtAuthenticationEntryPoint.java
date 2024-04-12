@@ -1,7 +1,7 @@
 package com.ismhac.jspace.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ismhac.jspace.dto.common.ApiResponse;
+import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.exception.ErrorCode;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

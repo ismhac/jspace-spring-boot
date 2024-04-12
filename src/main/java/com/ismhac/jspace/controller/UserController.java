@@ -1,16 +1,10 @@
 package com.ismhac.jspace.controller;
 
-import com.ismhac.jspace.dto.common.ApiResponse;
-import com.ismhac.jspace.dto.common.PageResponse;
-import com.ismhac.jspace.dto.user.UserDto;
 import com.ismhac.jspace.service.UserService;
 import com.ismhac.jspace.util.PageUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController

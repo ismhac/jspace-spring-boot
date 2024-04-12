@@ -1,8 +1,7 @@
 package com.ismhac.jspace.service;
 
-import com.ismhac.jspace.dto.common.PageResponse;
-import com.ismhac.jspace.dto.company.CompanyDto;
-import org.springframework.data.domain.Page;
+import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.company.response.CompanyDto;
 
 public interface CompanyService {
     PageResponse<CompanyDto> getPage(String name, String address , int pageNumber, int pageSize);

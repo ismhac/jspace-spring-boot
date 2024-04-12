@@ -1,6 +1,6 @@
 package com.ismhac.jspace.event;
 
-import com.ismhac.jspace.dto.user.admin.adminForgotPassword.AdminForgotPasswordRequest;
+import com.ismhac.jspace.dto.user.admin.adminForgotPassword.request.AdminForgotPasswordRequest;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.ApplicationEvent;

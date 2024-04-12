@@ -1,9 +1,7 @@
 package com.ismhac.jspace.service;
 
-import com.ismhac.jspace.dto.common.PageResponse;
-import com.ismhac.jspace.dto.user.employee.EmployeeDto;
-import com.ismhac.jspace.model.Employee;
-import org.springframework.data.domain.Page;
+import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import org.springframework.data.domain.Pageable;
 
 public interface EmployeeService {

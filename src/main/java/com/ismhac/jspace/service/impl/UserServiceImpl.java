@@ -1,16 +1,10 @@
 package com.ismhac.jspace.service.impl;
 
-import com.ismhac.jspace.dto.common.PageResponse;
-import com.ismhac.jspace.dto.user.UserDto;
 import com.ismhac.jspace.mapper.UserMapper;
-import com.ismhac.jspace.model.User;
 import com.ismhac.jspace.repository.UserRepository;
 import com.ismhac.jspace.service.UserService;
 import com.ismhac.jspace.util.PageUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service

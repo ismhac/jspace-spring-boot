@@ -1,6 +1,6 @@
 package com.ismhac.jspace.mapper;
 
-import com.ismhac.jspace.dto.company.CompanyDto;
+import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.model.Company;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

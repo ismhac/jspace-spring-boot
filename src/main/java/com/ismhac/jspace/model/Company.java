@@ -23,18 +23,21 @@ public class Company extends BaseEntity {
     @Column(name = "name", unique = true)
     String name;
 
-    @Column(name = "background")
     String background;
 
-    @Column(name = "logo")
     String logo;
 
-    @Column(name = "address")
     String address;
 
-//    @OneToMany
-//    Set<Employee> employees;
-//
-//    @OneToMany
-//    Set<Post> posts;
+    String email;
+
+    String phone;
+
+    @Column(columnDefinition = "text")
+    String description;
+
+    @Column(name = "company_link")
+    String companyLink;
+
+    Boolean verified;
 }

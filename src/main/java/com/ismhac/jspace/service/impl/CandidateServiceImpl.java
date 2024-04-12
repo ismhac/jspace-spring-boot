@@ -1,10 +1,9 @@
 package com.ismhac.jspace.service.impl;
 
 import com.cloudinary.Cloudinary;
-import com.ismhac.jspace.dto.resume.ResumeCreateRequest;
-import com.ismhac.jspace.dto.resume.ResumeDto;
+import com.ismhac.jspace.dto.resume.request.ResumeCreateRequest;
+import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.exception.AppException;
-import com.ismhac.jspace.exception.BadRequestException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.mapper.ResumeMapper;
 import com.ismhac.jspace.model.Candidate;
@@ -19,6 +18,7 @@ import com.ismhac.jspace.service.CandidateService;
 import com.ismhac.jspace.util.UserUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,15 +43,16 @@ public class CandidateServiceImpl implements CandidateService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @PreAuthorize("hasRole('CANDIDATE')")
     public ResumeDto createResume(ResumeCreateRequest resumeCreateRequest, MultipartFile file) {
         try {
-            File uploadedFile = uploadFile(file);
-
             User user = userUtils.getUserFromToken();
+
             Candidate candidate = candidateRepository.findById(CandidateId.builder()
                     .user(user)
-                    .build()).orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
+                    .build()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_USER));
 
+            File uploadedFile = uploadFile(file);
             Resume resume = Resume.builder()
                     .name(resumeCreateRequest.getName())
                     .candidate(candidate)
@@ -60,18 +61,29 @@ public class CandidateServiceImpl implements CandidateService {
 
             return resumeMapper.toResumeDto(resumeRepository.save(resume));
         } catch (IOException e) {
-            throw new BadRequestException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+            throw new RuntimeException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
 
     @Transactional(rollbackFor = Exception.class)
-    protected File uploadFile(MultipartFile multipartFile) throws IOException {
-//        Map uploadResult = cloudinary.uploader().upload(multipartFile.getBytes(), new HashMap<>());
+    protected File uploadFile(MultipartFile multipartFile) throws Exception {
+
+        if (multipartFile == null || multipartFile.isEmpty()) {
+            throw new IllegalArgumentException("File must not be empty");
+        }
 
         Map<String, Object> options = new HashMap<>();
 //
-        Map uploadResult = cloudinary.uploader().upload(multipartFile.getBytes(), options);
+        Map uploadResult;
+
+        try {
+            uploadResult = cloudinary.uploader().upload(multipartFile.getBytes(), options);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception.getMessage());
+        }
 
         log.info("----- upload result : {}", uploadResult);
 

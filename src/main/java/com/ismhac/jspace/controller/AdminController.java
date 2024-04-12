@@ -1,17 +1,16 @@
 package com.ismhac.jspace.controller;
 
-import com.ismhac.jspace.dto.common.ApiResponse;
-import com.ismhac.jspace.dto.common.PageResponse;
-import com.ismhac.jspace.dto.user.UserDto;
-import com.ismhac.jspace.dto.user.admin.AdminCreateRequest;
-import com.ismhac.jspace.dto.user.admin.AdminDto;
+import com.ismhac.jspace.dto.common.response.ApiResponse;
+import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.user.response.UserDto;
+import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
+import com.ismhac.jspace.dto.user.admin.response.AdminDto;
 import com.ismhac.jspace.service.AdminService;
 import com.ismhac.jspace.util.PageUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

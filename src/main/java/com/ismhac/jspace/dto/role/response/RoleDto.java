@@ -1,4 +1,4 @@
-package com.ismhac.jspace.dto.role;
+package com.ismhac.jspace.dto.role.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ismhac.jspace.model.enums.RoleCode;

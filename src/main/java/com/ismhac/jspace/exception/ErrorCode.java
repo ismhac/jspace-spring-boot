@@ -1,23 +1,26 @@
 package com.ismhac.jspace.exception;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
 @Getter
+@AllArgsConstructor
 public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
-    INVALID_KEY(1001,"Invalid message key", HttpStatus.BAD_REQUEST),
+    INVALID_KEY(HttpStatus.BAD_REQUEST.value(), "Invalid message key", HttpStatus.BAD_REQUEST),
     NOT_FOUND_SUPPER_ADMIN(1002, "Not found super admin", HttpStatus.NOT_FOUND),
-    USER_EXISTED(1003, "User is existed",  HttpStatus.BAD_REQUEST),
+    USER_EXISTED(HttpStatus.BAD_REQUEST.value(), "User is existed",  HttpStatus.BAD_REQUEST),
 
-    USER_NOT_EXISTED(1004, "user not existed", HttpStatus.NOT_FOUND),
+    USER_NOT_EXISTED(HttpStatus.NOT_FOUND.value(), "user not existed", HttpStatus.NOT_FOUND),
 
-    UNAUTHENTICATED(1004, "unauthenticated", HttpStatus.UNAUTHORIZED),
+    UNAUTHENTICATED(HttpStatus.UNAUTHORIZED.value(), "unauthenticated", HttpStatus.UNAUTHORIZED),
 
-    INVALID_TOKEN(1004, "Invalid token", HttpStatus.BAD_REQUEST),
+    INVALID_TOKEN(HttpStatus.BAD_REQUEST.value(), "Invalid token", HttpStatus.BAD_REQUEST),
 
-    NOT_FOUND_ROLE(1004, "Not found role", HttpStatus.NOT_FOUND),
+    NOT_FOUND_ROLE(HttpStatus.NOT_FOUND.value(), "Not found role", HttpStatus.NOT_FOUND),
 
     NOT_EMAIL_FORMAT(1005, "Not email format", HttpStatus.BAD_REQUEST),
 
@@ -35,9 +38,9 @@ public enum ErrorCode {
 
     WRONG_USERNAME_OR_PASSWORD(1012, "wrong username or password", HttpStatus.UNAUTHORIZED ),
 
-    UNAUTHORIZED(1013, "Do not permission", HttpStatus.UNAUTHORIZED),
+    UNAUTHORIZED(HttpStatus.FORBIDDEN.value(), "Do not permission",HttpStatus.FORBIDDEN),
 
-    NOT_FOUND_USER(1014, "Not found user", HttpStatus.NOT_FOUND),
+    NOT_FOUND_USER(HttpStatus.NOT_FOUND.value(), "Not found user", HttpStatus.NOT_FOUND),
 
     NOT_FOUND_EMPLOYEE(1015, "Not found employee", HttpStatus.NOT_FOUND),
 
@@ -47,14 +50,8 @@ public enum ErrorCode {
 
     UPLOAD_FILE_FAIL(1018, "Upload file fail", HttpStatus.BAD_REQUEST)
     ;
+
     private final int code;
     private final String message;
-
     private final HttpStatusCode httpStatusCode;
-
-    ErrorCode(int code, String message, HttpStatusCode httpStatusCode){
-        this.code = code;
-        this.message = message;
-        this.httpStatusCode = httpStatusCode;
-    }
 }

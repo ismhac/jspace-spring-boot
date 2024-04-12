@@ -1,16 +1,17 @@
 package com.ismhac.jspace.service.common;
 
-import com.ismhac.jspace.dto.auth.*;
-import com.ismhac.jspace.dto.common.SendMailResponse;
-import com.ismhac.jspace.dto.role.RoleDto;
-import com.ismhac.jspace.dto.user.UserDto;
-import com.ismhac.jspace.dto.user.admin.adminForgotPassword.AdminForgotPasswordRequest;
-import com.ismhac.jspace.model.enums.RoleCode;
+import com.ismhac.jspace.dto.auth.reponse.AuthenticationResponse;
+import com.ismhac.jspace.dto.auth.reponse.IntrospectResponse;
+import com.ismhac.jspace.dto.auth.request.IntrospectRequest;
+import com.ismhac.jspace.dto.auth.request.LoginRequest;
+import com.ismhac.jspace.dto.auth.request.LogoutRequest;
+import com.ismhac.jspace.dto.common.request.SendMailResponse;
+import com.ismhac.jspace.dto.role.response.RoleDto;
+import com.ismhac.jspace.dto.user.admin.adminForgotPassword.request.AdminForgotPasswordRequest;
 import com.nimbusds.jose.JOSEException;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.Map;
 
 public interface AuthService {
     List<RoleDto> getRolesForRegister();

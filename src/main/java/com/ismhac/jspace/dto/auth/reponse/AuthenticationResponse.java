@@ -1,4 +1,4 @@
-package com.ismhac.jspace.dto.auth;
+package com.ismhac.jspace.dto.auth.reponse;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

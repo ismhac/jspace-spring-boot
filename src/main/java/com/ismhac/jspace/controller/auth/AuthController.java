@@ -2,12 +2,16 @@ package com.ismhac.jspace.controller.auth;
 
 
 import com.ismhac.jspace.config.security.oauth2.OAuth2Service;
-import com.ismhac.jspace.dto.auth.*;
-import com.ismhac.jspace.dto.common.ApiResponse;
-import com.ismhac.jspace.dto.common.SendMailResponse;
-import com.ismhac.jspace.dto.role.RoleDto;
-import com.ismhac.jspace.dto.user.admin.adminForgotPassword.AdminForgotPasswordRequest;
-import com.ismhac.jspace.exception.BadRequestException;
+import com.ismhac.jspace.dto.auth.reponse.AuthenticationResponse;
+import com.ismhac.jspace.dto.auth.reponse.IntrospectResponse;
+import com.ismhac.jspace.dto.auth.request.IntrospectRequest;
+import com.ismhac.jspace.dto.auth.request.LoginRequest;
+import com.ismhac.jspace.dto.auth.request.LogoutRequest;
+import com.ismhac.jspace.dto.common.response.ApiResponse;
+import com.ismhac.jspace.dto.common.request.SendMailResponse;
+import com.ismhac.jspace.dto.role.response.RoleDto;
+import com.ismhac.jspace.dto.user.admin.adminForgotPassword.request.AdminForgotPasswordRequest;
+import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.model.enums.RoleCode;
 import com.ismhac.jspace.service.common.AuthService;
@@ -19,13 +23,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -38,7 +40,6 @@ public class AuthController {
     AuthService authService;
     OAuth2Service oAuth2Service;
 
-    /* */
     @GetMapping("/roles")
     public ApiResponse<List<RoleDto>> getRolesForRegister() {
         List<RoleDto> roleDtoList = authService.getRolesForRegister();
@@ -47,9 +48,9 @@ public class AuthController {
         return apiResponse;
     }
 
-    /* USER AUTHENTICATION */
     @PostMapping("/users/login")
-    public ApiResponse<AuthenticationResponse<Object>> userLogin(@RequestBody Map<String, Object> data) {
+    public ApiResponse<AuthenticationResponse<Object>> userLogin(
+            @RequestBody Map<String, Object> data) {
 //        log.info("data: {}", data);
         return ApiResponse.<AuthenticationResponse<Object>>builder()
                 .result(oAuth2Service.userLogin(data))
@@ -57,7 +58,9 @@ public class AuthController {
     }
 
     @PostMapping("/users/register")
-    public ApiResponse<AuthenticationResponse<Object>> userRegister(@RequestParam("role") RoleCode roleCode, @RequestBody Map<String, Object> data) {
+    public ApiResponse<AuthenticationResponse<Object>> userRegister(
+            @RequestParam("role") RoleCode roleCode,
+            @RequestBody Map<String, Object> data) {
 //        log.info("data: {}", data);
 
         return ApiResponse.<AuthenticationResponse<Object>>builder()
@@ -65,20 +68,19 @@ public class AuthController {
                 .build();
     }
 
-    /* ADMIN AUTHENTICATION */
     @PostMapping("/admin/login")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public ApiResponse<AuthenticationResponse<Object>> adminLogin(@RequestBody @Valid LoginRequest loginRequest) {
+    public ApiResponse<AuthenticationResponse<Object>> adminLogin(
+            @RequestBody @Valid LoginRequest loginRequest) {
         return ApiResponse.<AuthenticationResponse<Object>>builder()
                 .result(authService.adminLogin(loginRequest))
                 .build();
     }
 
-    /* TOKEN */
     @PostMapping("/introspect")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public ApiResponse<IntrospectResponse> introspect(@RequestBody @Valid IntrospectRequest introspectRequest)
-            throws ParseException, JOSEException {
+    public ApiResponse<IntrospectResponse> introspect(
+            @RequestBody @Valid IntrospectRequest introspectRequest) throws ParseException, JOSEException {
         return ApiResponse.<IntrospectResponse>builder()
                 .result(authService.introspect(introspectRequest))
                 .build();
@@ -87,10 +89,9 @@ public class AuthController {
     @PostMapping("/admin-refresh-token")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ApiResponse<AuthenticationResponse<Object>> adminRefreshAccessToken(
-            @RequestHeader("refreshToken") String refreshToken)
-            throws ParseException, JOSEException {
+            @RequestHeader("refreshToken") String refreshToken) throws ParseException, JOSEException {
         if (refreshToken == null || refreshToken.isBlank()) {
-            throw new BadRequestException(ErrorCode.MISSING_HEADER_VALUE);
+            throw new AppException(ErrorCode.MISSING_HEADER_VALUE);
         }
         return ApiResponse.<AuthenticationResponse<Object>>builder()
                 .result(authService.adminRefreshAccessToken(refreshToken))
@@ -100,28 +101,27 @@ public class AuthController {
     @PostMapping("/user-refresh-token")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ApiResponse<AuthenticationResponse<Object>> userRefreshAccessToken(
-            @RequestHeader("refreshToken") String refreshToken)
-            throws ParseException, JOSEException {
+            @RequestHeader("refreshToken") String refreshToken) throws ParseException, JOSEException {
         if (refreshToken == null || refreshToken.isBlank()) {
-            throw new BadRequestException(ErrorCode.MISSING_HEADER_VALUE);
+            throw new AppException(ErrorCode.MISSING_HEADER_VALUE);
         }
         return ApiResponse.<AuthenticationResponse<Object>>builder()
                 .result(authService.userRefreshAccessToken(refreshToken))
                 .build();
     }
-    /* */
 
     @PostMapping("/admins/forgot-password")
     public ApiResponse<SendMailResponse> sendMailAdminForgotPassword(
-            @RequestBody AdminForgotPasswordRequest adminForgotPasswordRequest){
-        var result  = authService.sendMailAdminForgotPassword(adminForgotPasswordRequest);
+            @RequestBody AdminForgotPasswordRequest adminForgotPasswordRequest) {
+        var result = authService.sendMailAdminForgotPassword(adminForgotPasswordRequest);
         return ApiResponse.<SendMailResponse>builder()
                 .result(result)
                 .build();
     }
 
     @PostMapping("/logout")
-    public ApiResponse<Void> logout( @RequestBody LogoutRequest logoutRequest)
+    public ApiResponse<Void> logout(
+            @RequestBody LogoutRequest logoutRequest)
             throws ParseException, JOSEException {
         authService.logout(logoutRequest);
         return ApiResponse.<Void>builder()

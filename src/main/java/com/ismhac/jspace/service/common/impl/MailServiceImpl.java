@@ -1,6 +1,6 @@
 package com.ismhac.jspace.service.common.impl;
 
-import com.ismhac.jspace.dto.common.SendMailRequest;
+import com.ismhac.jspace.dto.common.request.SendMailRequest;
 import com.ismhac.jspace.service.common.MailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

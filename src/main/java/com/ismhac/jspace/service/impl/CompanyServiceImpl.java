@@ -1,7 +1,7 @@
 package com.ismhac.jspace.service.impl;
 
-import com.ismhac.jspace.dto.common.PageResponse;
-import com.ismhac.jspace.dto.company.CompanyDto;
+import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.mapper.CompanyMapper;
 import com.ismhac.jspace.model.Company;
 import com.ismhac.jspace.repository.CompanyRepository;

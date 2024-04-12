@@ -1,6 +1,6 @@
 package com.ismhac.jspace.util;
 
-import com.ismhac.jspace.dto.common.PageResponse;
+import com.ismhac.jspace.dto.common.response.PageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

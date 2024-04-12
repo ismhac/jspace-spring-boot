@@ -18,14 +18,10 @@ public class UserUtils {
     public User getUserFromToken() {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        String username = (String) jwt.getClaims().get("sub");
-
-        User user = userRepository
+        return userRepository
                 .findUserByUsernameOrEmail(
                         (String) jwt.getClaims().get("sub"),
                         (String) jwt.getClaims().get("email"))
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
-
-        return user;
     }
 }

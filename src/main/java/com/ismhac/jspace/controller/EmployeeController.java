@@ -1,8 +1,8 @@
 package com.ismhac.jspace.controller;
 
-import com.ismhac.jspace.dto.common.ApiResponse;
-import com.ismhac.jspace.dto.common.PageResponse;
-import com.ismhac.jspace.dto.user.employee.EmployeeDto;
+import com.ismhac.jspace.dto.common.response.ApiResponse;
+import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.service.EmployeeService;
 import com.ismhac.jspace.util.PageUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;

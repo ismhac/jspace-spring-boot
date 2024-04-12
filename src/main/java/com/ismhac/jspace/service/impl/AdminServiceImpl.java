@@ -1,10 +1,10 @@
 package com.ismhac.jspace.service.impl;
 
-import com.ismhac.jspace.dto.common.PageResponse;
-import com.ismhac.jspace.dto.user.UserDto;
-import com.ismhac.jspace.dto.user.admin.AdminCreateRequest;
-import com.ismhac.jspace.dto.user.admin.AdminDto;
-import com.ismhac.jspace.exception.BadRequestException;
+import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.user.response.UserDto;
+import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
+import com.ismhac.jspace.dto.user.admin.response.AdminDto;
+import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.mapper.AdminMapper;
@@ -24,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -110,15 +109,15 @@ public class AdminServiceImpl implements AdminService {
         /* check exist */
         Optional<Admin> admin = adminRepository.findAdminByAdminTypeAndUsernameAndEmail(adminType,username, email);
         if (admin.isPresent()) {
-            throw new BadRequestException(ErrorCode.USER_EXISTED);
+            throw new AppException(ErrorCode.USER_EXISTED);
         }
 
         if(adminRepository.findAdminByAdminTypeAndEmail(adminType, email).isPresent()){
-            throw new BadRequestException(ErrorCode.USER_EXISTED);
+            throw new AppException(ErrorCode.USER_EXISTED);
         }
 
         if(adminRepository.findAdminByAdminTypeAndUsername(adminType, username).isPresent()){
-            throw new BadRequestException(ErrorCode.USER_EXISTED);
+            throw new AppException(ErrorCode.USER_EXISTED);
         }
 
 
@@ -153,7 +152,7 @@ public class AdminServiceImpl implements AdminService {
         String username = (String) jwt.getClaims().get("sub");
 
         Admin admin = adminRepository.findAdminByUsername(username)
-                .orElseThrow(()-> new BadRequestException(ErrorCode.INVALID_TOKEN));
+                .orElseThrow(()-> new AppException(ErrorCode.INVALID_TOKEN));
 
 //        log.info("{}", jwt.getClaims());
          return adminMapper.toAdminDto(admin);
