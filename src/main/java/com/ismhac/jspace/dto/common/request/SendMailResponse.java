@@ -1,4 +1,4 @@
-package com.ismhac.jspace.dto.common;
+package com.ismhac.jspace.dto.common.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

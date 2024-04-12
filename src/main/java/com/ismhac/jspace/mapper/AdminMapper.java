@@ -1,7 +1,7 @@
 package com.ismhac.jspace.mapper;
 
-import com.ismhac.jspace.dto.user.UserDto;
-import com.ismhac.jspace.dto.user.admin.AdminDto;
+import com.ismhac.jspace.dto.user.response.UserDto;
+import com.ismhac.jspace.dto.user.admin.response.AdminDto;
 import com.ismhac.jspace.model.Admin;
 import com.ismhac.jspace.model.User;
 import org.mapstruct.Mapper;

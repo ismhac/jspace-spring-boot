@@ -1,12 +1,9 @@
 package com.ismhac.jspace.config.security;
 
 import com.ismhac.jspace.config.security.jwt.JwtService;
-import com.ismhac.jspace.dto.auth.IntrospectRequest;
-import com.ismhac.jspace.service.common.AuthService;
 import com.nimbusds.jose.JOSEException;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;

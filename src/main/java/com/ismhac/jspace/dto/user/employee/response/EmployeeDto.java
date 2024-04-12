@@ -1,7 +1,6 @@
-package com.ismhac.jspace.dto.user.employee;
+package com.ismhac.jspace.dto.user.employee.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ismhac.jspace.dto.user.UserDto;
+import com.ismhac.jspace.dto.user.response.UserDto;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

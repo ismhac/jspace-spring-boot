@@ -31,6 +31,8 @@ public class User extends BaseEntity {
 
     String picture;
 
+    String phone;
+
     boolean activated;
 
     @ManyToOne

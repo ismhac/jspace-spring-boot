@@ -1,4 +1,4 @@
-package com.ismhac.jspace.dto.company;
+package com.ismhac.jspace.dto.company.response;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;

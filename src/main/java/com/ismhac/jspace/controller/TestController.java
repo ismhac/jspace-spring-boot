@@ -1,9 +1,9 @@
 package com.ismhac.jspace.controller;
 
 import com.ismhac.jspace.config.security.oauth2.OAuth2Service;
-import com.ismhac.jspace.dto.auth.AuthenticationResponse;
-import com.ismhac.jspace.dto.common.ApiResponse;
-import com.ismhac.jspace.dto.role.RoleDto;
+import com.ismhac.jspace.dto.auth.reponse.AuthenticationResponse;
+import com.ismhac.jspace.dto.common.response.ApiResponse;
+import com.ismhac.jspace.dto.role.response.RoleDto;
 import com.ismhac.jspace.mapper.UserMapper;
 import com.ismhac.jspace.model.enums.RoleCode;
 import com.ismhac.jspace.service.common.AuthService;

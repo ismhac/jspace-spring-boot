@@ -1,6 +1,6 @@
 package com.ismhac.jspace.listener;
 
-import com.ismhac.jspace.dto.common.SendMailRequest;
+import com.ismhac.jspace.dto.common.request.SendMailRequest;
 import com.ismhac.jspace.event.AdminForgotPasswordEvent;
 import com.ismhac.jspace.service.common.MailService;
 import lombok.RequiredArgsConstructor;

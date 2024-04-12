@@ -1,13 +1,16 @@
 package com.ismhac.jspace.service.common.impl;
 
 import com.ismhac.jspace.config.security.jwt.JwtService;
-import com.ismhac.jspace.dto.auth.*;
-import com.ismhac.jspace.dto.common.SendMailResponse;
-import com.ismhac.jspace.dto.role.RoleDto;
-import com.ismhac.jspace.dto.user.admin.adminForgotPassword.AdminForgotPasswordRequest;
+import com.ismhac.jspace.dto.auth.reponse.AuthenticationResponse;
+import com.ismhac.jspace.dto.auth.reponse.IntrospectResponse;
+import com.ismhac.jspace.dto.auth.request.IntrospectRequest;
+import com.ismhac.jspace.dto.auth.request.LoginRequest;
+import com.ismhac.jspace.dto.auth.request.LogoutRequest;
+import com.ismhac.jspace.dto.common.request.SendMailResponse;
+import com.ismhac.jspace.dto.role.response.RoleDto;
+import com.ismhac.jspace.dto.user.admin.adminForgotPassword.request.AdminForgotPasswordRequest;
 import com.ismhac.jspace.event.AdminForgotPasswordEvent;
 import com.ismhac.jspace.exception.AppException;
-import com.ismhac.jspace.exception.BadRequestException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.mapper.RoleMapper;
@@ -18,9 +21,6 @@ import com.ismhac.jspace.repository.*;
 import com.ismhac.jspace.service.common.AuthService;
 import com.ismhac.jspace.util.HashUtils;
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jwt.SignedJWT;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -69,7 +69,7 @@ public class AuthServiceImpl implements AuthService {
         return roleMapper.toRoleDtoList(roleList);
     }
 
-    
+
     /* */
     @Override
     public AuthenticationResponse<Object> adminLogin(LoginRequest loginRequest) {
@@ -105,9 +105,9 @@ public class AuthServiceImpl implements AuthService {
     public AuthenticationResponse<Object> adminRefreshAccessToken(String token) throws ParseException, JOSEException {
 
         RefreshToken refreshToken = refreshTokenRepository.findByToken(hashUtils.hmacSHA512(token.trim()))
-                .orElseThrow(()-> new AppException(ErrorCode.INVALID_TOKEN));
-        if(!jwtService.introspect(token)){
-            throw new BadRequestException(ErrorCode.INVALID_TOKEN);
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_TOKEN));
+        if (!jwtService.introspect(token)) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
         }
         User user = refreshToken.getUser();
         String accessToken = jwtService.generateAdminToken(user);
@@ -120,9 +120,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthenticationResponse<Object> userRefreshAccessToken(String token) throws ParseException, JOSEException {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(hashUtils.hmacSHA512(token.trim()))
-                .orElseThrow(()-> new AppException(ErrorCode.INVALID_TOKEN));
-        if(!jwtService.introspect(token)){
-            throw new BadRequestException(ErrorCode.INVALID_TOKEN);
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_TOKEN));
+        if (!jwtService.introspect(token)) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
         }
         User user = refreshToken.getUser();
         String accessToken = jwtService.generateUserToken(user);
@@ -138,17 +138,14 @@ public class AuthServiceImpl implements AuthService {
         SendMailResponse sendMailResponse = new SendMailResponse();
         try {
             String email = adminForgotPasswordRequest.getEmail().trim();
-//        String body = adminForgotPasswordRequest.getBody().trim();
-//        String subject = adminForgotPasswordRequest.getSubject().trim();
-//        String returnUrl = adminForgotPasswordRequest.getReturnUrl().trim();
 
             Admin admin = adminRepository.findAdminByAdminTypeAndEmail(AdminType.BASIC, email)
-                    .orElseThrow(()-> new NotFoundException(ErrorCode.NOT_FOUND_USER));
+                    .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_USER));
 
             Optional<AdminForgotPasswordToken> adminForgotPasswordToken = adminForgotPasswordTokenRepository
                     .findLatestByAdminId(admin.getId().getUser().getId());
 
-            if(adminForgotPasswordToken.isEmpty()){
+            if (adminForgotPasswordToken.isEmpty()) {
 
                 LocalDateTime otpCreatedDateTime = LocalDateTime.now();
 
@@ -166,20 +163,20 @@ public class AuthServiceImpl implements AuthService {
 
                 adminForgotPasswordRequest.setBody(body);
 
-                AdminForgotPasswordEvent adminForgotPasswordEvent = new AdminForgotPasswordEvent(this,adminForgotPasswordRequest);
+                AdminForgotPasswordEvent adminForgotPasswordEvent = new AdminForgotPasswordEvent(this, adminForgotPasswordRequest);
 
                 applicationEventPublisher.publishEvent(adminForgotPasswordEvent);
 
                 sendMailResponse.setEmail(email);
                 sendMailResponse.setOtpCreatedDateTime(otpCreatedDateTime);
-            }else {
+            } else {
                 LocalDateTime otpCreatedDateTime = adminForgotPasswordToken.get().getOtpCreatedDateTime();
                 LocalDateTime now = LocalDateTime.now();
                 Duration duration = Duration.between(otpCreatedDateTime, now);
 
-                if(!(duration.compareTo(Duration.ofMinutes(1)) >0)){
-                    throw new BadRequestException(ErrorCode.INVALID_TOKEN);
-                }else {
+                if (!(duration.compareTo(Duration.ofMinutes(1)) > 0)) {
+                    throw new AppException(ErrorCode.INVALID_TOKEN);
+                } else {
                     String token = jwtService.generateAdminForgotPasswordToken(admin);
 
                     AdminForgotPasswordToken newAdminForgotPasswordToken = AdminForgotPasswordToken.builder()
@@ -193,7 +190,7 @@ public class AuthServiceImpl implements AuthService {
 
                     adminForgotPasswordRequest.setBody(body);
 
-                    AdminForgotPasswordEvent adminForgotPasswordEvent = new AdminForgotPasswordEvent(this,adminForgotPasswordRequest);
+                    AdminForgotPasswordEvent adminForgotPasswordEvent = new AdminForgotPasswordEvent(this, adminForgotPasswordRequest);
 
                     applicationEventPublisher.publishEvent(adminForgotPasswordEvent);
 
@@ -202,7 +199,7 @@ public class AuthServiceImpl implements AuthService {
                 }
             }
             return sendMailResponse;
-        }catch (Exception e){
+        } catch (Exception e) {
             return sendMailResponse;
         }
     }

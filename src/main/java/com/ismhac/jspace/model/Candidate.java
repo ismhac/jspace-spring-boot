@@ -17,13 +17,4 @@ public class Candidate extends BaseEntity{
 
     @EmbeddedId
     CandidateId id;
-
-    @Column(name = "name")
-    String name;
-
-    @Column(name = "avatar")
-    String avatar;
-
-    @Column(name = "phone_number")
-    String phoneNumber;
 }

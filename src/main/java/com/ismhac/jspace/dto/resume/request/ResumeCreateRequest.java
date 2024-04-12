@@ -1,19 +1,14 @@
-package com.ismhac.jspace.dto.file;
+package com.ismhac.jspace.dto.resume.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class FileDto {
-    int id;
+public class ResumeCreateRequest {
     String name;
-    String type;
-    long size;
-    String path;
-    String publicId;
 }

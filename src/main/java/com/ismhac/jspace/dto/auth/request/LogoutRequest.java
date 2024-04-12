@@ -1,4 +1,4 @@
-package com.ismhac.jspace.dto.auth;
+package com.ismhac.jspace.dto.auth.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

@@ -1,6 +1,6 @@
 package com.ismhac.jspace.controller;
 
-import com.ismhac.jspace.dto.common.ApiResponse;
+import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.post.PostCreateRequest;
 import com.ismhac.jspace.dto.post.PostDto;
 import com.ismhac.jspace.service.PostService;
