@@ -1,17 +1,30 @@
 package com.ismhac.jspace.dto.user.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.ismhac.jspace.dto.common.response.BaseEntityDto;
 import com.ismhac.jspace.model.enums.RoleCode;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
-//@JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserDto {
-    private int id;
-    private String username;
-    private String email;
-    private boolean activated;
-    private RoleCode role;
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class UserDto extends BaseEntityDto {
+    int id;
+
+    String username;
+
+    String email;
+
+    String name;
+
+    String picture;
+
+    String phone;
+
+    boolean activated;
+
+    RoleCode role;
 }

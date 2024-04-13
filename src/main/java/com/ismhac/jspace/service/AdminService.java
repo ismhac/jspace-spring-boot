@@ -11,11 +11,7 @@ public interface AdminService {
 
     AdminDto create(AdminCreateRequest adminCreateRequest);
 
-    AdminDto getAdminInfoFromToken();
-
     PageResponse<AdminDto> getPageAdminByTypeFilterByNameAndActivated(String name, Boolean activated, Pageable pageable);
-
-//    PageResponse<>
 
     PageResponse<UserDto> getPageUserAndFilterByRoleIdNameAndEmailAndActivated(Integer roleId, String name, String email, Boolean activated, Pageable pageable);
 }

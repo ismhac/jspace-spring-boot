@@ -11,6 +11,8 @@ import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.request.SendMailResponse;
 import com.ismhac.jspace.dto.role.response.RoleDto;
 import com.ismhac.jspace.dto.user.admin.adminForgotPassword.request.AdminForgotPasswordRequest;
+import com.ismhac.jspace.dto.user.admin.response.AdminDto;
+import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.model.enums.RoleCode;
@@ -125,6 +127,23 @@ public class AuthController {
             throws ParseException, JOSEException {
         authService.logout(logoutRequest);
         return ApiResponse.<Void>builder()
+                .build();
+    }
+
+
+    @GetMapping("/admin/profile")
+    public ApiResponse<AdminDto> getAdminInfoFromToken(){
+        var result = authService.getAdminInfoFromToken();
+        return ApiResponse.<AdminDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @GetMapping("/user/profile")
+    public ApiResponse<UserDto> fetchUserFromToken(){
+        var result = authService.fetchUserFromToken();
+        return ApiResponse.<UserDto>builder()
+                .result(result)
                 .build();
     }
 }

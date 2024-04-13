@@ -31,14 +31,6 @@ public class AdminController {
                 .build();
     }
 
-    @GetMapping("/profile")
-    public ApiResponse<AdminDto> getAdminInfoFromToken(){
-        var result = adminService.getAdminInfoFromToken();
-        return ApiResponse.<AdminDto>builder()
-                .result(result)
-                .build();
-    }
-
     @GetMapping("/users")
     public ApiResponse<PageResponse<UserDto>> getPageUserAndFilterByNameAndEmailAndActivated(
             @RequestParam(value = "roleId", required = false) Integer roleId,

@@ -20,10 +20,12 @@ import com.ismhac.jspace.repository.RoleRepository;
 import com.ismhac.jspace.repository.UserRepository;
 import com.ismhac.jspace.service.AdminService;
 import com.ismhac.jspace.util.PageUtils;
+import com.ismhac.jspace.util.UserUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -57,6 +59,8 @@ public class AdminServiceImpl implements AdminService {
 
     private final AdminMapper adminMapper;
     private final UserMapper userMapper;
+
+    private final UserUtils userUtils;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -96,6 +100,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public AdminDto create(AdminCreateRequest adminCreateRequest) {
 
         /* prepare data */
@@ -107,16 +112,16 @@ public class AdminServiceImpl implements AdminService {
         /* */
 
         /* check exist */
-        Optional<Admin> admin = adminRepository.findAdminByAdminTypeAndUsernameAndEmail(adminType,username, email);
+        Optional<Admin> admin = adminRepository.findAdminByAdminTypeAndUsernameAndEmail(adminType, username, email);
         if (admin.isPresent()) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
-        if(adminRepository.findAdminByAdminTypeAndEmail(adminType, email).isPresent()){
+        if (adminRepository.findAdminByAdminTypeAndEmail(adminType, email).isPresent()) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
-        if(adminRepository.findAdminByAdminTypeAndUsername(adminType, username).isPresent()){
+        if (adminRepository.findAdminByAdminTypeAndUsername(adminType, username).isPresent()) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
@@ -146,19 +151,6 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public AdminDto getAdminInfoFromToken() {
-        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        String username = (String) jwt.getClaims().get("sub");
-
-        Admin admin = adminRepository.findAdminByUsername(username)
-                .orElseThrow(()-> new AppException(ErrorCode.INVALID_TOKEN));
-
-//        log.info("{}", jwt.getClaims());
-         return adminMapper.toAdminDto(admin);
-    }
-
-    @Override
     public PageResponse<AdminDto> getPageAdminByTypeFilterByNameAndActivated(String name, Boolean activated, Pageable pageable) {
         Page<Admin> adminPage = adminRepository.getPageAdminByTypeFilterByNameAndActivated(AdminType.BASIC, name, activated, pageable);
         return pageUtils.toPageResponse(adminMapper.toAdminDtoPage(adminPage));
@@ -167,7 +159,17 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public PageResponse<UserDto> getPageUserAndFilterByRoleIdNameAndEmailAndActivated(Integer roleId, String name, String email, Boolean activated, Pageable pageable) {
-        Page<User> userPage = userRepository.getPageUserAndFilterByNameAndEmailAndActivated(roleId, name, email, activated, pageable);
+
+        User user = userUtils.getUserFromToken();
+
+        Page<User> userPage;
+
+        if (user.getRole().getCode().equals(RoleCode.SUPER_ADMIN)) {
+            userPage = userRepository.supperAdminGetPageUserAndFilterByNameAndEmailAndActivated(roleId, name, email, activated, pageable);
+        } else{
+            userPage = userRepository.adminGetPageUserAndFilterByNameAndEmailAndActivated(roleId, name, email, activated, pageable);
+        }
+
         return pageUtils.toPageResponse(userMapper.toUserDtoPage(userPage));
     }
 }
