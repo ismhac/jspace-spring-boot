@@ -133,6 +133,30 @@ public class JwtService {
                 .subject(admin.getId().getUser().getUsername())
                 .issuer("jspace")
                 .issueTime(new Date(System.currentTimeMillis()))
+                .expirationTime(new Date(System.currentTimeMillis() + 60000))
+                .claim("scope", admin.getId().getUser().getRole().getCode())
+                .build();
+
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
+        JWSObject jwsObject = new JWSObject(jwsHeader, payload);
+
+        try {
+            jwsObject.sign(new MACSigner(SECRET_KEY.getBytes()));
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            log.error("can not create token", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String generateAdminRequestVerifyEmailToken(Admin admin){
+
+        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(admin.getId().getUser().getUsername())
+                .issuer("jspace")
+                .issueTime(new Date(System.currentTimeMillis()))
                 .expirationTime(new Date(System.currentTimeMillis() + 600000))
                 .claim("scope", admin.getId().getUser().getRole().getCode())
                 .build();

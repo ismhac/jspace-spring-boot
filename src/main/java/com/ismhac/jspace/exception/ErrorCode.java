@@ -52,7 +52,11 @@ public enum ErrorCode {
 
     USER_HAS_BEEN_BLOCKED(HttpStatus.BAD_REQUEST.value(), "User has been blocked", HttpStatus.BAD_REQUEST),
 
-    EMAIL_HAS_BEEN_USED(HttpStatus.BAD_REQUEST.value(), "Emaill has been used", HttpStatus.BAD_REQUEST)
+    EMAIL_HAS_BEEN_USED(HttpStatus.BAD_REQUEST.value(), "Emaill has been used", HttpStatus.BAD_REQUEST),
+
+    TOKEN_EXPIRE(HttpStatus.BAD_REQUEST.value(), "Token expire", HttpStatus.BAD_REQUEST),
+
+    EMAIL_HAS_BEEN_VERIFIED(HttpStatus.OK.value(), "Email has been verified", HttpStatus.OK)
     ;
 
     private final int code;

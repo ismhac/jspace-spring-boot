@@ -8,6 +8,7 @@ import com.ismhac.jspace.dto.auth.request.LogoutRequest;
 import com.ismhac.jspace.dto.common.request.SendMailResponse;
 import com.ismhac.jspace.dto.role.response.RoleDto;
 import com.ismhac.jspace.dto.user.admin.adminForgotPassword.request.AdminForgotPasswordRequest;
+import com.ismhac.jspace.dto.user.admin.request.AdminVerifyEmailRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.nimbusds.jose.JOSEException;
@@ -33,4 +34,6 @@ public interface AuthService {
     void logout(LogoutRequest logoutRequest) throws ParseException, JOSEException;
 
     SendMailResponse sendMailAdminForgotPassword(AdminForgotPasswordRequest adminForgotPasswordRequest);
+
+    AdminDto handleVerifyEmail(AdminVerifyEmailRequest adminVerifyEmailRequest);
 }
