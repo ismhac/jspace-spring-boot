@@ -276,9 +276,9 @@ public class AuthServiceImpl implements AuthService {
         LocalDateTime otpCreatedDateTime = adminRequestVerifyEmail.get().getOtpCreatedDateTime();
         LocalDateTime now = LocalDateTime.now();
 
-        Duration duration = Duration.between(otpCreatedDateTime, now);
+        Duration duration = Duration.between(now, otpCreatedDateTime);
 
-        if(!(duration.compareTo(Duration.ofMinutes(10)) > 0)){
+        if(duration.compareTo(Duration.ofMinutes(10)) > 0){
             throw new AppException(ErrorCode.TOKEN_EXPIRE);
         }else {
             Admin admin = adminRequestVerifyEmail.get().getAdmin();
