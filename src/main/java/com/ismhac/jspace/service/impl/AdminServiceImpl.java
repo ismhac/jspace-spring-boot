@@ -165,7 +165,7 @@ public class AdminServiceImpl implements AdminService {
         Admin savedAdmin = adminRepository.save(newAdmin);
 
         /* */
-        LocalDateTime otpCreatedDateTime = LocalDateTime.now();
+        LocalDateTime otpCreatedDateTime = LocalDateTime.now().plusMinutes(10);
         String token = jwtService.generateAdminRequestVerifyEmailToken(savedAdmin);
 
         AdminRequestVerifyEmail adminRequestVerifyEmail = AdminRequestVerifyEmail.builder()
