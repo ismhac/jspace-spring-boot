@@ -48,7 +48,11 @@ public enum ErrorCode {
 
     SEND_MAIL_FAIL(1017, "Send mail fail!", HttpStatus.BAD_REQUEST),
 
-    UPLOAD_FILE_FAIL(1018, "Upload file fail", HttpStatus.BAD_REQUEST)
+    UPLOAD_FILE_FAIL(1018, "Upload file fail", HttpStatus.BAD_REQUEST),
+
+    USER_HAS_BEEN_BLOCKED(HttpStatus.BAD_REQUEST.value(), "User has been blocked", HttpStatus.BAD_REQUEST),
+
+    EMAIL_HAS_BEEN_USED(HttpStatus.BAD_REQUEST.value(), "Emaill has been used", HttpStatus.BAD_REQUEST)
     ;
 
     private final int code;

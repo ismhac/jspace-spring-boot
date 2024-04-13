@@ -30,9 +30,21 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             select t1
             from User t1
             where (:roleId is null or t1.role.id = :roleId)
+                and (t1.role.id != 1)
                 and (:name is null or :name = '' or  lower(t1.name) like lower(concat('%', :name, '%')))
                 and (:email is null or :email = '' or lower(t1.email) like lower(concat('%', :email, '%')))
                 and (:activated is null or t1.activated = :activated)
             """)
-    Page<User> getPageUserAndFilterByNameAndEmailAndActivated(@Param("roleId") Integer roleId,@Param("name") String name, @Param("email") String email, @Param("activated") Boolean activated, Pageable pageable);
+    Page<User> supperAdminGetPageUserAndFilterByNameAndEmailAndActivated(@Param("roleId") Integer roleId,@Param("name") String name, @Param("email") String email, @Param("activated") Boolean activated, Pageable pageable);
+
+    @Query("""
+            select t1
+            from User t1
+            where (:roleId is null or t1.role.id = :roleId)
+                and (t1.role.id != 1 and t1.role.id != 2)
+                and (:name is null or :name = '' or  lower(t1.name) like lower(concat('%', :name, '%')))
+                and (:email is null or :email = '' or lower(t1.email) like lower(concat('%', :email, '%')))
+                and (:activated is null or t1.activated = :activated)
+            """)
+    Page<User> adminGetPageUserAndFilterByNameAndEmailAndActivated(@Param("roleId") Integer roleId,@Param("name") String name, @Param("email") String email, @Param("activated") Boolean activated, Pageable pageable);
 }

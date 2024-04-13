@@ -1,7 +1,6 @@
 package com.ismhac.jspace.service;
 
-public interface UserService {
+import com.ismhac.jspace.dto.user.response.UserDto;
 
-    /* get page and filter by role, email, name */
-//    PageResponse<UserDto> getPageFilterByEmailAndName(Integer roleId, String email, String name, Pageable pageable);
+public interface UserService {
 }

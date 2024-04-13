@@ -46,6 +46,16 @@ public class OAuth2Service {
         // check user is existed
         Optional<User> user = userRepository.findUserByEmail(email);
         if (user.isPresent()) {
+
+            if(user.get().getRole().getCode().equals(RoleCode.ADMIN)
+                    || user.get().getRole().getCode().equals(RoleCode.SUPER_ADMIN)){
+                throw new AppException(ErrorCode.EMAIL_HAS_BEEN_USED);
+            }
+
+            if(!user.get().isActivated()){
+                throw new AppException(ErrorCode.USER_HAS_BEEN_BLOCKED);
+            }
+
             var accessToken = jwtService.generateUserToken(user.get());
             var refreshToken = jwtService.generateRefreshToken(user.get());
             return AuthenticationResponse.builder()

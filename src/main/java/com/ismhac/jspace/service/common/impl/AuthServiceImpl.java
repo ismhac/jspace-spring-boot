@@ -9,24 +9,31 @@ import com.ismhac.jspace.dto.auth.request.LogoutRequest;
 import com.ismhac.jspace.dto.common.request.SendMailResponse;
 import com.ismhac.jspace.dto.role.response.RoleDto;
 import com.ismhac.jspace.dto.user.admin.adminForgotPassword.request.AdminForgotPasswordRequest;
+import com.ismhac.jspace.dto.user.admin.response.AdminDto;
+import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.event.AdminForgotPasswordEvent;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
+import com.ismhac.jspace.mapper.AdminMapper;
 import com.ismhac.jspace.mapper.RoleMapper;
+import com.ismhac.jspace.mapper.UserMapper;
 import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.enums.AdminType;
 import com.ismhac.jspace.model.enums.RoleCode;
 import com.ismhac.jspace.repository.*;
 import com.ismhac.jspace.service.common.AuthService;
 import com.ismhac.jspace.util.HashUtils;
+import com.ismhac.jspace.util.UserUtils;
 import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +67,12 @@ public class AuthServiceImpl implements AuthService {
     HashUtils hashUtils;
 
     ApplicationEventPublisher applicationEventPublisher;
+
+    AdminMapper adminMapper;
+
+    UserUtils userUtils;
+
+    UserMapper userMapper;
 
     /* */
     @Override
@@ -218,5 +231,24 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         invalidatedTokenRepository.save(invalidatedToken);
+    }
+
+    @Override
+    public AdminDto getAdminInfoFromToken() {
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        String username = (String) jwt.getClaims().get("sub");
+
+        Admin admin = adminRepository.findAdminByUsername(username)
+                .orElseThrow(()-> new AppException(ErrorCode.INVALID_TOKEN));
+
+//        log.info("{}", jwt.getClaims());
+        return adminMapper.toAdminDto(admin);
+    }
+
+    @Override
+    public UserDto fetchUserFromToken() {
+        User user = userUtils.getUserFromToken();
+       return userMapper.toUserDto(user);
     }
 }

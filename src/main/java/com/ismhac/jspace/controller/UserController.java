@@ -1,5 +1,7 @@
 package com.ismhac.jspace.controller;
 
+import com.ismhac.jspace.dto.common.response.ApiResponse;
+import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.service.UserService;
 import com.ismhac.jspace.util.PageUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,17 +19,4 @@ public class UserController {
 
     private final UserService userService;
 
-    /* get page, filter by email, name */
-//    @GetMapping()
-//    public ApiResponse<PageResponse<UserDto>> getPageFilterByEmailAndName(
-//            @RequestParam("role_id") Integer roleId,
-//            @RequestParam("email") String email,
-//            @RequestParam("name") String name,
-//            Pageable pageable) {
-//        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
-//        var result = userService.getPageFilterByEmailAndName(roleId, email, name, adjustedPageable);
-//        return ApiResponse.<PageResponse<UserDto>>builder()
-//                .result(result)
-//                .build();
-//    }
 }
