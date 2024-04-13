@@ -1,9 +1,11 @@
 package com.ismhac.jspace.service.impl;
 
 import com.ismhac.jspace.dto.common.response.PageResponse;
-import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
+import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
+import com.ismhac.jspace.dto.user.response.UserDto;
+import com.ismhac.jspace.event.SendMailCreateAdminEvent;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
@@ -19,18 +21,17 @@ import com.ismhac.jspace.repository.AdminRepository;
 import com.ismhac.jspace.repository.RoleRepository;
 import com.ismhac.jspace.repository.UserRepository;
 import com.ismhac.jspace.service.AdminService;
+import com.ismhac.jspace.util.HashUtils;
 import com.ismhac.jspace.util.PageUtils;
 import com.ismhac.jspace.util.UserUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +62,10 @@ public class AdminServiceImpl implements AdminService {
     private final UserMapper userMapper;
 
     private final UserUtils userUtils;
+
+    private final ApplicationEventPublisher applicationEventPublisher;
+
+    private final HashUtils hashUtils;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -133,7 +138,7 @@ public class AdminServiceImpl implements AdminService {
                 .password(passwordEncoder.encode(password))
                 .email(email)
                 .role(role)
-                .activated(true)
+                .activated(false)
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -147,6 +152,22 @@ public class AdminServiceImpl implements AdminService {
                 .type(adminType)
                 .build();
 
+
+        String hash = adminCreateRequest.getUsername().concat(adminCreateRequest.getEmail());
+
+        String hashed = hashUtils.hmacSHA512(hash);
+
+        String subject = "Verify email";
+        String body = adminCreateRequest.getReturnUrl().concat(String.format("?token=%s", hashed));
+
+        adminCreateRequest.setSubject(subject);
+        adminCreateRequest.setBody(body);
+
+        SendMailCreateAdminEvent sendMailCreateAdminEvent = new SendMailCreateAdminEvent(this, adminCreateRequest);
+
+        applicationEventPublisher.publishEvent(sendMailCreateAdminEvent);
+
+        log.info("---- send mail");
         return AdminMapper.INSTANCE.toAdminDto(adminRepository.save(newAdmin));
     }
 
@@ -166,10 +187,36 @@ public class AdminServiceImpl implements AdminService {
 
         if (user.getRole().getCode().equals(RoleCode.SUPER_ADMIN)) {
             userPage = userRepository.supperAdminGetPageUserAndFilterByNameAndEmailAndActivated(roleId, name, email, activated, pageable);
-        } else{
+        } else {
             userPage = userRepository.adminGetPageUserAndFilterByNameAndEmailAndActivated(roleId, name, email, activated, pageable);
         }
 
         return pageUtils.toPageResponse(userMapper.toUserDtoPage(userPage));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
+    public UserDto updateActivatedUser(UpdateActivatedUserRequest updateActivatedUserRequest) {
+
+        User currentUser = userUtils.getUserFromToken();
+
+        int userId = updateActivatedUserRequest.getUserId();
+        Boolean activated = updateActivatedUserRequest.getActivated();
+
+        User updatedUser = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_USER));
+        if (currentUser.getRole().getCode().equals(RoleCode.SUPER_ADMIN)) {
+            if (updatedUser.getRole().getCode().equals(RoleCode.SUPER_ADMIN)) {
+                throw new AppException(ErrorCode.UNAUTHORIZED);
+            }
+        } else {
+            if (updatedUser.getRole().getCode().equals(RoleCode.SUPER_ADMIN)
+                    || updatedUser.getRole().getCode().equals(RoleCode.ADMIN)) {
+                throw new AppException(ErrorCode.UNAUTHORIZED);
+            }
+        }
+        updatedUser.setActivated(activated);
+        return userMapper.toUserDto(userRepository.save(updatedUser));
     }
 }

@@ -1,210 +1,246 @@
 
     create table tbl_admin (
-        created_by integer,
-        updated_by integer,
-        user_id integer not null,
         created_at timestamp(6) with time zone,
+        created_by integer,
         updated_at timestamp(6) with time zone,
+        updated_by integer,
         type varchar(255) not null,
+        user_id integer not null,
         primary key (user_id)
     );
 
     create table tbl_admin_forgot_password_token (
-        created_by integer,
         id serial not null,
-        updated_by integer,
-        user_id integer,
         created_at timestamp(6) with time zone,
-        otp_created_date_time timestamp(6),
+        created_by integer,
         updated_at timestamp(6) with time zone,
-        token varchar(255) unique,
+        updated_by integer,
+        otp_created_date_time timestamp(6),
+        token varchar(255),
+        user_id integer,
         primary key (id)
     );
 
     create table tbl_candidate (
+        created_at timestamp(6) with time zone,
         created_by integer,
+        updated_at timestamp(6) with time zone,
         updated_by integer,
         user_id integer not null,
-        created_at timestamp(6) with time zone,
-        updated_at timestamp(6) with time zone,
         primary key (user_id)
     );
 
     create table tbl_candidate_follow_company (
-        candidate_id integer not null,
-        company_id integer not null,
-        created_by integer,
-        updated_by integer,
         created_at timestamp(6) with time zone,
+        created_by integer,
         updated_at timestamp(6) with time zone,
+        updated_by integer,
+        company_id integer not null,
+        candidate_id integer not null,
         primary key (candidate_id, company_id)
     );
 
     create table tbl_candidate_post (
-        candidate_id integer not null,
-        created_by integer,
-        post_id integer not null,
-        resume_id integer,
-        updated_by integer,
         created_at timestamp(6) with time zone,
+        created_by integer,
         updated_at timestamp(6) with time zone,
+        updated_by integer,
         apply_status varchar(255),
+        resume_id integer,
+        post_id integer not null,
+        candidate_id integer not null,
         primary key (candidate_id, post_id)
     );
 
     create table tbl_company (
-        created_by integer,
         id serial not null,
-        updated_by integer,
-        verified boolean,
         created_at timestamp(6) with time zone,
+        created_by integer,
         updated_at timestamp(6) with time zone,
+        updated_by integer,
         address varchar(255),
         background varchar(255),
         company_link varchar(255),
         description text,
         email varchar(255),
         logo varchar(255),
-        name varchar(255) unique,
+        name varchar(255),
         phone varchar(255),
+        verified boolean,
         primary key (id)
     );
 
     create table tbl_company_request_review (
-        admin_id integer,
-        company_id integer not null,
-        created_by integer,
-        employee_id integer,
-        reviewed boolean,
-        updated_by integer,
         created_at timestamp(6) with time zone,
+        created_by integer,
         updated_at timestamp(6) with time zone,
+        updated_by integer,
+        employee_id integer,
+        admin_id integer,
+        reviewed boolean,
+        company_id integer not null,
         primary key (company_id)
     );
 
     create table tbl_employee (
-        company_id integer,
+        created_at timestamp(6) with time zone,
         created_by integer,
+        updated_at timestamp(6) with time zone,
         updated_by integer,
         user_id integer not null,
-        created_at timestamp(6) with time zone,
-        updated_at timestamp(6) with time zone,
+        company_id integer,
         primary key (user_id)
     );
 
     create table tbl_file (
-        created_by integer,
         id serial not null,
-        updated_by integer,
         created_at timestamp(6) with time zone,
-        size bigint not null,
+        created_by integer,
         updated_at timestamp(6) with time zone,
+        updated_by integer,
         name varchar(255),
         path varchar(255),
         public_id varchar(255),
+        size bigint not null,
         type varchar(255),
         primary key (id)
     );
 
     create table tbl_invalidated_token (
-        expiry_time timestamp(6) not null,
         id varchar(255) not null,
+        expiry_time timestamp(6) not null,
         primary key (id)
     );
 
     create table tbl_notification (
-        created_by integer,
-        updated_by integer,
-        created_at timestamp(6) with time zone,
         id bigserial not null,
+        created_at timestamp(6) with time zone,
+        created_by integer,
         updated_at timestamp(6) with time zone,
+        updated_by integer,
         content text,
         primary key (id)
     );
 
     create table tbl_post (
-        close_date date,
-        company_id integer,
-        created_by integer,
         id serial not null,
-        open_date date,
-        updated_by integer,
         created_at timestamp(6) with time zone,
+        created_by integer,
         updated_at timestamp(6) with time zone,
+        updated_by integer,
+        close_date date,
         employee_email varchar(255),
+        open_date date,
         post_status varchar(255),
+        company_id integer,
         primary key (id)
     );
 
     create table tbl_post_detail (
-        created_by integer,
-        post_id integer not null,
-        quantity integer not null,
-        updated_by integer,
         created_at timestamp(6) with time zone,
+        created_by integer,
         updated_at timestamp(6) with time zone,
+        updated_by integer,
         description varchar(255),
         job_type varchar(255),
         location varchar(255),
         pay varchar(255),
+        quantity integer not null,
         title varchar(255),
+        post_id integer not null,
         primary key (post_id)
     );
 
     create table tbl_refresh_token (
         id serial not null,
-        user_id integer not null,
         token varchar(255) not null,
+        user_id integer not null,
         primary key (id)
     );
 
     create table tbl_resume (
-        candidate_id integer not null,
-        file_id integer not null unique,
         id serial not null,
         name varchar(255),
+        candidate_id integer not null,
+        file_id integer not null,
         primary key (id)
     );
 
     create table tbl_role (
-        created_by integer,
         id serial not null,
-        updated_by integer,
         created_at timestamp(6) with time zone,
+        created_by integer,
         updated_at timestamp(6) with time zone,
-        code varchar(255) not null unique,
+        updated_by integer,
+        code varchar(255) not null,
         description varchar(255),
         name varchar(255),
         primary key (id)
     );
 
     create table tbl_user (
-        activated boolean not null,
-        created_by integer,
         id serial not null,
-        role_id integer not null,
-        updated_by integer,
         created_at timestamp(6) with time zone,
+        created_by integer,
         updated_at timestamp(6) with time zone,
-        email varchar(255) unique,
+        updated_by integer,
+        activated boolean not null,
+        email varchar(255),
         name varchar(255),
         password varchar(255),
         phone varchar(255),
         picture varchar(255),
-        username varchar(255) unique,
+        username varchar(255),
+        role_id integer not null,
         primary key (id)
     );
 
     create table tbl_user_notification (
-        created_by integer,
-        read boolean not null,
-        updated_by integer,
-        user_id integer not null,
         created_at timestamp(6) with time zone,
-        nofication_id bigint not null,
+        created_by integer,
         updated_at timestamp(6) with time zone,
-        primary key (user_id, nofication_id)
+        updated_by integer,
+        read boolean not null,
+        nofication_id bigint not null,
+        user_id integer not null,
+        primary key (nofication_id, user_id)
     );
+
+    alter table if exists tbl_admin_forgot_password_token 
+       drop constraint if exists UK_78h992sm7kufpjgtrc414t15b;
+
+    alter table if exists tbl_admin_forgot_password_token 
+       add constraint UK_78h992sm7kufpjgtrc414t15b unique (token);
+
+    alter table if exists tbl_company 
+       drop constraint if exists UK_bnhaad76wxwf29cgml9opl6gx;
+
+    alter table if exists tbl_company 
+       add constraint UK_bnhaad76wxwf29cgml9opl6gx unique (name);
+
+    alter table if exists tbl_resume 
+       drop constraint if exists UK_ha7bav6ty3acqoesq0wso29go;
+
+    alter table if exists tbl_resume 
+       add constraint UK_ha7bav6ty3acqoesq0wso29go unique (file_id);
+
+    alter table if exists tbl_role 
+       drop constraint if exists UK_f1hvgsc7amy6prolpjst8dd5p;
+
+    alter table if exists tbl_role 
+       add constraint UK_f1hvgsc7amy6prolpjst8dd5p unique (code);
+
+    alter table if exists tbl_user 
+       drop constraint if exists UK_npn1wf1yu1g5rjohbek375pp1;
+
+    alter table if exists tbl_user 
+       add constraint UK_npn1wf1yu1g5rjohbek375pp1 unique (email);
+
+    alter table if exists tbl_user 
+       drop constraint if exists UK_k0bty7tbcye41jpxam88q5kj2;
+
+    alter table if exists tbl_user 
+       add constraint UK_k0bty7tbcye41jpxam88q5kj2 unique (username);
 
     alter table if exists tbl_admin 
        add constraint FK1hjgauplayhyy10toijoa5ujo 

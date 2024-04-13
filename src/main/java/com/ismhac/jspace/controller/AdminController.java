@@ -2,6 +2,7 @@ package com.ismhac.jspace.controller;
 
 import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
@@ -54,6 +55,15 @@ public class AdminController {
         Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
         var result = adminService.getPageAdminByTypeFilterByNameAndActivated(name, activated, adjustedPageable);
         return ApiResponse.<PageResponse<AdminDto>>builder()
+                .result(result)
+                .build();
+    }
+
+    @PutMapping("/users/update/activated")
+    public ApiResponse< UserDto> updateActivatedUser(
+            @RequestBody @Valid UpdateActivatedUserRequest updateActivatedUserRequest){
+        var result = adminService.updateActivatedUser(updateActivatedUserRequest);
+        return ApiResponse.<UserDto>builder()
                 .result(result)
                 .build();
     }
