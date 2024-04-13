@@ -35,7 +35,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
                 and (:email is null or :email = '' or lower(t1.email) like lower(concat('%', :email, '%')))
                 and (:activated is null or t1.activated = :activated)
             """)
-    Page<User> supperAdminGetPageUserAndFilterByNameAndEmailAndActivated(@Param("roleId") Integer roleId,@Param("name") String name, @Param("email") String email, @Param("activated") Boolean activated, Pageable pageable);
+    Page<User> superAdminGetPageUserAndFilterByNameAndEmailAndActivated(@Param("roleId") Integer roleId,@Param("name") String name, @Param("email") String email, @Param("activated") Boolean activated, Pageable pageable);
 
     @Query("""
             select t1

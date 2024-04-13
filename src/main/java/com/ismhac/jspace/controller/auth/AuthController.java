@@ -11,6 +11,7 @@ import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.request.SendMailResponse;
 import com.ismhac.jspace.dto.role.response.RoleDto;
 import com.ismhac.jspace.dto.user.admin.adminForgotPassword.request.AdminForgotPasswordRequest;
+import com.ismhac.jspace.dto.user.admin.request.AdminVerifyEmailRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.exception.AppException;
@@ -132,7 +133,7 @@ public class AuthController {
 
 
     @GetMapping("/admin/profile")
-    public ApiResponse<AdminDto> getAdminInfoFromToken(){
+    public ApiResponse<AdminDto> getAdminInfoFromToken() {
         var result = authService.getAdminInfoFromToken();
         return ApiResponse.<AdminDto>builder()
                 .result(result)
@@ -140,9 +141,18 @@ public class AuthController {
     }
 
     @GetMapping("/user/profile")
-    public ApiResponse<UserDto> fetchUserFromToken(){
+    public ApiResponse<UserDto> fetchUserFromToken() {
         var result = authService.fetchUserFromToken();
         return ApiResponse.<UserDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @PostMapping("/admin-verify-email")
+    public ApiResponse<AdminDto> handleVerifyEmail(
+            @RequestBody AdminVerifyEmailRequest adminVerifyEmailRequest) {
+        var result = authService.handleVerifyEmail(adminVerifyEmailRequest);
+        return ApiResponse.<AdminDto>builder()
                 .result(result)
                 .build();
     }

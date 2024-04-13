@@ -9,6 +9,7 @@ import com.ismhac.jspace.dto.auth.request.LogoutRequest;
 import com.ismhac.jspace.dto.common.request.SendMailResponse;
 import com.ismhac.jspace.dto.role.response.RoleDto;
 import com.ismhac.jspace.dto.user.admin.adminForgotPassword.request.AdminForgotPasswordRequest;
+import com.ismhac.jspace.dto.user.admin.request.AdminVerifyEmailRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.event.SendMailForgotPasswordEvent;
@@ -73,6 +74,8 @@ public class AuthServiceImpl implements AuthService {
     UserUtils userUtils;
 
     UserMapper userMapper;
+
+    AdminRequestVerifyEmailRepository adminRequestVerifyEmailRepository;
 
     /* */
     @Override
@@ -188,7 +191,7 @@ public class AuthServiceImpl implements AuthService {
                 Duration duration = Duration.between(otpCreatedDateTime, now);
 
                 if (!(duration.compareTo(Duration.ofMinutes(1)) > 0)) {
-                    throw new AppException(ErrorCode.INVALID_TOKEN);
+                    throw new AppException(ErrorCode.TOKEN_EXPIRE);
                 } else {
                     String token = jwtService.generateAdminForgotPasswordToken(admin);
 
@@ -250,5 +253,38 @@ public class AuthServiceImpl implements AuthService {
     public UserDto fetchUserFromToken() {
         User user = userUtils.getUserFromToken();
        return userMapper.toUserDto(user);
+    }
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public AdminDto handleVerifyEmail(AdminVerifyEmailRequest adminVerifyEmailRequest) {
+//        Jwt jwt = Jwt.withTokenValue(adminVerifyEmailRequest.getToken()).build();
+//
+//        String username = (String) jwt.getClaims().get("sub");
+
+        Optional<AdminRequestVerifyEmail> adminRequestVerifyEmail = adminRequestVerifyEmailRepository.findByToken(adminVerifyEmailRequest.getToken());
+
+        if(adminRequestVerifyEmail.isEmpty()){
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+
+        if(adminRequestVerifyEmail.get().getAdmin().getEmailVerified()){
+            throw new AppException(ErrorCode.EMAIL_HAS_BEEN_VERIFIED);
+        }
+
+        LocalDateTime otpCreatedDateTime = adminRequestVerifyEmail.get().getOtpCreatedDateTime();
+        LocalDateTime now = LocalDateTime.now();
+
+        Duration duration = Duration.between(otpCreatedDateTime, now);
+
+        if(!(duration.compareTo(Duration.ofMinutes(10)) > 0)){
+            throw new AppException(ErrorCode.TOKEN_EXPIRE);
+        }else {
+            Admin admin = adminRequestVerifyEmail.get().getAdmin();
+            admin.setEmailVerified(true);
+
+            return adminMapper.toAdminDto(adminRepository.save(admin));
+        }
     }
 }

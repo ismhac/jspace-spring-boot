@@ -1,5 +1,6 @@
 package com.ismhac.jspace.service.impl;
 
+import com.ismhac.jspace.config.security.jwt.JwtService;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
@@ -12,12 +13,14 @@ import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.mapper.AdminMapper;
 import com.ismhac.jspace.mapper.UserMapper;
 import com.ismhac.jspace.model.Admin;
+import com.ismhac.jspace.model.AdminRequestVerifyEmail;
 import com.ismhac.jspace.model.Role;
 import com.ismhac.jspace.model.User;
 import com.ismhac.jspace.model.enums.AdminType;
 import com.ismhac.jspace.model.enums.RoleCode;
 import com.ismhac.jspace.model.primaryKey.AdminId;
 import com.ismhac.jspace.repository.AdminRepository;
+import com.ismhac.jspace.repository.AdminRequestVerifyEmailRepository;
 import com.ismhac.jspace.repository.RoleRepository;
 import com.ismhac.jspace.repository.UserRepository;
 import com.ismhac.jspace.service.AdminService;
@@ -32,9 +35,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -66,6 +72,10 @@ public class AdminServiceImpl implements AdminService {
     private final ApplicationEventPublisher applicationEventPublisher;
 
     private final HashUtils hashUtils;
+
+    private final AdminRequestVerifyEmailRepository adminRequestVerifyEmailRepository;
+
+    private final JwtService jwtService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -138,7 +148,7 @@ public class AdminServiceImpl implements AdminService {
                 .password(passwordEncoder.encode(password))
                 .email(email)
                 .role(role)
-                .activated(false)
+                .activated(true)
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -152,23 +162,34 @@ public class AdminServiceImpl implements AdminService {
                 .type(adminType)
                 .build();
 
+        Admin savedAdmin = adminRepository.save(newAdmin);
 
-        String hash = adminCreateRequest.getUsername().concat(adminCreateRequest.getEmail());
+        /* */
+        LocalDateTime otpCreatedDateTime = LocalDateTime.now();
+        String token = jwtService.generateAdminRequestVerifyEmailToken(savedAdmin);
 
-        String hashed = hashUtils.hmacSHA512(hash);
+        AdminRequestVerifyEmail adminRequestVerifyEmail = AdminRequestVerifyEmail.builder()
+                .admin(savedAdmin)
+                .otpCreatedDateTime(otpCreatedDateTime)
+                .token(token)
+                .build();
 
-        String subject = "Verify email";
-        String body = adminCreateRequest.getReturnUrl().concat(String.format("?token=%s", hashed));
+        adminRequestVerifyEmailRepository.save(adminRequestVerifyEmail);
+
+        /* */
+        String subject = "Verify Email";
+        String body = adminCreateRequest.getReturnUrl().concat(String.format("?token=%s", token));
 
         adminCreateRequest.setSubject(subject);
         adminCreateRequest.setBody(body);
 
-        SendMailCreateAdminEvent sendMailCreateAdminEvent = new SendMailCreateAdminEvent(this, adminCreateRequest);
+        SendMailCreateAdminEvent sendMailCreateAdminEvent = new SendMailCreateAdminEvent(this, adminCreateRequest
+        );
 
-        applicationEventPublisher.publishEvent(sendMailCreateAdminEvent);
+        applicationEventPublisher
+                .publishEvent(sendMailCreateAdminEvent);
 
-        log.info("---- send mail");
-        return AdminMapper.INSTANCE.toAdminDto(adminRepository.save(newAdmin));
+        return AdminMapper.INSTANCE.toAdminDto(savedAdmin);
     }
 
     @Override
@@ -186,7 +207,7 @@ public class AdminServiceImpl implements AdminService {
         Page<User> userPage;
 
         if (user.getRole().getCode().equals(RoleCode.SUPER_ADMIN)) {
-            userPage = userRepository.supperAdminGetPageUserAndFilterByNameAndEmailAndActivated(roleId, name, email, activated, pageable);
+            userPage = userRepository.superAdminGetPageUserAndFilterByNameAndEmailAndActivated(roleId, name, email, activated, pageable);
         } else {
             userPage = userRepository.adminGetPageUserAndFilterByNameAndEmailAndActivated(roleId, name, email, activated, pageable);
         }

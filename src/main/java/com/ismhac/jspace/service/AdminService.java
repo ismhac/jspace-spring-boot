@@ -5,6 +5,7 @@ import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
+import jakarta.persistence.Column;
 import org.springframework.data.domain.Pageable;
 
 public interface AdminService {

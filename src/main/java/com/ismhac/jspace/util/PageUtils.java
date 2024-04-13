@@ -20,6 +20,9 @@ public class PageUtils {
     }
 
     public Pageable adjustPageable(Pageable pageable) {
-        return PageRequest.of(Math.max(pageable.getPageNumber() - 1, 0), pageable.getPageSize(), pageable.getSort());
+        return PageRequest.of(
+                Math.max(pageable.getPageNumber() - 1, 0),
+                pageable.getPageSize(),
+                pageable.getSort());
     }
 }

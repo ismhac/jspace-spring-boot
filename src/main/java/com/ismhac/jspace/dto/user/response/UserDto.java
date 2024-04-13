@@ -2,6 +2,7 @@ package com.ismhac.jspace.dto.user.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ismhac.jspace.dto.common.response.BaseEntityDto;
+import com.ismhac.jspace.dto.role.response.RoleDto;
 import com.ismhac.jspace.model.enums.RoleCode;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -26,5 +27,5 @@ public class UserDto extends BaseEntityDto {
 
     boolean activated;
 
-    RoleCode role;
+    RoleDto role;
 }
