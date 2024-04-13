@@ -20,7 +20,7 @@ public class MailServiceImpl implements MailService {
     public void sendMail(SendMailRequest sendMailRequest) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("hackiddev@gmail.com");
+            message.setFrom("jspacek20@gmail.com");
             message.setTo(sendMailRequest.getEmail());
             message.setText(sendMailRequest.getBody());
             message.setSubject(sendMailRequest.getSubject());

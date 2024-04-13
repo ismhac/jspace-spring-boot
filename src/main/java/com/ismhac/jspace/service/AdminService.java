@@ -1,6 +1,7 @@
 package com.ismhac.jspace.service;
 
 import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
@@ -14,4 +15,6 @@ public interface AdminService {
     PageResponse<AdminDto> getPageAdminByTypeFilterByNameAndActivated(String name, Boolean activated, Pageable pageable);
 
     PageResponse<UserDto> getPageUserAndFilterByRoleIdNameAndEmailAndActivated(Integer roleId, String name, String email, Boolean activated, Pageable pageable);
+
+    UserDto updateActivatedUser(UpdateActivatedUserRequest updateActivatedUserRequest);
 }
