@@ -8,6 +8,7 @@ import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
 import com.ismhac.jspace.service.AdminService;
 import com.ismhac.jspace.util.PageUtils;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,7 @@ public class AdminController {
     }
 
     /* Get page basic admin, filter by name, activated */
+    @Hidden
     @GetMapping("/basic")
     public ApiResponse<PageResponse<AdminDto>> getBasicAdminPage(
             @RequestParam(value = "name", required = false) String name,

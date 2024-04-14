@@ -2,6 +2,7 @@ package com.ismhac.jspace.controller.payment;
 
 import com.ismhac.jspace.dto.payment.request.PaymentCreateRequest;
 import com.ismhac.jspace.service.common.PaypalService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/payment")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Payment")
 public class PaymentController {
 
     private final PaypalService paypalService;
