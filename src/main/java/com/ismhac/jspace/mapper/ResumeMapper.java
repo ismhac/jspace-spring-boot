@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
 
 @Mapper(componentModel = "spring")
 public interface ResumeMapper {
@@ -23,5 +24,9 @@ public interface ResumeMapper {
     @Named("convertFileToFileDto")
     default FileDto convertFileToFileDto(File file) {
         return FileMapper.INSTANCE.toFileDto(file);
+    }
+
+    default Page<ResumeDto> toResumeDtoPage(Page<Resume> resumePage){
+        return resumePage.map(this::toResumeDto);
     }
 }
