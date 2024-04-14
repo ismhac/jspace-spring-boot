@@ -35,6 +35,6 @@ public class MailListener {
                 .subject(event.getAdminCreateRequest().getSubject())
                 .build();
 
-        mailService.sendMail(sendMailRequest);
+        mailService.sendMailWithTemplate(sendMailRequest);
     }
 }
