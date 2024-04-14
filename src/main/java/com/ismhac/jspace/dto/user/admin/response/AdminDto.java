@@ -12,6 +12,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AdminDto {
     UserDto user;
-    AdminType adminType;
+    AdminType type;
     Boolean emailVerified;
 }

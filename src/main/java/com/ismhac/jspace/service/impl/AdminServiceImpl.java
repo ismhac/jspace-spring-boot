@@ -71,8 +71,6 @@ public class AdminServiceImpl implements AdminService {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    private final HashUtils hashUtils;
-
     private final AdminRequestVerifyEmailRepository adminRequestVerifyEmailRepository;
 
     private final JwtService jwtService;
@@ -183,8 +181,7 @@ public class AdminServiceImpl implements AdminService {
         adminCreateRequest.setSubject(subject);
         adminCreateRequest.setBody(body);
 
-        SendMailCreateAdminEvent sendMailCreateAdminEvent = new SendMailCreateAdminEvent(this, adminCreateRequest
-        );
+        SendMailCreateAdminEvent sendMailCreateAdminEvent = new SendMailCreateAdminEvent(this, adminCreateRequest);
 
         applicationEventPublisher
                 .publishEvent(sendMailCreateAdminEvent);

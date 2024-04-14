@@ -4,4 +4,6 @@ import com.ismhac.jspace.dto.common.request.SendMailRequest;
 
 public interface MailService {
     void sendMail(SendMailRequest sendMailRequest);
+
+    void sendMailWithTemplate(SendMailRequest sendMailRequest);
 }
