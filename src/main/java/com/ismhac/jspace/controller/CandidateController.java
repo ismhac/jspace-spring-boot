@@ -7,6 +7,7 @@ import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.service.CandidateService;
+import com.ismhac.jspace.util.PageUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ import javax.print.attribute.standard.Media;
 public class CandidateController {
 
     private final CandidateService candidateService;
+    private final PageUtils pageUtils;
 
     @PostMapping(value = "/{id}/create-resume",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -50,7 +52,8 @@ public class CandidateController {
     @GetMapping("/{id}/resumes")
     public ApiResponse<PageResponse<ResumeDto>> getListResume(
             @PathVariable("id") int id, Pageable pageable){
-        var result = candidateService.getListResume(id, pageable);
+        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
+        var result = candidateService.getListResume(id, adjustedPageable);
         return ApiResponse.<PageResponse<ResumeDto>>builder()
                 .result(result)
                 .build();
