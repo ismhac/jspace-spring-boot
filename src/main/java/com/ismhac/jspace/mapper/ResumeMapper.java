@@ -13,7 +13,7 @@ import org.springframework.data.domain.Page;
 
 @Mapper(componentModel = "spring")
 public interface ResumeMapper {
-    ResumeMapper INSTANCE = Mappers.getMapper(ResumeMapper.class);
+    ResumeMapper instance = Mappers.getMapper(ResumeMapper.class);
 
     @Mappings({
             @Mapping(target = "candidateId", source = "candidate.id.user.id"),
@@ -23,7 +23,7 @@ public interface ResumeMapper {
 
     @Named("convertFileToFileDto")
     default FileDto convertFileToFileDto(File file) {
-        return FileMapper.INSTANCE.toFileDto(file);
+        return FileMapper.instance.toFileDto(file);
     }
 
     default Page<ResumeDto> toResumeDtoPage(Page<Resume> resumePage){

@@ -2,7 +2,6 @@ package com.ismhac.jspace.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.ismhac.jspace.dto.common.response.PageResponse;
-import com.ismhac.jspace.dto.resume.request.ResumeCreateRequest;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -34,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,7 +65,7 @@ public class CandidateServiceImpl implements CandidateService {
     public ResumeDto createResume(int id, String name, MultipartFile file) {
 
         User tokenUser = userUtils.getUserFromToken();
-        if(tokenUser.getId() != id){
+        if (tokenUser.getId() != id) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
@@ -99,16 +97,16 @@ public class CandidateServiceImpl implements CandidateService {
     public UserDto update(int id, CandidateUpdateRequest request) {
 
         User tokenUser = userUtils.getUserFromToken();
-        if(tokenUser.getId() != id){
+        if (tokenUser.getId() != id) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
         Candidate candidate = candidateRepository.findByUserId(id)
-                .orElseThrow(()->new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         User user = candidate.getId().getUser();
 
-        org.springframework.beans.BeanUtils.copyProperties(request, user,beanUtils.getNullPropertyNames(request));
+        org.springframework.beans.BeanUtils.copyProperties(request, user, beanUtils.getNullPropertyNames(request));
 
         return userMapper.toUserDto(userRepository.save(user));
     }
@@ -118,7 +116,7 @@ public class CandidateServiceImpl implements CandidateService {
     public PageResponse<ResumeDto> getListResume(int id, Pageable pageable) {
 
         User tokenUser = userUtils.getUserFromToken();
-        if(tokenUser.getId() != id){
+        if (tokenUser.getId() != id) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
