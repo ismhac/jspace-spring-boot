@@ -21,4 +21,7 @@ public class Employee extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "company_id", referencedColumnName = "id")
     Company company;
+
+    @Builder.Default
+    Boolean verified = false;
 }

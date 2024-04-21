@@ -22,6 +22,6 @@ public interface EmployeeMapper {
 
     @Named("convertToUserDto")
     default UserDto convertToUserDto(User user) {
-        return UserMapper.INSTANCE.toUserDto(user);
+        return UserMapper.instance.toUserDto(user);
     }
 }

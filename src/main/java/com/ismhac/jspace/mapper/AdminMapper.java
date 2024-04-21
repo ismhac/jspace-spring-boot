@@ -13,7 +13,7 @@ import org.springframework.data.domain.Page;
 
 @Mapper(componentModel = "spring")
 public interface AdminMapper {
-    AdminMapper INSTANCE = Mappers.getMapper(AdminMapper.class);
+    AdminMapper instance = Mappers.getMapper(AdminMapper.class);
 
     @Mappings({
             @Mapping(target = "user", source = "id.user", qualifiedByName = "convertToUserDto")
@@ -26,6 +26,6 @@ public interface AdminMapper {
 
     @Named("convertToUserDto")
     default UserDto convertToUserDto(User user) {
-        return UserMapper.INSTANCE.toUserDto(user);
+        return UserMapper.instance.toUserDto(user);
     }
 }

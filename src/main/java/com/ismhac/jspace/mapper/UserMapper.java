@@ -13,7 +13,7 @@ import org.springframework.data.domain.Page;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
+    UserMapper instance = Mappers.getMapper(UserMapper.class);
 
     @Mapping(target = "role", source = "role", qualifiedByName = "convertRoleToRoleDto")
     UserDto toUserDto(User user);
@@ -24,6 +24,6 @@ public interface UserMapper {
 
     @Named("convertRoleToRoleDto")
     default RoleDto convertRoleToRoleDto(Role role){
-        return RoleMapper.INSTANCE.toRoleDto(role);
+        return RoleMapper.instance.toRoleDto(role);
     }
 }

@@ -2,6 +2,8 @@ package com.ismhac.jspace.controller;
 
 import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
+import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
@@ -66,6 +68,15 @@ public class AdminController {
             @RequestBody @Valid UpdateActivatedUserRequest updateActivatedUserRequest){
         var result = adminService.updateActivatedUser(updateActivatedUserRequest);
         return ApiResponse.<UserDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @PostMapping("/companies")
+    public ApiResponse<CompanyDto> createCompany(
+            @RequestBody CompanyCreateRequest request){
+        var result = adminService.createCompany(request);
+        return ApiResponse.<CompanyDto>builder()
                 .result(result)
                 .build();
     }

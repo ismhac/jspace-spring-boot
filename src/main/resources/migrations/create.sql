@@ -331,3 +331,21 @@
        add constraint FKe74x5o60m3wqvulgju9duj8yf 
        foreign key (user_id) 
        references tbl_user;
+
+    alter table if exists tbl_employee 
+       add column verified boolean;
+
+    alter table if exists tbl_employee 
+       add column verified boolean;
+
+    alter table if exists tbl_employee 
+       add column verified boolean;
+
+    alter table if exists tbl_employee 
+       add column verified boolean;
+
+    alter table if exists tbl_employee 
+       add column verified boolean;
+
+    alter table if exists tbl_employee 
+       add column verified boolean;

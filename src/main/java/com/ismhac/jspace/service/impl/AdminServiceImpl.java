@@ -2,6 +2,8 @@ package com.ismhac.jspace.service.impl;
 
 import com.ismhac.jspace.config.security.jwt.JwtService;
 import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
+import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
 import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
@@ -11,18 +13,13 @@ import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.mapper.AdminMapper;
+import com.ismhac.jspace.mapper.CompanyMapper;
 import com.ismhac.jspace.mapper.UserMapper;
-import com.ismhac.jspace.model.Admin;
-import com.ismhac.jspace.model.AdminRequestVerifyEmail;
-import com.ismhac.jspace.model.Role;
-import com.ismhac.jspace.model.User;
+import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.enums.AdminType;
 import com.ismhac.jspace.model.enums.RoleCode;
 import com.ismhac.jspace.model.primaryKey.AdminId;
-import com.ismhac.jspace.repository.AdminRepository;
-import com.ismhac.jspace.repository.AdminRequestVerifyEmailRepository;
-import com.ismhac.jspace.repository.RoleRepository;
-import com.ismhac.jspace.repository.UserRepository;
+import com.ismhac.jspace.repository.*;
 import com.ismhac.jspace.service.AdminService;
 import com.ismhac.jspace.util.HashUtils;
 import com.ismhac.jspace.util.PageUtils;
@@ -61,6 +58,8 @@ public class AdminServiceImpl implements AdminService {
     private final UserRepository userRepository;
 
     private final RoleRepository roleRepository;
+
+    private final CompanyRepository companyRepository;
 
     private final PageUtils pageUtils;
 
@@ -186,7 +185,7 @@ public class AdminServiceImpl implements AdminService {
         applicationEventPublisher
                 .publishEvent(sendMailCreateAdminEvent);
 
-        return AdminMapper.INSTANCE.toAdminDto(savedAdmin);
+        return AdminMapper.instance.toAdminDto(savedAdmin);
     }
 
     @Override
@@ -236,5 +235,16 @@ public class AdminServiceImpl implements AdminService {
         }
         updatedUser.setActivated(activated);
         return userMapper.toUserDto(userRepository.save(updatedUser));
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
+    public CompanyDto createCompany(CompanyCreateRequest request) {
+
+
+        
+        Company company = CompanyMapper.instance.createReqToEntity(request);
+        Company savedCompany = companyRepository.save(company);
+        return CompanyMapper.instance.toDto(savedCompany);
     }
 }
