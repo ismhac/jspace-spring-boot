@@ -71,13 +71,4 @@ public class AdminController {
                 .result(result)
                 .build();
     }
-
-    @PostMapping("/companies")
-    public ApiResponse<CompanyDto> createCompany(
-            @RequestBody CompanyCreateRequest request){
-        var result = adminService.createCompany(request);
-        return ApiResponse.<CompanyDto>builder()
-                .result(result)
-                .build();
-    }
 }

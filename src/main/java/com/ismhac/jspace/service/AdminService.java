@@ -19,6 +19,4 @@ public interface AdminService {
     PageResponse<UserDto> getPageUserAndFilterByRoleIdNameAndEmailAndActivated(Integer roleId, String name, String email, Boolean activated, Pageable pageable);
 
     UserDto updateActivatedUser(UpdateActivatedUserRequest updateActivatedUserRequest);
-
-    CompanyDto createCompany(CompanyCreateRequest request);
 }

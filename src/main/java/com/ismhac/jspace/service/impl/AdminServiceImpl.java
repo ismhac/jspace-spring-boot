@@ -236,15 +236,4 @@ public class AdminServiceImpl implements AdminService {
         updatedUser.setActivated(activated);
         return userMapper.toUserDto(userRepository.save(updatedUser));
     }
-
-    @Override
-    @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
-    public CompanyDto createCompany(CompanyCreateRequest request) {
-
-
-        
-        Company company = CompanyMapper.instance.createReqToEntity(request);
-        Company savedCompany = companyRepository.save(company);
-        return CompanyMapper.instance.toDto(savedCompany);
-    }
 }

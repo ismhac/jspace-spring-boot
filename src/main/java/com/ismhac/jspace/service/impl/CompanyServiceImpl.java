@@ -21,34 +21,4 @@ public class CompanyServiceImpl implements CompanyService {
     private final CompanyMapper companyMapper;
 
     private final PageUtils pageUtils;
-
-    /* get all companies and filter by name, address */
-    @Override
-    public PageResponse<CompanyDto> getPage(String name, String address, int pageNumber, int pageSize) {
-
-        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), (pageSize > 0 ? pageSize : 10));
-
-        Page<Company> companyPage = companyRepository.getPage(name, address, pageable);
-
-        return pageUtils.toPageResponse(companyMapper.toCompanyDtoPage(companyPage));
-    }
-
-    @Override
-    public PageResponse<CompanyDto> getPageHasPost(String name, String address, int pageNumber, int pageSize) {
-
-        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), (pageSize > 0 ? pageSize : 10));
-
-        Page<Company> companyPage = companyRepository.getPageHasPost(name, address, pageable);
-
-        return pageUtils.toPageResponse(companyMapper.toCompanyDtoPage(companyPage));
-    }
-
-    @Override
-    public PageResponse<CompanyDto> getPageNoPost(String name, String address, int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), (pageSize > 0 ? pageSize : 10));
-
-        Page<Company> companyPage = companyRepository.getPageNoPost(name, address, pageable);
-
-        return pageUtils.toPageResponse(companyMapper.toCompanyDtoPage(companyPage));
-    }
 }

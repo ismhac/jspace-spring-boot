@@ -13,8 +13,8 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     @Query("""
             select t1
             from Company t1
-            where (:name is null or lower(t1.name) like lower(concat('%', :name, '%')))
-                and (:address is null or lower(t1.address) like lower(concat('%', :address, '%')))
+            where (:name is null or :name = '' or lower(t1.name) like lower(concat('%', :name, '%')))
+                and (:address is null or :address = '' or lower(t1.address) like lower(concat('%', :address, '%')))
             """)
     Page<Company> getPage(@Param("name") String name, @Param("address") String address, Pageable pageable);
 
