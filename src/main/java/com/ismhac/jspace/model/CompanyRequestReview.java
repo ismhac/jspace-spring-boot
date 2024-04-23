@@ -23,7 +23,7 @@ public class CompanyRequestReview extends BaseEntity{
     CompanyRequestReviewId id;
 
     @Column(name = "employee_id")
-    int EmployeeId;
+    int employeeId;
 
     Boolean reviewed;
 

@@ -10,6 +10,8 @@ import com.ismhac.jspace.dto.role.response.RoleDto;
 import com.ismhac.jspace.dto.user.admin.adminForgotPassword.request.AdminForgotPasswordRequest;
 import com.ismhac.jspace.dto.user.admin.request.AdminVerifyEmailRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
+import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
+import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.nimbusds.jose.JOSEException;
 
@@ -21,7 +23,9 @@ public interface AuthService {
 
     AdminDto getAdminInfoFromToken();
 
-    UserDto fetchUserFromToken();
+    EmployeeDto fetchEmployeeFromToken();
+
+    CandidateDto fetchCandidateFromToken();
 
     AuthenticationResponse<Object> adminLogin(LoginRequest loginRequest);
 

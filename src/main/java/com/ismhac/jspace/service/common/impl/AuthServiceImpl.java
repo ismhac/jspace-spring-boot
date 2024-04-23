@@ -11,12 +11,14 @@ import com.ismhac.jspace.dto.role.response.RoleDto;
 import com.ismhac.jspace.dto.user.admin.adminForgotPassword.request.AdminForgotPasswordRequest;
 import com.ismhac.jspace.dto.user.admin.request.AdminVerifyEmailRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
-import com.ismhac.jspace.dto.user.response.UserDto;
+import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
+import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.event.SendMailForgotPasswordEvent;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.mapper.AdminMapper;
+import com.ismhac.jspace.mapper.CandidateMapper;
 import com.ismhac.jspace.mapper.RoleMapper;
 import com.ismhac.jspace.mapper.UserMapper;
 import com.ismhac.jspace.model.*;
@@ -32,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -43,6 +46,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -54,6 +58,8 @@ public class AuthServiceImpl implements AuthService {
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
     UserRepository userRepository;
+    EmployeeRepository employeeRepository;
+    CandidateRepository candidateRepository;
 
     AdminRepository adminRepository;
 
@@ -243,16 +249,43 @@ public class AuthServiceImpl implements AuthService {
         String username = (String) jwt.getClaims().get("sub");
 
         Admin admin = adminRepository.findAdminByUsername(username)
-                .orElseThrow(()-> new AppException(ErrorCode.INVALID_TOKEN));
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_TOKEN));
 
 //        log.info("{}", jwt.getClaims());
         return adminMapper.toAdminDto(admin);
     }
 
     @Override
-    public UserDto fetchUserFromToken() {
-        User user = userUtils.getUserFromToken();
-       return userMapper.toUserDto(user);
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public EmployeeDto fetchEmployeeFromToken() {
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        log.info("{}", jwt.getClaims());
+        log.info("{}", jwt.getClaims().get("email"));
+
+        Map<String, Object> employeeInFo = employeeRepository
+                .getInfoByEmail((String) jwt.getClaims().get("email"));
+
+        if (employeeInFo.isEmpty()) throw new AppException(ErrorCode.UNAUTHENTICATED);
+
+        return EmployeeDto.builder()
+                .user(UserMapper.instance.toUserDto((User) employeeInFo.get("user")))
+                .verifiedByCompany((Boolean) employeeInFo.get("verifiedByCompany"))
+                .hasFullCredentialInfo((Boolean) employeeInFo.get("hasFullCredentialInfo"))
+                .hasCompany((Boolean) employeeInFo.get("hasCompany"))
+                .companyVerified((Boolean) employeeInFo.get("companyVerified"))
+                .build();
+    }
+
+    @Override
+    public CandidateDto fetchCandidateFromToken() {
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Optional<Candidate> candidate = candidateRepository
+                .findByUserEmail((String) jwt.getClaims().get("email"));
+
+        if(candidate.isEmpty()) throw new AppException(ErrorCode.UNAUTHENTICATED);
+
+        return CandidateMapper.instance.eToDto(candidate.get());
     }
 
 
@@ -265,11 +298,11 @@ public class AuthServiceImpl implements AuthService {
 
         Optional<AdminRequestVerifyEmail> adminRequestVerifyEmail = adminRequestVerifyEmailRepository.findByToken(adminVerifyEmailRequest.getToken());
 
-        if(adminRequestVerifyEmail.isEmpty()){
+        if (adminRequestVerifyEmail.isEmpty()) {
             throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
-        if(adminRequestVerifyEmail.get().getAdmin().getEmailVerified()){
+        if (adminRequestVerifyEmail.get().getAdmin().getEmailVerified()) {
             throw new AppException(ErrorCode.EMAIL_HAS_BEEN_VERIFIED);
         }
 
@@ -278,9 +311,9 @@ public class AuthServiceImpl implements AuthService {
 
         Duration duration = Duration.between(now, otpCreatedDateTime);
 
-        if(duration.compareTo(Duration.ofMinutes(10)) > 0){
+        if (duration.compareTo(Duration.ofMinutes(10)) > 0) {
             throw new AppException(ErrorCode.TOKEN_EXPIRE);
-        }else {
+        } else {
             Admin admin = adminRequestVerifyEmail.get().getAdmin();
             admin.setEmailVerified(true);
 

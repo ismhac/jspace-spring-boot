@@ -17,4 +17,11 @@ public interface CandidateRepository extends JpaRepository<Candidate, CandidateI
             where t1.id.user.id = :id
             """)
     Optional<Candidate> findByUserId(int id);
+
+    @Query("""
+            select candidate
+            from Candidate candidate
+            where candidate.id.user.email = :email
+            """)
+    Optional<Candidate> findByUserEmail(String email);
 }
