@@ -13,6 +13,8 @@ import com.ismhac.jspace.dto.role.response.RoleDto;
 import com.ismhac.jspace.dto.user.admin.adminForgotPassword.request.AdminForgotPasswordRequest;
 import com.ismhac.jspace.dto.user.admin.request.AdminVerifyEmailRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
+import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
+import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
@@ -140,10 +142,18 @@ public class AuthController {
                 .build();
     }
 
-    @GetMapping("/user/profile")
-    public ApiResponse<UserDto> fetchUserFromToken() {
-        var result = authService.fetchUserFromToken();
-        return ApiResponse.<UserDto>builder()
+    @GetMapping("/employee/profile")
+    public ApiResponse<EmployeeDto> fetchEmployeeFromToken(){
+        var result = authService.fetchEmployeeFromToken();
+        return ApiResponse.<EmployeeDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @GetMapping("/candidate/profile")
+    public ApiResponse<CandidateDto> fetchCandidateFromToken(){
+        var result = authService.fetchCandidateFromToken();
+        return ApiResponse.<CandidateDto>builder()
                 .result(result)
                 .build();
     }

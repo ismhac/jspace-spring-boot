@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Set;
-
 @Getter
 @Setter
 @Builder
@@ -39,5 +37,11 @@ public class Company extends BaseEntity {
     @Column(name = "company_link")
     String companyLink;
 
-    Boolean verified;
+    @Column(name = "email_verified")
+    @Builder.Default
+    Boolean emailVerified = false;
+
+    @Column(name = "verified_by_admin")
+    @Builder.Default
+    Boolean verifiedByAdmin = false;
 }

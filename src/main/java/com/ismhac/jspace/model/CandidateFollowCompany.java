@@ -1,7 +1,6 @@
 package com.ismhac.jspace.model;
 
 import com.ismhac.jspace.model.primaryKey.CandidateFollowCompanyId;
-import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;

@@ -11,6 +11,13 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EmployeeDto {
-    int id;
     UserDto user;
+
+    Boolean verifiedByCompany;
+
+    Boolean hasFullCredentialInfo;
+
+    Boolean hasCompany;
+
+    Boolean companyVerified;
 }

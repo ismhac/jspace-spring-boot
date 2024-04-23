@@ -22,6 +22,7 @@ public class Employee extends BaseEntity{
     @JoinColumn(name = "company_id", referencedColumnName = "id")
     Company company;
 
+    @Column(name = "verified_by_company")
     @Builder.Default
-    Boolean verified = false;
+    Boolean verifiedByCompany = false;
 }
