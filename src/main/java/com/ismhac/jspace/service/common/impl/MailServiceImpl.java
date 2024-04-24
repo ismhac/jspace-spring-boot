@@ -38,8 +38,7 @@ public class MailServiceImpl implements MailService {
             javaMailSender.send(message);
             log.info("Send mail to {} successfully!", sendMailRequest.getEmail());
         } catch (Exception ex) {
-            ex.printStackTrace();
-            log.error("Send mail to {} failed!", sendMailRequest.getEmail());
+            throw new RuntimeException(ex);
         }
     }
 

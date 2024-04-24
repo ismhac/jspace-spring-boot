@@ -56,7 +56,9 @@ public enum ErrorCode {
 
     TOKEN_EXPIRE(HttpStatus.BAD_REQUEST.value(), "Token expire", HttpStatus.BAD_REQUEST),
 
-    EMAIL_HAS_BEEN_VERIFIED(HttpStatus.OK.value(), "Email has been verified", HttpStatus.OK)
+    EMAIL_HAS_BEEN_VERIFIED(HttpStatus.OK.value(), "Email has been verified", HttpStatus.OK),
+
+    COMPANY_EXISTED(HttpStatus.BAD_REQUEST.value(), "Company is existed", HttpStatus.BAD_REQUEST)
     ;
 
     private final int code;

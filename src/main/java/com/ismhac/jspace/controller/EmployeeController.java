@@ -2,6 +2,7 @@ package com.ismhac.jspace.controller;
 
 import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
@@ -46,6 +47,16 @@ public class EmployeeController {
 
         var result = employeeService.getPageCompany(name, address, adjustedPageable);
         return ApiResponse.<PageResponse<CompanyDto>>builder()
+                .result(result)
+                .build();
+    }
+
+
+    @PostMapping("/companies")
+    public ApiResponse<CompanyDto> createCompany(
+            @RequestBody CompanyCreateRequest request){
+        var result = employeeService.createCompany(request);
+        return ApiResponse.<CompanyDto>builder()
                 .result(result)
                 .build();
     }

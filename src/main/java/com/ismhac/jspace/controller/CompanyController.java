@@ -1,8 +1,5 @@
 package com.ismhac.jspace.controller;
 
-import com.ismhac.jspace.dto.common.response.ApiResponse;
-import com.ismhac.jspace.dto.common.response.PageResponse;
-import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.service.CompanyService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -18,5 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class CompanyController {
 
     private final CompanyService companyService;
+
+    @GetMapping("/verify-email")
+    public String verifyEmail(@RequestParam("mac") String token){
+        return companyService.verifyEmail(token);
+    }
 
 }

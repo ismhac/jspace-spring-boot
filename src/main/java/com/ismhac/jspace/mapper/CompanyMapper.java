@@ -11,11 +11,9 @@ import org.springframework.data.domain.Page;
 public interface CompanyMapper {
     CompanyMapper instance = Mappers.getMapper(CompanyMapper.class);
 
-    CompanyDto eToDto(Company company);
+    CompanyDto eToDto(Company e);
 
-    Company createReqToEntity(CompanyCreateRequest companyCreateRequest);
-
-    default Page<CompanyDto> ePageToDtoPage(Page<Company> companyPage) {
-        return companyPage.map(this::eToDto);
+    default Page<CompanyDto> ePageToDtoPage(Page<Company> ePage) {
+        return ePage.map(this::eToDto);
     }
 }

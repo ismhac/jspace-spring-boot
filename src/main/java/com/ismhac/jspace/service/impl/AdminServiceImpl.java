@@ -2,18 +2,15 @@ package com.ismhac.jspace.service.impl;
 
 import com.ismhac.jspace.config.security.jwt.JwtService;
 import com.ismhac.jspace.dto.common.response.PageResponse;
-import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
-import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
 import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
-import com.ismhac.jspace.event.SendMailCreateAdminEvent;
+import com.ismhac.jspace.event.CreateAdminEvent;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.mapper.AdminMapper;
-import com.ismhac.jspace.mapper.CompanyMapper;
 import com.ismhac.jspace.mapper.UserMapper;
 import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.enums.AdminType;
@@ -21,7 +18,6 @@ import com.ismhac.jspace.model.enums.RoleCode;
 import com.ismhac.jspace.model.primaryKey.AdminId;
 import com.ismhac.jspace.repository.*;
 import com.ismhac.jspace.service.AdminService;
-import com.ismhac.jspace.util.HashUtils;
 import com.ismhac.jspace.util.PageUtils;
 import com.ismhac.jspace.util.UserUtils;
 import lombok.RequiredArgsConstructor;
@@ -32,11 +28,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -180,10 +174,10 @@ public class AdminServiceImpl implements AdminService {
         adminCreateRequest.setSubject(subject);
         adminCreateRequest.setBody(body);
 
-        SendMailCreateAdminEvent sendMailCreateAdminEvent = new SendMailCreateAdminEvent(this, adminCreateRequest);
+        CreateAdminEvent createAdminEvent = new CreateAdminEvent(this, adminCreateRequest);
 
         applicationEventPublisher
-                .publishEvent(sendMailCreateAdminEvent);
+                .publishEvent(createAdminEvent);
 
         return AdminMapper.instance.toAdminDto(savedAdmin);
     }
