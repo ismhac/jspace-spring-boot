@@ -17,4 +17,6 @@ public interface EmployeeService {
     PageResponse<CompanyDto> getPageCompany(String name, String address, Pageable pageable);
 
     CompanyDto createCompany(CompanyCreateRequest request);
+
+
  }

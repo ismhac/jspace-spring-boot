@@ -1,5 +1,6 @@
 package com.ismhac.jspace.model;
 
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -12,17 +13,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "tbl_company_verify_email_request_history")
+@Table(name = "tbl_employee_history_request_company_verify")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CompanyVerifyEmailRequestHistory extends BaseEntity{
+public class EmployeeHistoryRequestCompanyVerify {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
 
     @ManyToOne
-    @JoinColumn(name = "company_id", referencedColumnName = "id", nullable = false)
-    Company company;
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    Employee employee;
 
     String token;
 
