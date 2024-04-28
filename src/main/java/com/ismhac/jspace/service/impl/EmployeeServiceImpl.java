@@ -206,7 +206,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                                 </table>
                                 <p>If this information pertains to your company, we kindly ask you to verify your email by clicking the link below:</p>
                                 <button>
-                                    <a href="http://localhost:8081/jspace-service/api/v1/companies/verify-email?mac=%s"
+                                    <a href="https://jspace-804e64747ec6.herokuapp.com/jspace-service/api/v1/companies/verify-email?mac=%s"
                                         style="text-decoration: none; color: #000000;"
                                     >
                                         <span> Verify Company Information </span>
@@ -279,7 +279,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                             <p>If this information corresponds to an employee of your company authorized to recruit on our platform, we kindly request verification.</p>
                             <p>Please confirm the accuracy of the details provided by clicking the link below:</p>
                             <button>
-                                <a href="http://localhost:8081/jspace-service/api/v1/companies/verify-employee?mac=%s" 
+                                <a href="https://jspace-804e64747ec6.herokuapp.com/jspace-service/api/v1/companies/verify-employee?mac=%s" 
                                     style="text-decoration: none; color: #000000;"
                                 >
                                 <span> Verify Employee Information </span>
