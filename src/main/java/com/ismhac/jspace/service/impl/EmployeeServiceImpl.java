@@ -22,6 +22,7 @@ import com.ismhac.jspace.util.BeanUtils;
 import com.ismhac.jspace.util.PageUtils;
 import com.ismhac.jspace.util.UserUtils;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -32,7 +33,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.expression.Strings;
-import org.thymeleaf.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -164,18 +164,54 @@ public class EmployeeServiceImpl implements EmployeeService {
                         <html>
                             <head>
                                 <title>Verification of Company Information</title>
+                                <style>
+                                    table, tr {
+                                        border: 1px solid #ccc;
+                                        border-collapse: collapse;
+                                    }
+                                    th, td {
+                                        padding: 8px;
+                                        text-align: left;
+                                    }
+                                    th {
+                                        background-color: #f2f2f2;
+                                    }
+                                    button {
+                                        padding: 5px 5px;
+                                        text-align: center;
+                                        cursor: pointer;
+                                    }
+                                </style>
                             </head>
                             <body>
                                 <p>Dear %s,</p>
                                 <p>We hope this email finds you well. We recently received the following information associated with your company:</p>
-                                <ul>
-                                    <li>Company Name: %s</li>
-                                    <li>Address: %s</li>
-                                    <li>Email: %s</li>
-                                    <li>Phone: %s</li>
-                                </ul>
+                                <table>
+                                    <tr>
+                                        <td>Company Name:</td>
+                                        <td>%s</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Address:</td>
+                                        <td>%s</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Email:</td>
+                                        <td>%s</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Phone:</td>
+                                        <td>%s</td>
+                                    </tr>
+                                </table>
                                 <p>If this information pertains to your company, we kindly ask you to verify your email by clicking the link below:</p>
-                                <button><a href="http://localhost:8081/jspace-service/api/v1/companies/verify-email?mac=%s">Verify Email</a></button>
+                                <button>
+                                    <a href="http://localhost:8081/jspace-service/api/v1/companies/verify-email?mac=%s"
+                                        style="text-decoration: none; color: #000000;"
+                                    >
+                                        <span> Verify Company Information </span>
+                                    </a>
+                                </button>
                                 <p>If this information does not correspond to your company, please disregard this email.</p>
                                 <p>Thank you for your attention to this matter.</p>
                                 <p>Best regards!</p>
@@ -183,10 +219,10 @@ public class EmployeeServiceImpl implements EmployeeService {
                         </html>
                         """,
                 company.getName(),
-                company.getName(),
-                company.getAddress(),
-                company.getEmail(),
-                company.getPhone(),
+                StringUtils.isBlank(company.getName()) ? "" : company.getName(),
+                StringUtils.isBlank(company.getAddress()) ? "" : company.getAddress(),
+                StringUtils.isBlank(company.getEmail()) ? "" : company.getEmail(),
+                StringUtils.isBlank(company.getPhone()) ? "" : company.getPhone(),
                 token);
 
         SendMailRequest sendMailRequestCompanyVerifyEmail = SendMailRequest.builder()
@@ -203,19 +239,51 @@ public class EmployeeServiceImpl implements EmployeeService {
                         <html lang="en">
                         <head>
                             <title>Employee Information Verification</title>
+                            <style>
+                                table, tr {
+                                    border: 1px solid #ccc;
+                                    border-collapse: collapse;
+                                }
+                                th, td {
+                                    padding: 8px;
+                                    text-align: left;
+                                }
+                                th {
+                                    background-color: #f2f2f2;
+                                }
+                                button {
+                                    padding: 5px 5px;
+                                    text-align: center;
+                                    cursor: pointer;
+                                }
+                            </style>
                         </head>
                         <body>
                             <p>Dear %s,</p>
                             <p>We trust this message finds you well.</p>
                             <p>We have received the following employee information associated with your company, registered for recruitment access on our platform:</p>
-                            <ul>
-                                <li>Name: %s</li>
-                                <li>Email: %s</li>
-                                <li>Phone: %s</li>
-                            </ul>
+                            <table>
+                                <tr>
+                                    <td>Name:</td>
+                                    <td>%s</td>
+                                </tr>
+                                <tr>
+                                    <td>Email:</td>
+                                    <td>%s</td>
+                                </tr>
+                                <tr>
+                                    <td>Phone:</td>
+                                    <td>%s</td>
+                                </tr>
+                            </table>
                             <p>If this information corresponds to an employee of your company authorized to recruit on our platform, we kindly request verification.</p>
                             <p>Please confirm the accuracy of the details provided by clicking the link below:</p>
-                            <button><a href="http://localhost:8081/jspace-service/api/v1/companies/verify-employee?mac=%s">Verify Information</a></button>
+                            <button>
+                                <a href="http://localhost:8081/jspace-service/api/v1/companies/verify-employee?mac=%s" 
+                                    style="text-decoration: none; color: #000000;"
+                                >
+                                <span> Verify Employee Information </span>
+                                </a></button>
                             <p>Should this information not align with your records, please disregard this message.</p>
                             <p>Thank you for your cooperation in ensuring the accuracy of our records.</p>
                             <p>Best regards!</p>
@@ -223,9 +291,9 @@ public class EmployeeServiceImpl implements EmployeeService {
                         </html>
                          """,
                 company.getName(),
-                employee.getId().getUser().getName(),
-                employee.getId().getUser().getEmail(),
-                employee.getId().getUser().getPhone(),
+                StringUtils.isBlank(employee.getId().getUser().getName()) ? "" : employee.getId().getUser().getName(),
+                StringUtils.isBlank(employee.getId().getUser().getEmail()) ? "" : employee.getId().getUser().getEmail(),
+                StringUtils.isBlank(employee.getId().getUser().getPhone()) ? "" : employee.getId().getUser().getPhone(),
                 token);
 
         SendMailRequest sendMailRequestCompanyToVerifyForEmployee = SendMailRequest.builder()
