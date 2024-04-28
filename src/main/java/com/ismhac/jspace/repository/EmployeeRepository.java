@@ -45,6 +45,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, EmployeeId> 
     @Query("""
             select new map(
                 employee.id.user as user,
+                tbl_company as company,
                 employee.verifiedByCompany as verifiedByCompany,
                 case
                     when employee.id.user.email is not null
@@ -56,17 +57,11 @@ public interface EmployeeRepository extends JpaRepository<Employee, EmployeeId> 
                     when employee.company is not null
                     then true else false
                 end as hasCompany,
-                case
-                    when employee.company is null
-                    then false
-                    else(
-                        select tbl_company.verifiedByAdmin
-                        from Company tbl_company
-                        where tbl_company.id = employee.company.id
-                    )
-                end as companyVerified
+                tbl_company.emailVerified as companyEmailVerified,
+                tbl_company.verifiedByAdmin as companyVerified
             )
             from Employee employee
+            left join Company tbl_company on employee.company = tbl_company
             where employee.id.user.email = :email
             """)
     Map<String, Object> getInfoByEmail(String email);

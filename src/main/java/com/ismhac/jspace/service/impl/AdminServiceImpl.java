@@ -2,6 +2,7 @@ package com.ismhac.jspace.service.impl;
 
 import com.ismhac.jspace.config.security.jwt.JwtService;
 import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.companyRequestReview.response.CompanyRequestReviewDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
 import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
@@ -11,6 +12,7 @@ import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.mapper.AdminMapper;
+import com.ismhac.jspace.mapper.CompanyRequestReviewMapper;
 import com.ismhac.jspace.mapper.UserMapper;
 import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.enums.AdminType;
@@ -54,6 +56,8 @@ public class AdminServiceImpl implements AdminService {
     private final RoleRepository roleRepository;
 
     private final CompanyRepository companyRepository;
+
+    private final CompanyRequestReviewRepository companyRequestReviewRepository;
 
     private final PageUtils pageUtils;
 
@@ -229,5 +233,32 @@ public class AdminServiceImpl implements AdminService {
         }
         updatedUser.setActivated(activated);
         return userMapper.toUserDto(userRepository.save(updatedUser));
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
+    public PageResponse<CompanyRequestReviewDto> getRequestReviewDtoPageResponse(
+            Boolean reviewed, Pageable pageable) {
+        return pageUtils.toPageResponse(CompanyRequestReviewMapper
+                .instance.ePageToDtoPage(
+                       companyRequestReviewRepository.getPageFilterByReviewed(reviewed, pageable)
+                ));
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
+    @Transactional(rollbackFor = Exception.class)
+    public CompanyRequestReviewDto adminVerifyForCompany(Integer companyId, Boolean reviewed) {
+        CompanyRequestReview companyRequestReview = companyRequestReviewRepository.findByCompanyId(companyId)
+                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+        companyRequestReview.setReviewed(true);
+
+        Company company = companyRequestReview.getId().getCompany();
+        company.setVerifiedByAdmin(true);
+
+        companyRequestReviewRepository.save(companyRequestReview);
+        companyRepository.save(company);
+
+        return CompanyRequestReviewMapper.instance.eToDto(companyRequestReview);
     }
 }

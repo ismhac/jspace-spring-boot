@@ -7,7 +7,7 @@ import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CompanyDto extends BaseEntityDto {
+public class CompanyDto {
     int id;
     String name;
     String background;
@@ -15,6 +15,7 @@ public class CompanyDto extends BaseEntityDto {
     String address;
     String email;
     String phone;
+    String companySize;
     String description;
     String companyLink;
     Boolean emailVerified;

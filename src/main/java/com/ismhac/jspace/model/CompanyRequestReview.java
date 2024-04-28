@@ -8,6 +8,8 @@ import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
+
 
 @Getter
 @Setter
@@ -21,6 +23,9 @@ public class CompanyRequestReview extends BaseEntity{
 
     @EmbeddedId
     CompanyRequestReviewId id;
+
+    @Column(name = "request_date")
+    LocalDate requestDate;
 
     @Builder.Default
     Boolean reviewed = false;

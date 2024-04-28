@@ -71,4 +71,13 @@ public class EmployeeController {
                 .result(result)
                 .build();
     }
+
+    @PutMapping("/pick-company")
+    public ApiResponse<String> employeePickCompany(
+            @RequestParam("companyId") Integer companyId) {
+        var result = employeeService.employeePickCompany(companyId);
+        return ApiResponse.<String>builder()
+                .result(result)
+                .build();
+    }
 }
