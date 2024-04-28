@@ -32,8 +32,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.expression.Strings;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
@@ -140,6 +140,26 @@ public class EmployeeServiceImpl implements EmployeeService {
         return CompanyMapper.instance.eToDto(savedCompany);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public String employeePickCompany(Integer companyId) {
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Employee employee = employeeRepository.findByEmail((String) jwt.getClaims().get("email"))
+                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHORIZED));
+
+        Company company = companyRepository.findById(companyId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+
+        employee.setCompany(company);
+
+        employeeRepository.save(employee);
+
+        _sendMailWhenPickCompany(company, employee);
+
+        return "Success";
+    }
+
 
     @Transactional(rollbackFor = Exception.class)
     protected CompanyRequestReview _createCompanyRequestAdminReview(Company company) {
@@ -149,6 +169,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         CompanyRequestReview companyRequestReview = CompanyRequestReview.builder()
                 .id(id)
+                .requestDate(LocalDate.now())
                 .build();
 
         return companyRequestReviewRepository.save(companyRequestReview);
@@ -203,6 +224,9 @@ public class EmployeeServiceImpl implements EmployeeService {
                                         <td>Phone:</td>
                                         <td>%s</td>
                                     </tr>
+                                    <tr>
+                                        <td>Company Size:</td>
+                                    <td>%s</td>
                                 </table>
                                 <p>If this information pertains to your company, we kindly ask you to verify your email by clicking the link below:</p>
                                 <button>
@@ -223,6 +247,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 StringUtils.isBlank(company.getAddress()) ? "" : company.getAddress(),
                 StringUtils.isBlank(company.getEmail()) ? "" : company.getEmail(),
                 StringUtils.isBlank(company.getPhone()) ? "" : company.getPhone(),
+                StringUtils.isBlank(company.getCompanySize()) ? "" : company.getCompanySize(),
                 token);
 
         SendMailRequest sendMailRequestCompanyVerifyEmail = SendMailRequest.builder()
@@ -330,5 +355,92 @@ public class EmployeeServiceImpl implements EmployeeService {
             applicationEventPublisher.publishEvent(requestCompanyVerifyEmailEvent);
             applicationEventPublisher.publishEvent(requestCompanyToVerifyForEmployeeEvent);
         }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    protected void _sendMailWhenPickCompany(Company company, Employee employee) {
+
+        String token = String.valueOf(UUID.randomUUID());
+        LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(10);
+
+        String bodyMailRequestCompanyToVerifyForEmployee = String.format("""
+                        <html lang="en">
+                        <head>
+                            <title>Employee Information Verification</title>
+                            <style>
+                                table, tr {
+                                    border: 1px solid #ccc;
+                                    border-collapse: collapse;
+                                }
+                                th, td {
+                                    padding: 8px;
+                                    text-align: left;
+                                }
+                                th {
+                                    background-color: #f2f2f2;
+                                }
+                                button {
+                                    padding: 5px 5px;
+                                    text-align: center;
+                                    cursor: pointer;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <p>Dear %s,</p>
+                            <p>We trust this message finds you well.</p>
+                            <p>We have received the following employee information associated with your company, registered for recruitment access on our platform:</p>
+                            <table>
+                                <tr>
+                                    <td>Name:</td>
+                                    <td>%s</td>
+                                </tr>
+                                <tr>
+                                    <td>Email:</td>
+                                    <td>%s</td>
+                                </tr>
+                                <tr>
+                                    <td>Phone:</td>
+                                    <td>%s</td>
+                                </tr>
+                            </table>
+                            <p>If this information corresponds to an employee of your company authorized to recruit on our platform, we kindly request verification.</p>
+                            <p>Please confirm the accuracy of the details provided by clicking the link below:</p>
+                            <button>
+                                <a href="https://jspace-804e64747ec6.herokuapp.com/jspace-service/api/v1/companies/verify-employee?mac=%s" 
+                                    style="text-decoration: none; color: #000000;"
+                                >
+                                <span> Verify Employee Information </span>
+                                </a></button>
+                            <p>Should this information not align with your records, please disregard this message.</p>
+                            <p>Thank you for your cooperation in ensuring the accuracy of our records.</p>
+                            <p>Best regards!</p>
+                        </body>
+                        </html>
+                         """,
+                company.getName(),
+                StringUtils.isBlank(employee.getId().getUser().getName()) ? "" : employee.getId().getUser().getName(),
+                StringUtils.isBlank(employee.getId().getUser().getEmail()) ? "" : employee.getId().getUser().getEmail(),
+                StringUtils.isBlank(employee.getId().getUser().getPhone()) ? "" : employee.getId().getUser().getPhone(),
+                token);
+
+        SendMailRequest sendMailRequestCompanyToVerifyForEmployee = SendMailRequest.builder()
+                .email(company.getEmail())
+                .body(bodyMailRequestCompanyToVerifyForEmployee)
+                .subject("Verification of Employee Information")
+                .build();
+
+        RequestCompanyToVerifyForEmployeeEvent requestCompanyToVerifyForEmployeeEvent = new RequestCompanyToVerifyForEmployeeEvent(
+                this, sendMailRequestCompanyToVerifyForEmployee);
+
+        EmployeeHistoryRequestCompanyVerify employeeHistoryRequestCompanyVerify = EmployeeHistoryRequestCompanyVerify.builder()
+                .employee(employee)
+                .expiryTime(expiryTime)
+                .token(token)
+                .build();
+
+        employeeHistoryRequestCompanyVerifyRepository.save(employeeHistoryRequestCompanyVerify);
+
+        applicationEventPublisher.publishEvent(requestCompanyToVerifyForEmployeeEvent);
     }
 }

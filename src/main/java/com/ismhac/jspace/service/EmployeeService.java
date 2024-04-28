@@ -18,5 +18,5 @@ public interface EmployeeService {
 
     CompanyDto createCompany(CompanyCreateRequest request);
 
-
+    String employeePickCompany(Integer companyId);
  }

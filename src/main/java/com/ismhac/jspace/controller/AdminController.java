@@ -4,6 +4,7 @@ import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
+import com.ismhac.jspace.dto.companyRequestReview.response.CompanyRequestReviewDto;
 import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
@@ -68,6 +69,27 @@ public class AdminController {
             @RequestBody @Valid UpdateActivatedUserRequest updateActivatedUserRequest){
         var result = adminService.updateActivatedUser(updateActivatedUserRequest);
         return ApiResponse.<UserDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @GetMapping("/company-request-reviews")
+    public ApiResponse<PageResponse<CompanyRequestReviewDto>> getRequestReviewDtoPageResponse(
+            @RequestParam(value = "reviewed", required = false) Boolean reviewed,
+            Pageable pageable){
+        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
+        var result = adminService.getRequestReviewDtoPageResponse(reviewed, adjustedPageable);
+        return ApiResponse.<PageResponse<CompanyRequestReviewDto>>builder()
+                .result(result)
+                .build();
+    }
+
+    @PutMapping("/company-request-reviews")
+    public ApiResponse<CompanyRequestReviewDto> adminVerifyForCompany(
+            @RequestParam("companyId") Integer companyId,
+            @RequestParam("reviewed") Boolean reviewed){
+        var result = adminService.adminVerifyForCompany(companyId, reviewed);
+        return ApiResponse.<CompanyRequestReviewDto>builder()
                 .result(result)
                 .build();
     }

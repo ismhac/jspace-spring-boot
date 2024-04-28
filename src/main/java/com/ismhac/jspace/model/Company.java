@@ -31,6 +31,9 @@ public class Company extends BaseEntity {
 
     String phone;
 
+    @Column(name = "company_size")
+    String companySize;
+
     @Column(columnDefinition = "text")
     String description;
 

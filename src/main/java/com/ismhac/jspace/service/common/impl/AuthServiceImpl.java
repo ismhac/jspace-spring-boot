@@ -17,10 +17,7 @@ import com.ismhac.jspace.event.ForgotPasswordEvent;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
-import com.ismhac.jspace.mapper.AdminMapper;
-import com.ismhac.jspace.mapper.CandidateMapper;
-import com.ismhac.jspace.mapper.RoleMapper;
-import com.ismhac.jspace.mapper.UserMapper;
+import com.ismhac.jspace.mapper.*;
 import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.enums.AdminType;
 import com.ismhac.jspace.model.enums.RoleCode;
@@ -76,10 +73,6 @@ public class AuthServiceImpl implements AuthService {
     ApplicationEventPublisher applicationEventPublisher;
 
     AdminMapper adminMapper;
-
-    UserUtils userUtils;
-
-    UserMapper userMapper;
 
     AdminRequestVerifyEmailRepository adminRequestVerifyEmailRepository;
 
@@ -269,9 +262,11 @@ public class AuthServiceImpl implements AuthService {
 
         return EmployeeDto.builder()
                 .user(UserMapper.instance.toUserDto((User) employeeInFo.get("user")))
+                .company(CompanyMapper.instance.eToDto((Company) employeeInFo.get("company")))
                 .verifiedByCompany((Boolean) employeeInFo.get("verifiedByCompany"))
                 .hasFullCredentialInfo((Boolean) employeeInFo.get("hasFullCredentialInfo"))
                 .hasCompany((Boolean) employeeInFo.get("hasCompany"))
+                .companyEmailVerified((Boolean) employeeInFo.get("companyEmailVerified"))
                 .companyVerified((Boolean) employeeInFo.get("companyVerified"))
                 .build();
     }
