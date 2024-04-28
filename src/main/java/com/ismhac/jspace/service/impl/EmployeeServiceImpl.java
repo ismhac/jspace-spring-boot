@@ -122,6 +122,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .address(request.getAddress())
                 .email(email)
                 .phone(phone)
+                .companySize(request.getCompanySize())
                 .description(request.getDescription())
                 .companyLink(request.getCompanyLink())
                 .build();

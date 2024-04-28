@@ -12,6 +12,7 @@ public class CompanyCreateRequest {
     @Email
     String email;
     String phone;
+    String companySize;
     String description;
     String companyLink;
 }
