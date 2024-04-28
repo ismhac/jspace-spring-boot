@@ -13,7 +13,7 @@ import com.ismhac.jspace.dto.user.admin.request.AdminVerifyEmailRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
 import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
-import com.ismhac.jspace.event.SendMailForgotPasswordEvent;
+import com.ismhac.jspace.event.ForgotPasswordEvent;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
@@ -185,9 +185,9 @@ public class AuthServiceImpl implements AuthService {
 
                 adminForgotPasswordRequest.setBody(body);
 
-                SendMailForgotPasswordEvent sendMailForgotPasswordEvent = new SendMailForgotPasswordEvent(this, adminForgotPasswordRequest);
+                ForgotPasswordEvent forgotPasswordEvent = new ForgotPasswordEvent(this, adminForgotPasswordRequest);
 
-                applicationEventPublisher.publishEvent(sendMailForgotPasswordEvent);
+                applicationEventPublisher.publishEvent(forgotPasswordEvent);
 
                 sendMailResponse.setEmail(email);
                 sendMailResponse.setOtpCreatedDateTime(otpCreatedDateTime);
@@ -212,9 +212,9 @@ public class AuthServiceImpl implements AuthService {
 
                     adminForgotPasswordRequest.setBody(body);
 
-                    SendMailForgotPasswordEvent sendMailForgotPasswordEvent = new SendMailForgotPasswordEvent(this, adminForgotPasswordRequest);
+                    ForgotPasswordEvent forgotPasswordEvent = new ForgotPasswordEvent(this, adminForgotPasswordRequest);
 
-                    applicationEventPublisher.publishEvent(sendMailForgotPasswordEvent);
+                    applicationEventPublisher.publishEvent(forgotPasswordEvent);
 
                     sendMailResponse.setEmail(email);
                     sendMailResponse.setOtpCreatedDateTime(otpCreatedDateTime);

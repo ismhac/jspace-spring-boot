@@ -1,12 +1,12 @@
 package com.ismhac.jspace.service;
 
-import com.ismhac.jspace.dto.common.response.PageResponse;
-import com.ismhac.jspace.dto.company.response.CompanyDto;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
 
 public interface CompanyService {
-    PageResponse<CompanyDto> getPage(String name, String address , int pageNumber, int pageSize);
 
-    PageResponse<CompanyDto> getPageHasPost(String name, String address ,int pageNumber, int pageSize);
+    void verifyEmail(String token, HttpServletResponse httpServletResponse) throws IOException;
 
-    PageResponse<CompanyDto> getPageNoPost(String name, String address ,int pageNumber, int pageSize);
+    void verifyEmployee(String token, HttpServletResponse httpServletResponse) throws IOException;
 }

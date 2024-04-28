@@ -36,6 +36,13 @@ public interface EmployeeRepository extends JpaRepository<Employee, EmployeeId> 
 
 
     @Query("""
+            select employee
+            from Employee employee
+            where employee.id.user.email = :email
+            """)
+    Optional<Employee> findByEmail(String email);
+
+    @Query("""
             select new map(
                 employee.id.user as user,
                 employee.verifiedByCompany as verifiedByCompany,

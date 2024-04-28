@@ -7,10 +7,10 @@ import org.springframework.context.ApplicationEvent;
 
 @Getter
 @Setter
-public class SendMailCreateAdminEvent extends ApplicationEvent {
+public class CreateAdminEvent extends ApplicationEvent {
 
     private AdminCreateRequest adminCreateRequest;
-    public SendMailCreateAdminEvent(Object source, AdminCreateRequest adminCreateRequest) {
+    public CreateAdminEvent(Object source, AdminCreateRequest adminCreateRequest) {
         super(source);
         this.adminCreateRequest = adminCreateRequest;
     }

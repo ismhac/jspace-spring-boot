@@ -30,16 +30,19 @@ public class MailServiceImpl implements MailService {
     @Override
     public void sendMail(SendMailRequest sendMailRequest) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("jspacek20@gmail.com");
-            message.setTo(sendMailRequest.getEmail());
-            message.setText(sendMailRequest.getBody());
-            message.setSubject(sendMailRequest.getSubject());
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message,
+                    MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                    StandardCharsets.UTF_8.name());
+
+            helper.setTo(sendMailRequest.getEmail());
+            helper.setText(sendMailRequest.getBody(), true);
+            helper.setSubject(sendMailRequest.getSubject());
+            helper.setFrom("JSpace");
+
             javaMailSender.send(message);
-            log.info("Send mail to {} successfully!", sendMailRequest.getEmail());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            log.error("Send mail to {} failed!", sendMailRequest.getEmail());
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -59,7 +62,7 @@ public class MailServiceImpl implements MailService {
             helper.setTo(sendMailRequest.getEmail());
             helper.setText(html, true);
             helper.setSubject(sendMailRequest.getSubject());
-            helper.setFrom("jspacek20@gmail.com");
+            helper.setFrom("JSpace");
 
             javaMailSender.send(message);
         } catch (MessagingException e) {

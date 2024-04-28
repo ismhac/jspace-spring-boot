@@ -46,7 +46,9 @@ public class SecurityConfig {
             "/api-docs/**",
             "/swagger-ui.html",
             "/favicon.ico",
-            "/test/**"
+            "/test/**",
+            "/api/v1/companies/verify-email",
+            "/api/v1/companies/verify-employee"
     };
 
     @Bean

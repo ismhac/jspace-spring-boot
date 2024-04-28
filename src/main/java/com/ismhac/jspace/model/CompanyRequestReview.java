@@ -22,11 +22,6 @@ public class CompanyRequestReview extends BaseEntity{
     @EmbeddedId
     CompanyRequestReviewId id;
 
-    @Column(name = "employee_id")
-    int employeeId;
-
-    Boolean reviewed;
-
-    @Column(name = "admin_id")
-    int adminId;
+    @Builder.Default
+    Boolean reviewed = false;
 }

@@ -2,6 +2,8 @@ package com.ismhac.jspace.controller;
 
 import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
+import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -32,6 +34,29 @@ public class EmployeeController {
         var result = employeeService.getPageByCompanyIdFilterByEmailAndName(companyId, email, name, adjustedPageable);
 
         return ApiResponse.<PageResponse<EmployeeDto>>builder()
+                .result(result)
+                .build();
+    }
+
+    @GetMapping("/companies")
+    public ApiResponse<PageResponse<CompanyDto>> getPageCompany(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "address", required = false) String address,
+            Pageable pageable){
+        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
+
+        var result = employeeService.getPageCompany(name, address, adjustedPageable);
+        return ApiResponse.<PageResponse<CompanyDto>>builder()
+                .result(result)
+                .build();
+    }
+
+
+    @PostMapping("/companies")
+    public ApiResponse<CompanyDto> createCompany(
+            @RequestBody CompanyCreateRequest request){
+        var result = employeeService.createCompany(request);
+        return ApiResponse.<CompanyDto>builder()
                 .result(result)
                 .build();
     }

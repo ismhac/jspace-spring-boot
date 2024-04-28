@@ -4,51 +4,100 @@ import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.mapper.CompanyMapper;
 import com.ismhac.jspace.model.Company;
+import com.ismhac.jspace.model.CompanyVerifyEmailRequestHistory;
+import com.ismhac.jspace.model.Employee;
+import com.ismhac.jspace.model.EmployeeHistoryRequestCompanyVerify;
 import com.ismhac.jspace.repository.CompanyRepository;
+import com.ismhac.jspace.repository.CompanyVerifyEmailRequestHistoryRepository;
+import com.ismhac.jspace.repository.EmployeeHistoryRequestCompanyVerifyRepository;
+import com.ismhac.jspace.repository.EmployeeRepository;
 import com.ismhac.jspace.service.CompanyService;
 import com.ismhac.jspace.util.PageUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository companyRepository;
-    private final CompanyMapper companyMapper;
+    private final CompanyVerifyEmailRequestHistoryRepository
+            companyVerifyEmailRequestHistoryRepository;
+    private final EmployeeRepository employeeRepository;
+
+
+    private final EmployeeHistoryRequestCompanyVerifyRepository
+            employeeHistoryRequestCompanyVerifyRepository;
 
     private final PageUtils pageUtils;
 
-    /* get all companies and filter by name, address */
     @Override
-    public PageResponse<CompanyDto> getPage(String name, String address, int pageNumber, int pageSize) {
+    @Transactional(rollbackFor = Exception.class)
+    public void verifyEmail(String token, HttpServletResponse httpServletResponse) throws IOException {
 
-        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), (pageSize > 0 ? pageSize : 10));
+        Optional<CompanyVerifyEmailRequestHistory> companyVerifyEmailRequestHistory =
+                companyVerifyEmailRequestHistoryRepository.findByToken(token);
 
-        Page<Company> companyPage = companyRepository.getPage(name, address, pageable);
+        if (companyVerifyEmailRequestHistory.isEmpty()) {
+            httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            httpServletResponse.getWriter().write("Invalid token. Verification failed.");
+            return;
+        }
+        LocalDateTime now = LocalDateTime.now();
 
-        return pageUtils.toPageResponse(companyMapper.toCompanyDtoPage(companyPage));
+        if (now.isAfter(companyVerifyEmailRequestHistory.get().getExpiryTime())) {
+            httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            httpServletResponse.getWriter().write("Token has expired. Verification failed.");
+            return;
+        }
+
+        Company company = companyVerifyEmailRequestHistory.get().getCompany();
+
+        company.setEmailVerified(true);
+
+        companyRepository.save(company);
+
+        String redirectUrl = "https://jspace-fe.vercel.app/";
+        httpServletResponse.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+        httpServletResponse.setHeader("Location", redirectUrl);
     }
 
     @Override
-    public PageResponse<CompanyDto> getPageHasPost(String name, String address, int pageNumber, int pageSize) {
+    @Transactional(rollbackFor = Exception.class)
+    public void verifyEmployee(String token, HttpServletResponse httpServletResponse) throws IOException {
+        Optional<EmployeeHistoryRequestCompanyVerify> employeeHistoryRequestCompanyVerify =
+                employeeHistoryRequestCompanyVerifyRepository.findByToken(token);
 
-        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), (pageSize > 0 ? pageSize : 10));
+        if (employeeHistoryRequestCompanyVerify.isEmpty()) {
+            httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            httpServletResponse.getWriter().write("Invalid token. Verification failed.");
+            return;
+        }
+        LocalDateTime now = LocalDateTime.now();
 
-        Page<Company> companyPage = companyRepository.getPageHasPost(name, address, pageable);
+        if (now.isAfter(employeeHistoryRequestCompanyVerify.get().getExpiryTime())) {
+            httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            httpServletResponse.getWriter().write("Token has expired. Verification failed.");
+            return;
+        }
 
-        return pageUtils.toPageResponse(companyMapper.toCompanyDtoPage(companyPage));
-    }
+        Employee employee = employeeHistoryRequestCompanyVerify.get().getEmployee();
 
-    @Override
-    public PageResponse<CompanyDto> getPageNoPost(String name, String address, int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(Math.max(pageNumber - 1, 0), (pageSize > 0 ? pageSize : 10));
+        employee.setVerifiedByCompany(true);
 
-        Page<Company> companyPage = companyRepository.getPageNoPost(name, address, pageable);
+        employeeRepository.save(employee);
 
-        return pageUtils.toPageResponse(companyMapper.toCompanyDtoPage(companyPage));
+        String redirectUrl = "https://jspace-fe.vercel.app/";
+        httpServletResponse.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+        httpServletResponse.setHeader("Location", redirectUrl);
     }
 }

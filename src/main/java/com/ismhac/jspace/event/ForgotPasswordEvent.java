@@ -8,10 +8,10 @@ import org.springframework.context.ApplicationEvent;
 
 @Getter
 @Setter
-public class SendMailForgotPasswordEvent extends ApplicationEvent {
+public class ForgotPasswordEvent extends ApplicationEvent {
 
     private AdminForgotPasswordRequest adminForgotPasswordRequest;
-    public SendMailForgotPasswordEvent(Object source, AdminForgotPasswordRequest adminForgotPasswordRequest) {
+    public ForgotPasswordEvent(Object source, AdminForgotPasswordRequest adminForgotPasswordRequest) {
         super(source);
         this.adminForgotPasswordRequest = adminForgotPasswordRequest;
     }
