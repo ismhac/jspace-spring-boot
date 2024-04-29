@@ -2,6 +2,8 @@ package com.ismhac.jspace.service.impl;
 
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
+import com.ismhac.jspace.exception.AppException;
+import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.mapper.CompanyMapper;
 import com.ismhac.jspace.model.Company;
 import com.ismhac.jspace.model.CompanyVerifyEmailRequestHistory;
@@ -99,5 +101,12 @@ public class CompanyServiceImpl implements CompanyService {
         String redirectUrl = "https://jspace-fe.vercel.app/";
         httpServletResponse.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
         httpServletResponse.setHeader("Location", redirectUrl);
+    }
+
+    @Override
+    public CompanyDto getCompanyById(int id) {
+        Company company = companyRepository.findById(id)
+                .orElseThrow(()->new AppException(ErrorCode.NOT_FOUND_COMPANY));
+        return CompanyMapper.instance.eToDto(company);
     }
 }
