@@ -29,4 +29,7 @@ public class File extends BaseEntity {
 
     @Column(name = "public_id")
     String publicId;
+
+    @Column(name = "image_file_path")
+    String imageFilePath;
 }

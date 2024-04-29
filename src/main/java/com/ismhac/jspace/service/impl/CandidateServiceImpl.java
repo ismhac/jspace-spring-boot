@@ -139,6 +139,7 @@ public class CandidateServiceImpl implements CandidateService {
 
         try {
             uploadResult = cloudinary.uploader().upload(multipartFile.getBytes(), options);
+            cloudinary.uploader().upload(multipartFile.getBytes(), options);
         } catch (Exception exception) {
             throw new RuntimeException(exception.getMessage());
         }
@@ -150,6 +151,7 @@ public class CandidateServiceImpl implements CandidateService {
                 .type((String) uploadResult.get("format"))
                 .size(multipartFile.getSize())
                 .path((String) uploadResult.get("secure_url"))
+                .imageFilePath(((String) uploadResult.get("secure_url")).replace(".pdf", ".jpg"))
                 .publicId((String) uploadResult.get("public_id"))
                 .build();
 

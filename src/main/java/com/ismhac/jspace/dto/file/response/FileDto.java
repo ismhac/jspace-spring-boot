@@ -1,5 +1,6 @@
 package com.ismhac.jspace.dto.file.response;
 
+import jakarta.persistence.Column;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,4 +17,5 @@ public class FileDto {
     long size;
     String path;
     String publicId;
+    String imageFilePath;
 }
