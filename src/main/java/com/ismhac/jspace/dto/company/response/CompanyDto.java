@@ -11,7 +11,9 @@ public class CompanyDto {
     int id;
     String name;
     String background;
+    String backgroundId;
     String logo;
+    String logoId;
     String address;
     String email;
     String phone;

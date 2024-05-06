@@ -261,6 +261,8 @@ public class AuthServiceImpl implements AuthService {
         if (employeeInFo.isEmpty()) throw new AppException(ErrorCode.UNAUTHENTICATED);
 
         return EmployeeDto.builder()
+                .background((String) employeeInFo.get("background"))
+                .backgroundId((String) employeeInFo.get("backgroundId"))
                 .user(UserMapper.instance.toUserDto((User) employeeInFo.get("user")))
                 .company(CompanyMapper.instance.eToDto((Company) employeeInFo.get("company")))
                 .verifiedByCompany((Boolean) employeeInFo.get("verifiedByCompany"))

@@ -12,7 +12,10 @@ import com.ismhac.jspace.util.PageUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("api/v1/employees")
@@ -77,6 +80,18 @@ public class EmployeeController {
             @RequestParam("companyId") Integer companyId) {
         var result = employeeService.employeePickCompany(companyId);
         return ApiResponse.<String>builder()
+                .result(result)
+                .build();
+    }
+
+    @PutMapping(value = "/{id}/update-background",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('EMPLOYEE')")
+    public ApiResponse<EmployeeDto> updateBackground(
+            @PathVariable("id") int id,
+            @RequestParam("file") MultipartFile background){
+        var result = employeeService.updateBackground(id, background);
+        return ApiResponse.<EmployeeDto>builder()
                 .result(result)
                 .build();
     }

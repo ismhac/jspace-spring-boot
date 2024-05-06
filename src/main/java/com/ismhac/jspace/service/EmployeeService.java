@@ -7,6 +7,7 @@ import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface EmployeeService {
     PageResponse<EmployeeDto> getPageByCompanyIdFilterByEmailAndName(
@@ -19,4 +20,6 @@ public interface EmployeeService {
     CompanyDto createCompany(CompanyCreateRequest request);
 
     String employeePickCompany(Integer companyId);
+
+    EmployeeDto updateBackground(int id, MultipartFile background);
  }

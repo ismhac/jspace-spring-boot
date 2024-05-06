@@ -1,5 +1,6 @@
 package com.ismhac.jspace.service.impl;
 
+import com.cloudinary.Cloudinary;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.exception.AppException;
@@ -22,9 +23,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -39,6 +43,8 @@ public class CompanyServiceImpl implements CompanyService {
 
     private final EmployeeHistoryRequestCompanyVerifyRepository
             employeeHistoryRequestCompanyVerifyRepository;
+
+    private final Cloudinary cloudinary;
 
     private final PageUtils pageUtils;
 
@@ -108,5 +114,66 @@ public class CompanyServiceImpl implements CompanyService {
         Company company = companyRepository.findById(id)
                 .orElseThrow(()->new AppException(ErrorCode.NOT_FOUND_COMPANY));
         return CompanyMapper.instance.eToDto(company);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CompanyDto updateLogo(int id, MultipartFile logo) {
+
+        Company company = companyRepository.findById(id)
+                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+
+        if (logo == null || logo.isEmpty()) {
+            throw new IllegalArgumentException("logo must not be empty");
+        }
+
+        Map<String, Object> options = new HashMap<>();
+
+        Map uploadResult;
+
+        try {
+            uploadResult = cloudinary.uploader().upload(logo.getBytes(), options);
+            cloudinary.uploader().upload(logo.getBytes(), options);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception.getMessage());
+        }
+
+        String logoPath = (String) uploadResult.get("secure_url");
+        String logoId = (String) uploadResult.get("public_id");
+
+        company.setLogo(logoPath);
+        company.setLogoId(logoId);
+
+        return CompanyMapper.instance.eToDto(companyRepository.save(company));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CompanyDto updateBackground(int id, MultipartFile background) {
+        Company company = companyRepository.findById(id)
+                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+
+        if (background == null || background.isEmpty()) {
+            throw new IllegalArgumentException("logo must not be empty");
+        }
+
+        Map<String, Object> options = new HashMap<>();
+
+        Map uploadResult;
+
+        try {
+            uploadResult = cloudinary.uploader().upload(background.getBytes(), options);
+            cloudinary.uploader().upload(background.getBytes(), options);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception.getMessage());
+        }
+
+        String backgroundPath = (String) uploadResult.get("secure_url");
+        String backgroundId = (String) uploadResult.get("public_id");
+
+        company.setBackground(backgroundPath);
+        company.setBackgroundId(backgroundId);
+
+        return CompanyMapper.instance.eToDto(companyRepository.save(company));
     }
 }
