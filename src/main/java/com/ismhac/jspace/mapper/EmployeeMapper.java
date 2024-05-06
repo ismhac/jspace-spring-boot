@@ -7,11 +7,13 @@ import com.ismhac.jspace.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 
 @Mapper(componentModel = "spring")
 public interface EmployeeMapper {
 
+    EmployeeMapper instance = Mappers.getMapper(EmployeeMapper.class);
 
     @Mapping(target = "user", source = "id.user", qualifiedByName = "convertToUserDto")
     EmployeeDto toEmployeeDto(Employee employee);

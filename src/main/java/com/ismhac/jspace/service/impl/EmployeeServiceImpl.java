@@ -1,5 +1,6 @@
 package com.ismhac.jspace.service.impl;
 
+import com.cloudinary.Cloudinary;
 import com.ismhac.jspace.dto.common.request.SendMailRequest;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
@@ -32,12 +33,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +58,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final ApplicationEventPublisher applicationEventPublisher;
     private final CompanyVerifyEmailRequestHistoryRepository companyVerifyEmailRequestHistoryRepository;
+
+    private final Cloudinary cloudinary;
 
 
     @Autowired
@@ -117,8 +119,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Company newCompany = Company.builder()
                 .name(request.getName())
-                .background(request.getBackground())
-                .logo(request.getLogo())
                 .address(request.getAddress())
                 .email(email)
                 .phone(phone)
@@ -159,6 +159,35 @@ public class EmployeeServiceImpl implements EmployeeService {
         _sendMailWhenPickCompany(company, employee);
 
         return "Success";
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public EmployeeDto updateBackground(int id, MultipartFile background) {
+        Employee employee = employeeRepository.findByUserId(id)
+                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (background == null || background.isEmpty()) {
+            throw new IllegalArgumentException("logo must not be empty");
+        }
+
+        Map<String, Object> options = new HashMap<>();
+
+        Map uploadResult;
+
+        try {
+            uploadResult = cloudinary.uploader().upload(background.getBytes(), options);
+            cloudinary.uploader().upload(background.getBytes(), options);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception.getMessage());
+        }
+
+        String backgroundPath = (String) uploadResult.get("secure_url");
+        String backgroundId = (String) uploadResult.get("public_id");
+
+        employee.setBackground(backgroundPath);
+        employee.setBackgroundId(backgroundId);
+        return EmployeeMapper.instance.toEmployeeDto(employeeRepository.save(employee));
     }
 
 

@@ -6,8 +6,6 @@ import lombok.Data;
 @Data
 public class CompanyCreateRequest {
     String name;
-    String background;
-    String logo;
     String address;
     @Email
     String email;

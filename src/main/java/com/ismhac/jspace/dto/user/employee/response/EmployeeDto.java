@@ -12,6 +12,11 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EmployeeDto {
+
+    String background;
+
+    String backgroundId;
+
     UserDto user;
 
     CompanyDto company;

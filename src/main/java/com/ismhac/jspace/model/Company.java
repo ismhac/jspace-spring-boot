@@ -23,7 +23,13 @@ public class Company extends BaseEntity {
 
     String background;
 
+    @Column(name = "background_id")
+    String backgroundId;
+
     String logo;
+
+    @Column(name = "logo_id")
+    String logoId;
 
     String address;
 
