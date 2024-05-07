@@ -13,4 +13,8 @@ public class CompanyCreateRequest {
     String companySize;
     String description;
     String companyLink;
+    String background;
+    String backgroundId;
+    String logo;
+    String logoId;
 }

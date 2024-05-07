@@ -18,11 +18,6 @@ public class Employee extends BaseEntity{
     @EmbeddedId
     EmployeeId id;
 
-    String background;
-
-    @Column(name = "background_id")
-    String backgroundId;
-
     @ManyToOne
     @JoinColumn(name = "company_id", referencedColumnName = "id")
     Company company;

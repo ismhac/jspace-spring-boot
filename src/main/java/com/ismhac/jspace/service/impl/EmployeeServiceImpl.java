@@ -125,6 +125,10 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .companySize(request.getCompanySize())
                 .description(request.getDescription())
                 .companyLink(request.getCompanyLink())
+                .background(request.getBackground())
+                .backgroundId(request.getBackgroundId())
+                .logo(request.getLogo())
+                .logoId(request.getLogoId())
                 .build();
 
         Company savedCompany = companyRepository.save(newCompany);
@@ -185,8 +189,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         String backgroundPath = (String) uploadResult.get("secure_url");
         String backgroundId = (String) uploadResult.get("public_id");
 
-        employee.setBackground(backgroundPath);
-        employee.setBackgroundId(backgroundId);
+        employee.getId().getUser().setBackground(backgroundPath);
+        employee.getId().getUser().setBackgroundId(backgroundId);
         return EmployeeMapper.instance.toEmployeeDto(employeeRepository.save(employee));
     }
 
