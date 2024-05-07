@@ -23,6 +23,10 @@ public class UserDto {
 
     String picture;
 
+    String background;
+
+    String backgroundId;
+
     String phone;
 
     boolean activated;

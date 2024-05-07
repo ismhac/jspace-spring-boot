@@ -44,8 +44,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, EmployeeId> 
 
     @Query("""
             select new map(
-                employee.background as background,
-                employee.backgroundId as backgroundId,
                 employee.id.user as user,
                 tbl_company as company,
                 employee.verifiedByCompany as verifiedByCompany,

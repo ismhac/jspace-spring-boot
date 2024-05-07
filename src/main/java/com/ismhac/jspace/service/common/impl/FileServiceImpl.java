@@ -2,6 +2,7 @@ package com.ismhac.jspace.service.common.impl;
 
 import com.cloudinary.Cloudinary;
 import com.ismhac.jspace.dto.file.response.FileDto;
+import com.ismhac.jspace.dto.file.response.custom.FileInfo;
 import com.ismhac.jspace.mapper.FileMapper;
 import com.ismhac.jspace.model.File;
 import com.ismhac.jspace.repository.FileRepository;
@@ -34,5 +35,17 @@ public class FileServiceImpl implements FileService {
 
         File savedFile = fileRepository.save(file);
         return fileMapper.toFileDto(savedFile);
+    }
+
+    @Override
+    public FileInfo uploadFileInfo(MultipartFile file) throws IOException {
+        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), new HashMap<>());
+
+        FileInfo fileInfo = FileInfo.builder()
+                .filePath((String) uploadResult.get("secure_url"))
+                .fileId((String) uploadResult.get("public_id"))
+                .build();
+
+        return fileInfo;
     }
 }

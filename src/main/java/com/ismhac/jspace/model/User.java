@@ -31,9 +31,19 @@ public class User extends BaseEntity {
 
     String picture;
 
+    @Column(name = "picture_id")
+    String pictureId;
+
+    String background;
+
+    @Column(name = "background_id")
+    String backgroundId;
+
     String phone;
 
     boolean activated;
+
+    private String position;
 
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
