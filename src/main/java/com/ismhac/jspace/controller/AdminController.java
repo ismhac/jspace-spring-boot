@@ -93,4 +93,19 @@ public class AdminController {
                 .result(result)
                 .build();
     }
+
+    @GetMapping("/companies")
+    public ApiResponse<PageResponse<CompanyDto>> getPageCompanyAndFilter(
+            @RequestParam("name") String name,
+            @RequestParam("address") String address,
+            @RequestParam("email") String email,
+            @RequestParam("phone") String phone,
+            @RequestParam("emailVerified") Boolean emailVerified,
+            @RequestParam("verifiedByAdmin") Boolean verifiedByAdmin,
+            Pageable pageable){
+        var result = adminService.getPageCompanyAndFilter(name, address, email, phone, emailVerified, verifiedByAdmin, pageable);
+        return ApiResponse.<PageResponse<CompanyDto>>builder()
+                .result(result)
+                .build();
+    }
 }

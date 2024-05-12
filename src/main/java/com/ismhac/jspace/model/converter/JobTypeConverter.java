@@ -4,9 +4,11 @@ import com.ismhac.jspace.model.enums.AdminType;
 import com.ismhac.jspace.model.enums.ApplyStatus;
 import com.ismhac.jspace.model.enums.JobType;
 import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 import java.util.stream.Stream;
 
+@Converter(autoApply = true)
 public class JobTypeConverter implements AttributeConverter<JobType, String> {
 
     @Override

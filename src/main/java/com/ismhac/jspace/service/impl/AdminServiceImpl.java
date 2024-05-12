@@ -2,6 +2,7 @@ package com.ismhac.jspace.service.impl;
 
 import com.ismhac.jspace.config.security.jwt.JwtService;
 import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.companyRequestReview.response.CompanyRequestReviewDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
@@ -12,6 +13,7 @@ import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.mapper.AdminMapper;
+import com.ismhac.jspace.mapper.CompanyMapper;
 import com.ismhac.jspace.mapper.CompanyRequestReviewMapper;
 import com.ismhac.jspace.mapper.UserMapper;
 import com.ismhac.jspace.model.*;
@@ -260,5 +262,13 @@ public class AdminServiceImpl implements AdminService {
         companyRepository.save(company);
 
         return CompanyRequestReviewMapper.instance.eToDto(companyRequestReview);
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
+    public PageResponse<CompanyDto> getPageCompanyAndFilter(
+            String name, String address, String email, String phone, Boolean emailVerified, Boolean verifiedByAdmin, Pageable pageable) {
+        Page<Company> companyPage = companyRepository.getPageAndFilter(name, address, email, phone, emailVerified, verifiedByAdmin, pageable);
+        return pageUtils.toPageResponse(CompanyMapper.instance.ePageToDtoPage(companyPage));
     }
 }

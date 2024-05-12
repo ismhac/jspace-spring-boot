@@ -3,6 +3,8 @@ package com.ismhac.jspace.service;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
+import com.ismhac.jspace.dto.post.PostCreateRequest;
+import com.ismhac.jspace.dto.post.PostDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -22,4 +24,6 @@ public interface EmployeeService {
     String employeePickCompany(Integer companyId);
 
     EmployeeDto updateBackground(int id, MultipartFile background);
+
+    PostDto createPost(PostCreateRequest req);
  }

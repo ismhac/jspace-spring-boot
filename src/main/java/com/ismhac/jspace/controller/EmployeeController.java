@@ -4,6 +4,8 @@ import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
+import com.ismhac.jspace.dto.post.PostCreateRequest;
+import com.ismhac.jspace.dto.post.PostDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -92,6 +94,16 @@ public class EmployeeController {
             @RequestParam("file") MultipartFile background){
         var result = employeeService.updateBackground(id, background);
         return ApiResponse.<EmployeeDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @PostMapping("/posts")
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ApiResponse<PostDto> createPost(
+            @RequestBody PostCreateRequest req){
+        var result = employeeService.createPost(req);
+        return ApiResponse.<PostDto>builder()
                 .result(result)
                 .build();
     }

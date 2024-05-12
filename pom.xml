@@ -50,6 +50,19 @@
             </activation>
         </profile>
 
+        <profile>
+            <id>aiven</id>
+            <activation>
+                <!-- this profile is active by default -->
+                <activeByDefault>false</activeByDefault>
+                <!-- activate if system properties 'env=dev' -->
+                <property>
+                    <name>env</name>
+                    <value>aiven</value>
+                </property>
+            </activation>
+        </profile>
+
     </profiles>
 
     <dependencies>

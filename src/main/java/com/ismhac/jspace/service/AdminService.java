@@ -24,4 +24,7 @@ public interface AdminService {
     PageResponse<CompanyRequestReviewDto> getRequestReviewDtoPageResponse(Boolean reviewed, Pageable pageable);
 
     CompanyRequestReviewDto adminVerifyForCompany(Integer companyId, Boolean reviewed);
+
+    PageResponse<CompanyDto> getPageCompanyAndFilter(
+            String name, String address, String email, String phone, Boolean emailVerified, Boolean verifiedByAdmin, Pageable pageable);
 }
