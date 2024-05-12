@@ -5,6 +5,9 @@ import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.companyRequestReview.response.CompanyRequestReviewDto;
+import com.ismhac.jspace.dto.product.request.ProductCreateRequest;
+import com.ismhac.jspace.dto.product.request.ProductUpdateRequest;
+import com.ismhac.jspace.dto.product.response.ProductDto;
 import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
@@ -93,4 +96,60 @@ public class AdminController {
                 .result(result)
                 .build();
     }
+
+    @GetMapping("/companies")
+    public ApiResponse<PageResponse<CompanyDto>> getPageCompanyAndFilter(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "address", required = false) String address,
+            @RequestParam(value = "email", required = false) String email,
+            @RequestParam(value = "phone", required = false) String phone,
+            @RequestParam(value = "emailVerified", required = false) Boolean emailVerified,
+            @RequestParam(value = "verifiedByAdmin", required = false) Boolean verifiedByAdmin,
+            Pageable pageable){
+        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
+        var result = adminService.getPageCompanyAndFilter(name, address, email, phone, emailVerified, verifiedByAdmin, adjustedPageable);
+        return ApiResponse.<PageResponse<CompanyDto>>builder()
+                .result(result)
+                .build();
+    }
+
+    @PutMapping("/companies/{id}/update-activate-status")
+    public ApiResponse<CompanyDto> updateCompanyActivateStatus(
+            @PathVariable("id") int id,
+            @RequestParam("activateStatus") boolean activateStatus){
+        var result = adminService.updateCompanyActivateStatus(id, activateStatus);
+        return ApiResponse.<CompanyDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @PostMapping("/products")
+    public ApiResponse <ProductDto> createProduct(
+            @RequestBody ProductCreateRequest request){
+        var result = adminService.createProduct(request);
+        return ApiResponse.<ProductDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @PatchMapping("/products/{id}")
+    public ApiResponse<ProductDto> updateProduct(
+            @PathVariable("id") int id,
+            @RequestBody ProductUpdateRequest request){
+        var result = adminService.updateProduct(id,request);
+        return ApiResponse.<ProductDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @PatchMapping("/products")
+    public ApiResponse<PageResponse<ProductDto>> getPageProduct(
+            Pageable pageable){
+        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
+        var result = adminService.getPageProduct(adjustedPageable);
+        return ApiResponse.<PageResponse<ProductDto>>builder()
+                .result(result)
+                .build();
+    }
+
 }

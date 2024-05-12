@@ -48,7 +48,7 @@ public class PostServiceImpl implements PostService {
                 .company(company)
                 .build();
         Post savedPost = postRepository.save(post);
-        return postMapper.toPostDto(savedPost);
+        return postMapper.eToDto(savedPost);
     }
 
 

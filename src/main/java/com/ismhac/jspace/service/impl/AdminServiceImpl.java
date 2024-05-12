@@ -2,7 +2,11 @@ package com.ismhac.jspace.service.impl;
 
 import com.ismhac.jspace.config.security.jwt.JwtService;
 import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.companyRequestReview.response.CompanyRequestReviewDto;
+import com.ismhac.jspace.dto.product.request.ProductCreateRequest;
+import com.ismhac.jspace.dto.product.request.ProductUpdateRequest;
+import com.ismhac.jspace.dto.product.response.ProductDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
 import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
@@ -11,9 +15,7 @@ import com.ismhac.jspace.event.CreateAdminEvent;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
-import com.ismhac.jspace.mapper.AdminMapper;
-import com.ismhac.jspace.mapper.CompanyRequestReviewMapper;
-import com.ismhac.jspace.mapper.UserMapper;
+import com.ismhac.jspace.mapper.*;
 import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.enums.AdminType;
 import com.ismhac.jspace.model.enums.RoleCode;
@@ -24,6 +26,8 @@ import com.ismhac.jspace.util.PageUtils;
 import com.ismhac.jspace.util.UserUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -57,6 +61,8 @@ public class AdminServiceImpl implements AdminService {
 
     private final CompanyRepository companyRepository;
 
+    private final ProductRepository productRepository;
+
     private final CompanyRequestReviewRepository companyRequestReviewRepository;
 
     private final PageUtils pageUtils;
@@ -71,6 +77,9 @@ public class AdminServiceImpl implements AdminService {
     private final AdminRequestVerifyEmailRepository adminRequestVerifyEmailRepository;
 
     private final JwtService jwtService;
+
+    @Autowired
+    private com.ismhac.jspace.util.BeanUtils beanUtils;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -261,4 +270,48 @@ public class AdminServiceImpl implements AdminService {
 
         return CompanyRequestReviewMapper.instance.eToDto(companyRequestReview);
     }
+
+    @Override
+    @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
+    public PageResponse<CompanyDto> getPageCompanyAndFilter(
+            String name, String address, String email, String phone, Boolean emailVerified, Boolean verifiedByAdmin, Pageable pageable) {
+        Page<Company> companyPage = companyRepository.getPageAndFilter(name, address, email, phone, emailVerified, verifiedByAdmin, pageable);
+        return pageUtils.toPageResponse(CompanyMapper.instance.ePageToDtoPage(companyPage));
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
+    @Transactional(rollbackFor = Exception.class)
+    public CompanyDto updateCompanyActivateStatus(int id, boolean activateStatus) {
+        Company company = companyRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+        company.setActivateStatus(activateStatus);
+        return CompanyMapper.instance.eToDto(companyRepository.save(company));
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
+    @Transactional(rollbackFor = Exception.class)
+    public ProductDto createProduct(ProductCreateRequest request) {
+        Product product = ProductMapper.instance.createReqToE(request);
+        return ProductMapper.instance.eToDto(productRepository.save(product));
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
+    @Transactional(rollbackFor = Exception.class)
+    public ProductDto updateProduct(int id, ProductUpdateRequest request) {
+
+        Product product = productRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.COMPANY_EXISTED));
+
+        BeanUtils.copyProperties(request, product, beanUtils.getNullPropertyNames(request));
+        return ProductMapper.instance.eToDto(productRepository.save(product));
+    }
+
+    @Override
+    public PageResponse<ProductDto> getPageProduct(Pageable pageable) {
+        Page<Product> productPage = productRepository.getPage(pageable);
+        return pageUtils.toPageResponse(ProductMapper.instance.ePageToDtoPage(productPage));
+    }
+
+
 }

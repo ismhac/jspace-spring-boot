@@ -58,7 +58,9 @@ public enum ErrorCode {
 
     EMAIL_HAS_BEEN_VERIFIED(HttpStatus.OK.value(), "Email has been verified", HttpStatus.OK),
 
-    COMPANY_EXISTED(HttpStatus.BAD_REQUEST.value(), "Company is existed", HttpStatus.BAD_REQUEST)
+    COMPANY_EXISTED(HttpStatus.BAD_REQUEST.value(), "Company is existed", HttpStatus.BAD_REQUEST),
+
+    NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND.value(), "Not found product", HttpStatus.NOT_FOUND)
     ;
 
     private final int code;

@@ -5,6 +5,8 @@ import com.ismhac.jspace.dto.common.request.SendMailRequest;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
+import com.ismhac.jspace.dto.post.PostCreateRequest;
+import com.ismhac.jspace.dto.post.PostDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -14,16 +16,19 @@ import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.mapper.CompanyMapper;
 import com.ismhac.jspace.mapper.EmployeeMapper;
+import com.ismhac.jspace.mapper.PostMapper;
 import com.ismhac.jspace.mapper.UserMapper;
 import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.primaryKey.CompanyRequestReviewId;
 import com.ismhac.jspace.repository.*;
+import com.ismhac.jspace.service.CompanyService;
 import com.ismhac.jspace.service.EmployeeService;
 import com.ismhac.jspace.util.BeanUtils;
 import com.ismhac.jspace.util.PageUtils;
 import com.ismhac.jspace.util.UserUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springdoc.webmvc.core.service.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -60,10 +65,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final CompanyVerifyEmailRequestHistoryRepository companyVerifyEmailRequestHistoryRepository;
 
     private final Cloudinary cloudinary;
-
+    private final PostRepository postRepository;
 
     @Autowired
     private BeanUtils beanUtils;
+    private RequestService requestBuilder;
 
     @Override
     public PageResponse<EmployeeDto> getPageByCompanyIdFilterByEmailAndName(int companyId, String email, String name, Pageable pageable) {
@@ -192,6 +198,32 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.getId().getUser().setBackground(backgroundPath);
         employee.getId().getUser().setBackgroundId(backgroundId);
         return EmployeeMapper.instance.toEmployeeDto(employeeRepository.save(employee));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public PostDto createPost(PostCreateRequest req) {
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String employeeEmail = (String) jwt.getClaims().get("email");
+
+        Company company = _findCompanyById(req.getCompanyId());
+
+        Post post = Post.builder()
+                .employeeEmail(employeeEmail)
+                .company(company)
+                .title(req.getTitle())
+                .jobType(req.getJobType())
+                .location(req.getLocation())
+                .description(req.getDescription())
+                .maxPay(req.getMinPay())
+                .maxPay(req.getMaxPay())
+                .quantity(req.getQuantity())
+                .openDate(req.getOpenDate())
+                .closeDate(req.getCloseDate())
+                .postStatus(req.getPostStatus())
+                .build();
+
+        return PostMapper.instance.eToDto(postRepository.save(post));
     }
 
 
@@ -476,5 +508,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeHistoryRequestCompanyVerifyRepository.save(employeeHistoryRequestCompanyVerify);
 
         applicationEventPublisher.publishEvent(requestCompanyToVerifyForEmployeeEvent);
+    }
+
+    private Company _findCompanyById(int id){
+        return companyRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_COMPANY));
     }
 }
