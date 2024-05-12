@@ -271,4 +271,14 @@ public class AdminServiceImpl implements AdminService {
         Page<Company> companyPage = companyRepository.getPageAndFilter(name, address, email, phone, emailVerified, verifiedByAdmin, pageable);
         return pageUtils.toPageResponse(CompanyMapper.instance.ePageToDtoPage(companyPage));
     }
+
+    @Override
+    @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
+    @Transactional(rollbackFor = Exception.class)
+    public CompanyDto updateCompanyActivateStatus(int id, boolean activateStatus) {
+        Company company = companyRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+        company.setActivateStatus(activateStatus);
+        return CompanyMapper.instance.eToDto(companyRepository.save(company));
+    }
+
 }

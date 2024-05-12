@@ -27,4 +27,6 @@ public interface AdminService {
 
     PageResponse<CompanyDto> getPageCompanyAndFilter(
             String name, String address, String email, String phone, Boolean emailVerified, Boolean verifiedByAdmin, Pageable pageable);
+
+    CompanyDto updateCompanyActivateStatus(int id, boolean activateStatus);
 }

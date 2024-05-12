@@ -22,4 +22,5 @@ public class CompanyDto {
     String companyLink;
     Boolean emailVerified;
     Boolean verifiedByAdmin;
+    Boolean activateStatus;
 }

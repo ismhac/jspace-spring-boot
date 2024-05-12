@@ -96,15 +96,25 @@ public class AdminController {
 
     @GetMapping("/companies")
     public ApiResponse<PageResponse<CompanyDto>> getPageCompanyAndFilter(
-            @RequestParam("name") String name,
-            @RequestParam("address") String address,
-            @RequestParam("email") String email,
-            @RequestParam("phone") String phone,
-            @RequestParam("emailVerified") Boolean emailVerified,
-            @RequestParam("verifiedByAdmin") Boolean verifiedByAdmin,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "address", required = false) String address,
+            @RequestParam(value = "email", required = false) String email,
+            @RequestParam(value = "phone", required = false) String phone,
+            @RequestParam(value = "emailVerified", required = false) Boolean emailVerified,
+            @RequestParam(value = "verifiedByAdmin", required = false) Boolean verifiedByAdmin,
             Pageable pageable){
         var result = adminService.getPageCompanyAndFilter(name, address, email, phone, emailVerified, verifiedByAdmin, pageable);
         return ApiResponse.<PageResponse<CompanyDto>>builder()
+                .result(result)
+                .build();
+    }
+
+    @PutMapping("/companies/{id}/update-activate-status")
+    public ApiResponse<CompanyDto> updateCompanyActivateStatus(
+            @PathVariable("id") int id,
+            @RequestParam("activateStatus") boolean activateStatus){
+        var result = adminService.updateCompanyActivateStatus(id, activateStatus);
+        return ApiResponse.<CompanyDto>builder()
                 .result(result)
                 .build();
     }

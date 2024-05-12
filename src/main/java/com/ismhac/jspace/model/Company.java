@@ -53,4 +53,8 @@ public class Company extends BaseEntity {
     @Column(name = "verified_by_admin")
     @Builder.Default
     Boolean verifiedByAdmin = false;
+
+    @Column(name = "activate_status")
+    @Builder.Default
+    Boolean activateStatus = true;
 }
