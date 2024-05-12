@@ -106,7 +106,8 @@ public class AdminController {
             @RequestParam(value = "emailVerified", required = false) Boolean emailVerified,
             @RequestParam(value = "verifiedByAdmin", required = false) Boolean verifiedByAdmin,
             Pageable pageable){
-        var result = adminService.getPageCompanyAndFilter(name, address, email, phone, emailVerified, verifiedByAdmin, pageable);
+        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
+        var result = adminService.getPageCompanyAndFilter(name, address, email, phone, emailVerified, verifiedByAdmin, adjustedPageable);
         return ApiResponse.<PageResponse<CompanyDto>>builder()
                 .result(result)
                 .build();
@@ -140,4 +141,15 @@ public class AdminController {
                 .result(result)
                 .build();
     }
+
+    @PatchMapping("/products")
+    public ApiResponse<PageResponse<ProductDto>> getPageProduct(
+            Pageable pageable){
+        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
+        var result = adminService.getPageProduct(adjustedPageable);
+        return ApiResponse.<PageResponse<ProductDto>>builder()
+                .result(result)
+                .build();
+    }
+
 }

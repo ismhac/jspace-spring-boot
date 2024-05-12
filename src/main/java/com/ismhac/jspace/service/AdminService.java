@@ -36,4 +36,6 @@ public interface AdminService {
     ProductDto createProduct(ProductCreateRequest request);
 
     ProductDto updateProduct(int id, ProductUpdateRequest request);
+
+    PageResponse<ProductDto> getPageProduct(Pageable pageable);
 }
