@@ -5,6 +5,7 @@ import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.companyRequestReview.response.CompanyRequestReviewDto;
 import com.ismhac.jspace.dto.product.request.ProductCreateRequest;
+import com.ismhac.jspace.dto.product.request.ProductUpdateRequest;
 import com.ismhac.jspace.dto.product.response.ProductDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
@@ -33,4 +34,6 @@ public interface AdminService {
     CompanyDto updateCompanyActivateStatus(int id, boolean activateStatus);
 
     ProductDto createProduct(ProductCreateRequest request);
+
+    ProductDto updateProduct(int id, ProductUpdateRequest request);
 }

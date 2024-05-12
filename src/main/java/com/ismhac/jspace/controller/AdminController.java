@@ -6,6 +6,7 @@ import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.companyRequestReview.response.CompanyRequestReviewDto;
 import com.ismhac.jspace.dto.product.request.ProductCreateRequest;
+import com.ismhac.jspace.dto.product.request.ProductUpdateRequest;
 import com.ismhac.jspace.dto.product.response.ProductDto;
 import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -125,6 +126,16 @@ public class AdminController {
     public ApiResponse <ProductDto> createProduct(
             @RequestBody ProductCreateRequest request){
         var result = adminService.createProduct(request);
+        return ApiResponse.<ProductDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @PatchMapping("/products/{id}")
+    public ApiResponse<ProductDto> updateProduct(
+            @PathVariable("id") int id,
+            @RequestBody ProductUpdateRequest request){
+        var result = adminService.updateProduct(id,request);
         return ApiResponse.<ProductDto>builder()
                 .result(result)
                 .build();

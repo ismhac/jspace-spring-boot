@@ -5,6 +5,7 @@ import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.companyRequestReview.response.CompanyRequestReviewDto;
 import com.ismhac.jspace.dto.product.request.ProductCreateRequest;
+import com.ismhac.jspace.dto.product.request.ProductUpdateRequest;
 import com.ismhac.jspace.dto.product.response.ProductDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
@@ -25,6 +26,8 @@ import com.ismhac.jspace.util.PageUtils;
 import com.ismhac.jspace.util.UserUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -74,6 +77,9 @@ public class AdminServiceImpl implements AdminService {
     private final AdminRequestVerifyEmailRepository adminRequestVerifyEmailRepository;
 
     private final JwtService jwtService;
+
+    @Autowired
+    private com.ismhac.jspace.util.BeanUtils beanUtils;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -290,6 +296,16 @@ public class AdminServiceImpl implements AdminService {
         return ProductMapper.instance.eToDto(productRepository.save(product));
     }
 
+    @Override
+    @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
+    @Transactional(rollbackFor = Exception.class)
+    public ProductDto updateProduct(int id, ProductUpdateRequest request) {
+
+        Product product = productRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.COMPANY_EXISTED));
+
+        BeanUtils.copyProperties(request, product, beanUtils.getNullPropertyNames(request));
+        return ProductMapper.instance.eToDto(productRepository.save(product));
+    }
 
 
 }
