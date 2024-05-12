@@ -4,6 +4,8 @@ import com.ismhac.jspace.config.security.jwt.JwtService;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.companyRequestReview.response.CompanyRequestReviewDto;
+import com.ismhac.jspace.dto.product.request.ProductCreateRequest;
+import com.ismhac.jspace.dto.product.response.ProductDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
 import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
@@ -12,10 +14,7 @@ import com.ismhac.jspace.event.CreateAdminEvent;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
-import com.ismhac.jspace.mapper.AdminMapper;
-import com.ismhac.jspace.mapper.CompanyMapper;
-import com.ismhac.jspace.mapper.CompanyRequestReviewMapper;
-import com.ismhac.jspace.mapper.UserMapper;
+import com.ismhac.jspace.mapper.*;
 import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.enums.AdminType;
 import com.ismhac.jspace.model.enums.RoleCode;
@@ -58,6 +57,8 @@ public class AdminServiceImpl implements AdminService {
     private final RoleRepository roleRepository;
 
     private final CompanyRepository companyRepository;
+
+    private final ProductRepository productRepository;
 
     private final CompanyRequestReviewRepository companyRequestReviewRepository;
 
@@ -280,5 +281,15 @@ public class AdminServiceImpl implements AdminService {
         company.setActivateStatus(activateStatus);
         return CompanyMapper.instance.eToDto(companyRepository.save(company));
     }
+
+    @Override
+    @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
+    @Transactional(rollbackFor = Exception.class)
+    public ProductDto createProduct(ProductCreateRequest request) {
+        Product product = ProductMapper.instance.createReqToE(request);
+        return ProductMapper.instance.eToDto(productRepository.save(product));
+    }
+
+
 
 }

@@ -5,6 +5,8 @@ import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.companyRequestReview.response.CompanyRequestReviewDto;
+import com.ismhac.jspace.dto.product.request.ProductCreateRequest;
+import com.ismhac.jspace.dto.product.response.ProductDto;
 import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
@@ -115,6 +117,15 @@ public class AdminController {
             @RequestParam("activateStatus") boolean activateStatus){
         var result = adminService.updateCompanyActivateStatus(id, activateStatus);
         return ApiResponse.<CompanyDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @PostMapping("/products")
+    public ApiResponse <ProductDto> createProduct(
+            @RequestBody ProductCreateRequest request){
+        var result = adminService.createProduct(request);
+        return ApiResponse.<ProductDto>builder()
                 .result(result)
                 .build();
     }
