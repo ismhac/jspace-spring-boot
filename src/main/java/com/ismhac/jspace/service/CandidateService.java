@@ -14,4 +14,11 @@ public interface CandidateService {
     UserDto update(int id, CandidateUpdateRequest request);
 
     PageResponse<ResumeDto> getListResume(int id, Pageable pageable);
+
+    // UserDto updateBackground, avatar // todo
+
+    UserDto updateAvatar(int id, MultipartFile avatar);
+
+    UserDto updateBackground(int id, MultipartFile avatar);
+
 }

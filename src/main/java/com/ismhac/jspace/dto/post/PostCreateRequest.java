@@ -18,6 +18,7 @@ import java.time.LocalDate;
 public class PostCreateRequest {
     @JsonIgnore
     LocalDate openDate;
+
     LocalDate closeDate;
 
     @JsonIgnore

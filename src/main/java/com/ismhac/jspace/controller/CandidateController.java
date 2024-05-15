@@ -58,4 +58,24 @@ public class CandidateController {
                 .result(result)
                 .build();
     }
+
+    @PutMapping(value = "/{id}/update-avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<UserDto> updateAvatar(
+            @PathVariable("id") int id,
+            @RequestParam("file") MultipartFile avatar){
+        var result = candidateService.updateAvatar(id, avatar);
+        return ApiResponse.<UserDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @PutMapping(value = "/{id}/update-background", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<UserDto> updateBackground(
+            @PathVariable("id") int id,
+            @RequestParam("file") MultipartFile background){
+        var result = candidateService.updateBackground(id, background);
+        return ApiResponse.<UserDto>builder()
+                .result(result)
+                .build();
+    }
 }

@@ -178,7 +178,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         if (background == null || background.isEmpty()) {
-            throw new IllegalArgumentException("logo must not be empty");
+            throw new IllegalArgumentException("background must not be empty");
         }
 
         Map<String, Object> options = new HashMap<>();
@@ -201,6 +201,34 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public EmployeeDto updateAvatar(int id, MultipartFile avatar) {
+        Employee employee = employeeRepository.findByUserId(id)
+                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (avatar == null || avatar.isEmpty()) {
+            throw new IllegalArgumentException("background must not be empty");
+        }
+
+        Map<String, Object> options = new HashMap<>();
+
+        Map uploadResult;
+
+        try {
+            uploadResult = cloudinary.uploader().upload(avatar.getBytes(), options);
+            cloudinary.uploader().upload(avatar.getBytes(), options);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception.getMessage());
+        }
+
+        String avatarPath = (String) uploadResult.get("secure_url");
+        String avatarId = (String) uploadResult.get("public_id");
+
+        employee.getId().getUser().setPicture(avatarPath);
+        employee.getId().getUser().setPictureId(avatarId);
+        return EmployeeMapper.instance.toEmployeeDto(employeeRepository.save(employee));
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public PostDto createPost(PostCreateRequest req) {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -215,7 +243,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .jobType(req.getJobType())
                 .location(req.getLocation())
                 .description(req.getDescription())
-                .maxPay(req.getMinPay())
+                .minPay(req.getMinPay())
                 .maxPay(req.getMaxPay())
                 .quantity(req.getQuantity())
                 .openDate(req.getOpenDate())
@@ -225,7 +253,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         return PostMapper.instance.eToDto(postRepository.save(post));
     }
-
 
     @Transactional(rollbackFor = Exception.class)
     protected CompanyRequestReview _createCompanyRequestAdminReview(Company company) {
