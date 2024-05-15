@@ -107,4 +107,15 @@ public class EmployeeController {
                 .result(result)
                 .build();
     }
+
+    @PutMapping(value = "/{id}/update-avatar",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<EmployeeDto> updateAvatar(
+            @PathVariable("id") int id,
+            @RequestParam("file") MultipartFile avatar){
+        var result = employeeService.updateAvatar(id, avatar);
+        return ApiResponse.<EmployeeDto>builder()
+                .result(result)
+                .build();
+    }
 }

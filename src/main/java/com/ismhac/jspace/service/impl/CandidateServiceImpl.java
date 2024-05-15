@@ -7,6 +7,7 @@ import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
+import com.ismhac.jspace.mapper.EmployeeMapper;
 import com.ismhac.jspace.mapper.ResumeMapper;
 import com.ismhac.jspace.mapper.UserMapper;
 import com.ismhac.jspace.model.Candidate;
@@ -123,6 +124,62 @@ public class CandidateServiceImpl implements CandidateService {
         Page<Resume> resumePage = resumeRepository.findAllByCandidateId(id, pageable);
 
         return pageUtils.toPageResponse(resumeMapper.toResumeDtoPage(resumePage));
+    }
+
+    @Override
+    public UserDto updateAvatar(int id, MultipartFile avatar) {
+        Candidate candidate = candidateRepository.findByUserId(id)
+                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (avatar == null || avatar.isEmpty()) {
+            throw new IllegalArgumentException("background must not be empty");
+        }
+
+        Map<String, Object> options = new HashMap<>();
+
+        Map uploadResult;
+
+        try {
+            uploadResult = cloudinary.uploader().upload(avatar.getBytes(), options);
+            cloudinary.uploader().upload(avatar.getBytes(), options);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception.getMessage());
+        }
+
+        String avatarPath = (String) uploadResult.get("secure_url");
+        String avatarId = (String) uploadResult.get("public_id");
+
+        candidate.getId().getUser().setPicture(avatarPath);
+        candidate.getId().getUser().setPictureId(avatarId);
+        return UserMapper.instance.toUserDto(candidateRepository.save(candidate).getId().getUser());
+    }
+
+    @Override
+    public UserDto updateBackground(int id, MultipartFile avatar) {
+        Candidate candidate = candidateRepository.findByUserId(id)
+                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (avatar == null || avatar.isEmpty()) {
+            throw new IllegalArgumentException("background must not be empty");
+        }
+
+        Map<String, Object> options = new HashMap<>();
+
+        Map uploadResult;
+
+        try {
+            uploadResult = cloudinary.uploader().upload(avatar.getBytes(), options);
+            cloudinary.uploader().upload(avatar.getBytes(), options);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception.getMessage());
+        }
+
+        String backgroundPath = (String) uploadResult.get("secure_url");
+        String backgroundId = (String) uploadResult.get("public_id");
+
+        candidate.getId().getUser().setBackground(backgroundPath);
+        candidate.getId().getUser().setBackgroundId(backgroundId);
+        return UserMapper.instance.toUserDto(candidateRepository.save(candidate).getId().getUser());
     }
 
 

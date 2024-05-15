@@ -23,6 +23,8 @@ public class UserDto {
 
     String picture;
 
+    String pictureId;
+
     String background;
 
     String backgroundId;

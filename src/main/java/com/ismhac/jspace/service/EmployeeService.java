@@ -26,4 +26,7 @@ public interface EmployeeService {
     EmployeeDto updateBackground(int id, MultipartFile background);
 
     PostDto createPost(PostCreateRequest req);
+
+//    EmployeeDto updateAvatar() // todo
+    EmployeeDto updateAvatar(int id, MultipartFile avatar);
  }
