@@ -1,7 +1,11 @@
 package com.ismhac.jspace.dto.post;
 
 import com.ismhac.jspace.dto.company.response.CompanyDto;
+import com.ismhac.jspace.dto.other.GenderDto;
+import com.ismhac.jspace.dto.other.JobTypeDto;
 import com.ismhac.jspace.dto.other.LocationDto;
+import com.ismhac.jspace.dto.other.PostStatusDto;
+import com.ismhac.jspace.dto.skill.response.SkillDto;
 import com.ismhac.jspace.model.Company;
 import com.ismhac.jspace.model.converter.GenderConverter;
 import com.ismhac.jspace.model.converter.JobTypeConverter;
@@ -18,41 +22,24 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class PostDto {
-
     int id;
-
-    String employeeEmail;
-
     CompanyDto company;
-
-    String title; // ten cong viec
-
-    JobType jobType; // loai cong viec
-
-    LocationDto location; // using enum;
-
-    String rank; // vi tri using emum
-
-    String description; // mo ta
-
+    String title;
+    JobTypeDto jobType;
+    LocationDto location;
+    String rank;
+    String description;
     int minPay;
-
     int maxPay;
-
-    String experience; // using enum
-
-    int quantity; //  so luong
-
-    Gender gender;
-
-    String skills; // skills is arrays
-
+    String experience;
+    int quantity;
+    GenderDto gender;
     LocalDate openDate;
-
     LocalDate closeDate;
-
-    PostStatus postStatus;
+    PostStatusDto postStatus;
+    List<SkillDto> skills;
 }

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LocationDto {
-    String value;
-    Integer areaCode;
-    String province;
+    private String value;
+    private Integer areaCode;
+    private String province;
 }

@@ -1,6 +1,7 @@
 package com.ismhac.jspace.service.impl;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
@@ -34,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -127,6 +129,7 @@ public class CandidateServiceImpl implements CandidateService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public UserDto updateAvatar(int id, MultipartFile avatar) {
         Candidate candidate = candidateRepository.findByUserId(id)
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -155,6 +158,7 @@ public class CandidateServiceImpl implements CandidateService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public UserDto updateBackground(int id, MultipartFile avatar) {
         Candidate candidate = candidateRepository.findByUserId(id)
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -180,6 +184,68 @@ public class CandidateServiceImpl implements CandidateService {
         candidate.getId().getUser().setBackground(backgroundPath);
         candidate.getId().getUser().setBackgroundId(backgroundId);
         return UserMapper.instance.toUserDto(candidateRepository.save(candidate).getId().getUser());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> deleteBackground(int id, String backgroundId){
+        try {
+
+            Candidate candidate = candidateRepository.findByUserId(id).orElseThrow(()-> new  AppException(ErrorCode.USER_NOT_EXISTED));
+
+            if(!backgroundId.equals(candidate.getId().getUser().getBackgroundId()) || backgroundId.isEmpty()){
+                throw new AppException(ErrorCode.INVALID_FILE_ID);
+            }
+
+            Map deleteResult = cloudinary.uploader().destroy(backgroundId, ObjectUtils.emptyMap());
+
+            if(deleteResult.get("result").toString().equals("ok")) {
+                candidate.getId().getUser().setBackgroundId(null);
+                candidate.getId().getUser().setBackground(null);
+                return new HashMap<>(){{
+                    put("status", deleteResult);
+                    put("user", UserMapper.instance.toUserDto(candidateRepository.save(candidate).getId().getUser()));
+                }};
+            }else{
+                return new HashMap<>(){{
+                    put("status", deleteResult);
+                    put("user", UserMapper.instance.toUserDto(candidateRepository.save(candidate).getId().getUser()));
+                }};
+            }
+        } catch (Exception e){
+            log.error(e.getMessage());
+            throw new AppException(ErrorCode.DELETE_FILE_FAIL);
+        }
+    }
+
+    @Override
+    public Map<String, Object> deleteAvatar(int id, String avatarId) {
+        try {
+            Candidate candidate = candidateRepository.findByUserId(id).orElseThrow(()-> new  AppException(ErrorCode.USER_NOT_EXISTED));
+
+            if(!avatarId.equals(candidate.getId().getUser().getPictureId()) || avatarId.isEmpty()){
+                throw new AppException(ErrorCode.INVALID_FILE_ID);
+            }
+
+            Map deleteResult = cloudinary.uploader().destroy(avatarId, ObjectUtils.emptyMap());
+
+            if(deleteResult.get("result").toString().equals("ok")) {
+                candidate.getId().getUser().setPicture(null);
+                candidate.getId().getUser().setPictureId(null);
+                return new HashMap<>(){{
+                    put("status", deleteResult);
+                    put("user", UserMapper.instance.toUserDto(candidateRepository.save(candidate).getId().getUser()));
+                }};
+            }else{
+                return new HashMap<>(){{
+                    put("status", deleteResult);
+                    put("user", UserMapper.instance.toUserDto(candidateRepository.save(candidate).getId().getUser()));
+                }};
+            }
+        } catch (Exception e){
+            log.error(e.getMessage());
+            throw new AppException(ErrorCode.DELETE_FILE_FAIL);
+        }
     }
 
 

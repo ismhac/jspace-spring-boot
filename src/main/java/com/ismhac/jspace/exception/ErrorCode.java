@@ -60,7 +60,13 @@ public enum ErrorCode {
 
     COMPANY_EXISTED(HttpStatus.BAD_REQUEST.value(), "Company is existed", HttpStatus.BAD_REQUEST),
 
-    NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND.value(), "Not found product", HttpStatus.NOT_FOUND)
+    NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND.value(), "Not found product", HttpStatus.NOT_FOUND),
+
+    DELETE_FILE_FAIL(HttpStatus.BAD_REQUEST.value(), "Delete file fail", HttpStatus.BAD_REQUEST),
+
+    INVALID_FILE_ID(HttpStatus.BAD_REQUEST.value(), "Invalid file id", HttpStatus.BAD_REQUEST),
+
+    NOT_FOUND_SKILL(HttpStatus.NOT_FOUND.value(), "Not found skill", HttpStatus.NOT_FOUND)
     ;
 
     private final int code;

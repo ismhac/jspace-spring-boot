@@ -28,26 +28,24 @@ public class Post extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
 
-    @Column(name = "employee_email")
-    String employeeEmail;
-
     @ManyToOne
-    @JoinColumn(name = "company_id", referencedColumnName = "id")
+    @JoinColumn(name = "company_id", referencedColumnName = "id", nullable = false)
     Company company;
 
-    String title; // ten cong viec
+    String title;
 
     @Column(name = "job_type")
     @Convert(converter = JobTypeConverter.class)
-    JobType jobType; // loai cong viec
+    JobType jobType;
 
     @Convert(converter = LocationConverter.class)
-    Location location; // using enum;
+    Location location;
 
-    String rank; // vi tri using emum
+    String rank;
 
-    @Column(columnDefinition = "longtext")
-    String description; // mo ta
+    @Lob
+    @Column(columnDefinition = "text")
+    String description;
 
     @Column(name = "min_pay")
     int minPay;
@@ -55,14 +53,12 @@ public class Post extends BaseEntity {
     @Column(name = "max_pay")
     int maxPay;
 
-    String experience; // using enum
+    String experience;
 
-    int quantity; //  so luong
+    int quantity;
 
     @Convert(converter = GenderConverter.class)
     Gender gender;
-
-    String skills; // skills is arrays
 
     @Column(name = "open_date")
     LocalDate openDate;
@@ -72,5 +68,6 @@ public class Post extends BaseEntity {
 
     @Column(name = "post_status")
     @Convert(converter = PostStatusConverter.class)
-    PostStatus postStatus;
+    @Builder.Default
+    PostStatus postStatus = PostStatus.OPEN;
 }

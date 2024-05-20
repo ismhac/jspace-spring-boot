@@ -20,6 +20,7 @@ import com.ismhac.jspace.mapper.PostMapper;
 import com.ismhac.jspace.mapper.UserMapper;
 import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.primaryKey.CompanyRequestReviewId;
+import com.ismhac.jspace.model.primaryKey.PostSkillId;
 import com.ismhac.jspace.repository.*;
 import com.ismhac.jspace.service.CompanyService;
 import com.ismhac.jspace.service.EmployeeService;
@@ -66,6 +67,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final Cloudinary cloudinary;
     private final PostRepository postRepository;
+
+    private final PostSkillRepository postSkillRepository;
+    private final SkillRepository skillRepository;
 
     @Autowired
     private BeanUtils beanUtils;
@@ -231,27 +235,75 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public PostDto createPost(PostCreateRequest req) {
-        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String employeeEmail = (String) jwt.getClaims().get("email");
 
         Company company = _findCompanyById(req.getCompanyId());
 
+        // validate skills
+        List<Skill> skillList = skillRepository.findAllByIdList(req.getSkillIdList());
+
+        if(skillList.size() != req.getSkillIdList().size()){
+            throw new AppException(ErrorCode.NOT_FOUND_SKILL);
+        }
+
+        List<Skill> newSkills = new ArrayList<>();
+
+        for(String newSkillName: req.getNewSkills()){
+            Skill newSkill = Skill.builder()
+                    .name(newSkillName)
+                    .build();
+            newSkills.add(newSkill);
+        }
+
+        List<Skill> savedNewSkills = skillRepository.saveAll(newSkills);
+
         Post post = Post.builder()
-                .employeeEmail(employeeEmail)
                 .company(company)
                 .title(req.getTitle())
                 .jobType(req.getJobType())
                 .location(req.getLocation())
+                .rank(req.getRank())
                 .description(req.getDescription())
                 .minPay(req.getMinPay())
                 .maxPay(req.getMaxPay())
+                .experience(req.getExperience())
                 .quantity(req.getQuantity())
-                .openDate(req.getOpenDate())
-                .closeDate(req.getCloseDate())
-                .postStatus(req.getPostStatus())
+                .gender(req.getGender())
+                .openDate(LocalDate.now())
+                .closeDate(LocalDate.now().plusDays(30))
                 .build();
 
-        return PostMapper.instance.eToDto(postRepository.save(post));
+        Post savedPost = postRepository.save(post);
+
+        List<PostSkill> postSkills = new ArrayList<>();
+
+        for(Skill skill: skillList){
+            PostSkillId id = PostSkillId.builder()
+                    .post(savedPost)
+                    .skill(skill)
+                    .build();
+
+            PostSkill newPostSkill = PostSkill.builder()
+                    .id(id)
+                    .build();
+
+            postSkills.add(newPostSkill);
+        }
+        for(Skill skill: savedNewSkills){
+            PostSkillId id = PostSkillId.builder()
+                    .post(savedPost)
+                    .skill(skill)
+                    .build();
+
+            PostSkill newPostSkill = PostSkill.builder()
+                    .id(id)
+                    .build();
+
+            postSkills.add(newPostSkill);
+        }
+
+        postSkillRepository.saveAll(postSkills);
+
+        return PostMapper.instance.eToDto(savedPost, postSkillRepository);
     }
 
     @Transactional(rollbackFor = Exception.class)

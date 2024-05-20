@@ -12,6 +12,7 @@ import com.ismhac.jspace.model.User;
 import com.ismhac.jspace.model.primaryKey.EmployeeId;
 import com.ismhac.jspace.repository.EmployeeRepository;
 import com.ismhac.jspace.repository.PostRepository;
+import com.ismhac.jspace.repository.PostSkillRepository;
 import com.ismhac.jspace.repository.UserRepository;
 import com.ismhac.jspace.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,8 @@ public class PostServiceImpl implements PostService {
 
     private final UserRepository userRepository;
 
+    private final PostSkillRepository postSkillRepository;
+
     @Override
     public PostDto create(PostCreateRequest postCreateRequest) {
 
@@ -44,11 +47,10 @@ public class PostServiceImpl implements PostService {
         /**/
 
         Post post = Post.builder()
-                .employeeEmail(employeeEmail)
                 .company(company)
                 .build();
         Post savedPost = postRepository.save(post);
-        return postMapper.eToDto(savedPost);
+        return PostMapper.instance.eToDto(savedPost, postSkillRepository);
     }
 
 
