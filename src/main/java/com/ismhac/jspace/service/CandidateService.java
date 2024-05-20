@@ -8,6 +8,9 @@ import com.ismhac.jspace.dto.user.response.UserDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.Map;
+
 public interface CandidateService {
     ResumeDto createResume(int id, String name, MultipartFile file);
 
@@ -21,4 +24,7 @@ public interface CandidateService {
 
     UserDto updateBackground(int id, MultipartFile avatar);
 
+    Map<String, Object> deleteBackground(int id, String backgroundId);
+
+    Map<String, Object> deleteAvatar(int id, String avatarId);
 }

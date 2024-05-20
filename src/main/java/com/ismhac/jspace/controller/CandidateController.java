@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.print.attribute.standard.Media;
+import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/v1/candidates")
@@ -75,6 +77,26 @@ public class CandidateController {
             @RequestParam("file") MultipartFile background){
         var result = candidateService.updateBackground(id, background);
         return ApiResponse.<UserDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @DeleteMapping("/{id}/delete-background")
+    public ApiResponse<Map<String, Object>> deleteBackground(
+            @PathVariable("id") int id,
+            @RequestParam("backgroundId") String backgroundId){
+        var result = candidateService.deleteBackground(id, backgroundId);
+        return ApiResponse.<Map<String, Object>>builder()
+                .result(result)
+                .build();
+    }
+
+    @DeleteMapping("/{id}/delete-avatar")
+    public ApiResponse<Map<String, Object>> deleteAvatar(
+            @PathVariable("id") int id,
+            @RequestParam("avatarId") String avatarId){
+        var result = candidateService.deleteAvatar(id, avatarId);
+        return ApiResponse.<Map<String, Object>>builder()
                 .result(result)
                 .build();
     }
