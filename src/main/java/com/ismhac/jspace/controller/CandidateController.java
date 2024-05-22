@@ -110,4 +110,15 @@ public class CandidateController {
                 .result(result)
                 .build();
     }
+
+    @DeleteMapping("/{id}/delete-resume")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public ApiResponse<Map<String, Object>> deleteResume(
+            @PathVariable("id") int id,
+            @RequestParam("resumeId") int resumeId){
+        var result = candidateService.deleteResume(id, resumeId);
+        return ApiResponse.<Map<String, Object>>builder()
+                .result(result)
+                .build();
+    }
 }
