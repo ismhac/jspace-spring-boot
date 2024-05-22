@@ -46,6 +46,10 @@ public class Company extends BaseEntity {
     @Column(name = "company_link")
     String companyLink;
 
+    @Column(name = "trial_post")
+    @Builder.Default
+    Integer trialPost = 5;
+
     @Column(name = "email_verified")
     @Builder.Default
     Boolean emailVerified = false;

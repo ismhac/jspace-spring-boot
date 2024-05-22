@@ -24,13 +24,13 @@ public class Product extends BaseEntity{
     int price;
 
     @Column(name = "number_of_post")
-    int numberOfPost;
+    int numberOfPost; // số lượng bài post mà gói sản phẩm này định nghĩa
 
     @Column(name = "post_duration")
-    int postDuration;
+    int postDuration;   // thời gian tồn tại của mỗi bài post
 
     @Column(name = "duration_day_number")
-    int durationDayNumber;
+    int durationDayNumber;  // định nghĩa số ngày đến lúc hết hạn kể từ lúc mua gói sản phẩm này
 
     String description;
 }

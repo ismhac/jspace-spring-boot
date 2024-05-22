@@ -11,14 +11,14 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum JobType {
 
-    FULL_TIME("full time"),
-    PART_TIME("part time"),
-    TEMPORARY("temporary"),
-    CONTRACT("contract"),
-    INTERNSHIP("internship"),
-    COMMISSION("commission"),
-    NEW_GRAD("new grad"),
-    PERMANENT("permanent")
+    FULL_TIME("Full time"),
+    PART_TIME("Part time"),
+    TEMPORARY("Temporary"),
+    CONTRACT("Contract"),
+    INTERNSHIP("Internship"),
+    COMMISSION("Commission"),
+    NEW_GRAD("New grad"),
+    PERMANENT("Permanent")
     ;
 
     String code;

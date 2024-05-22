@@ -1,13 +1,7 @@
 package com.ismhac.jspace.model;
 
-import com.ismhac.jspace.model.converter.GenderConverter;
-import com.ismhac.jspace.model.converter.JobTypeConverter;
-import com.ismhac.jspace.model.converter.LocationConverter;
-import com.ismhac.jspace.model.converter.PostStatusConverter;
-import com.ismhac.jspace.model.enums.Gender;
-import com.ismhac.jspace.model.enums.JobType;
-import com.ismhac.jspace.model.enums.Location;
-import com.ismhac.jspace.model.enums.PostStatus;
+import com.ismhac.jspace.model.converter.*;
+import com.ismhac.jspace.model.enums.*;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -41,7 +35,8 @@ public class Post extends BaseEntity {
     @Convert(converter = LocationConverter.class)
     Location location;
 
-    String rank;
+    @Convert(converter = RankConverter.class)
+    Rank rank;
 
     @Lob
     @Column(columnDefinition = "text")
@@ -53,7 +48,8 @@ public class Post extends BaseEntity {
     @Column(name = "max_pay")
     int maxPay;
 
-    String experience;
+    @Convert(converter = ExperienceConverter.class)
+    Experience experience;
 
     int quantity;
 

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +31,7 @@ public class CandidateController {
 
     @PostMapping(value = "/{id}/create-resume",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('CANDIDATE')")
     public ApiResponse<ResumeDto> createResume(
             @PathVariable("id") int id,
             @RequestParam("file") MultipartFile file,
@@ -42,6 +44,7 @@ public class CandidateController {
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('CANDIDATE')")
     public ApiResponse<UserDto> update(
             @PathVariable("id") int id,
             @RequestBody CandidateUpdateRequest request){
@@ -52,6 +55,7 @@ public class CandidateController {
     }
 
     @GetMapping("/{id}/resumes")
+    @PreAuthorize("hasRole('CANDIDATE')")
     public ApiResponse<PageResponse<ResumeDto>> getListResume(
             @PathVariable("id") int id, Pageable pageable){
         Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
@@ -61,7 +65,9 @@ public class CandidateController {
                 .build();
     }
 
-    @PutMapping(value = "/{id}/update-avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{id}/update-avatar",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('CANDIDATE')")
     public ApiResponse<UserDto> updateAvatar(
             @PathVariable("id") int id,
             @RequestParam("file") MultipartFile avatar){
@@ -71,7 +77,9 @@ public class CandidateController {
                 .build();
     }
 
-    @PutMapping(value = "/{id}/update-background", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{id}/update-background",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('CANDIDATE')")
     public ApiResponse<UserDto> updateBackground(
             @PathVariable("id") int id,
             @RequestParam("file") MultipartFile background){
@@ -82,6 +90,7 @@ public class CandidateController {
     }
 
     @DeleteMapping("/{id}/delete-background")
+    @PreAuthorize("hasRole('CANDIDATE')")
     public ApiResponse<Map<String, Object>> deleteBackground(
             @PathVariable("id") int id,
             @RequestParam("backgroundId") String backgroundId){
@@ -92,6 +101,7 @@ public class CandidateController {
     }
 
     @DeleteMapping("/{id}/delete-avatar")
+    @PreAuthorize("hasRole('CANDIDATE')")
     public ApiResponse<Map<String, Object>> deleteAvatar(
             @PathVariable("id") int id,
             @RequestParam("avatarId") String avatarId){

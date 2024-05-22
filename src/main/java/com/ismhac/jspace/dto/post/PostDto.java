@@ -1,10 +1,7 @@
 package com.ismhac.jspace.dto.post;
 
 import com.ismhac.jspace.dto.company.response.CompanyDto;
-import com.ismhac.jspace.dto.other.GenderDto;
-import com.ismhac.jspace.dto.other.JobTypeDto;
-import com.ismhac.jspace.dto.other.LocationDto;
-import com.ismhac.jspace.dto.other.PostStatusDto;
+import com.ismhac.jspace.dto.other.*;
 import com.ismhac.jspace.dto.skill.response.SkillDto;
 import com.ismhac.jspace.model.Company;
 import com.ismhac.jspace.model.converter.GenderConverter;
@@ -31,11 +28,11 @@ public class PostDto {
     String title;
     JobTypeDto jobType;
     LocationDto location;
-    String rank;
+    RankDto rank;
     String description;
     int minPay;
     int maxPay;
-    String experience;
+    ExperienceDto experience;
     int quantity;
     GenderDto gender;
     LocalDate openDate;

@@ -11,6 +11,8 @@ import com.ismhac.jspace.dto.user.response.UserDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
+
 public interface EmployeeService {
     PageResponse<EmployeeDto> getPageByCompanyIdFilterByEmailAndName(
             int companyId, String email, String name, Pageable pageable);
@@ -28,4 +30,8 @@ public interface EmployeeService {
     PostDto createPost(PostCreateRequest req);
 
     EmployeeDto updateAvatar(int id, MultipartFile avatar);
+
+    Map<String, Object> deleteBackground(int id, String backgroundId);
+
+    Map<String, Object> deleteAvatar(int id, String avatarId);
  }

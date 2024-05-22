@@ -1,6 +1,7 @@
 package com.ismhac.jspace.service.impl;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.ismhac.jspace.dto.common.request.SendMailRequest;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
@@ -28,6 +29,7 @@ import com.ismhac.jspace.util.BeanUtils;
 import com.ismhac.jspace.util.PageUtils;
 import com.ismhac.jspace.util.UserUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springdoc.webmvc.core.service.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
@@ -70,6 +73,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final PostSkillRepository postSkillRepository;
     private final SkillRepository skillRepository;
+
+    private final PurchasedProductRepository purchasedProductRepository;
+
+    private final PostHistoryRepository postHistoryRepository;
 
     @Autowired
     private BeanUtils beanUtils;
@@ -179,7 +186,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional(rollbackFor = Exception.class)
     public EmployeeDto updateBackground(int id, MultipartFile background) {
         Employee employee = employeeRepository.findByUserId(id)
-                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         if (background == null || background.isEmpty()) {
             throw new IllegalArgumentException("background must not be empty");
@@ -205,9 +212,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public EmployeeDto updateAvatar(int id, MultipartFile avatar) {
         Employee employee = employeeRepository.findByUserId(id)
-                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         if (avatar == null || avatar.isEmpty()) {
             throw new IllegalArgumentException("background must not be empty");
@@ -234,76 +242,240 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> deleteBackground(int id, String backgroundId) {
+        try {
+            Employee employee = employeeRepository.findByUserId(id).orElseThrow(()-> new  AppException(ErrorCode.USER_NOT_EXISTED));
+
+            if(!backgroundId.equals(employee.getId().getUser().getBackgroundId()) || backgroundId.isEmpty()){
+                throw new AppException(ErrorCode.INVALID_FILE_ID);
+            }
+
+            Map deleteResult = cloudinary.uploader().destroy(backgroundId, ObjectUtils.emptyMap());
+
+            if(deleteResult.get("result").toString().equals("ok")) {
+                employee.getId().getUser().setBackgroundId(null);
+                employee.getId().getUser().setBackground(null);
+                return new HashMap<>(){{
+                    put("status", deleteResult);
+                    put("user", UserMapper.instance.toUserDto(employeeRepository.save(employee).getId().getUser()));
+                }};
+            }else{
+                return new HashMap<>(){{
+                    put("status", deleteResult);
+                    put("user", UserMapper.instance.toUserDto(employeeRepository.save(employee).getId().getUser()));
+                }};
+            }
+        } catch (Exception e){
+            log.error(e.getMessage());
+            throw new AppException(ErrorCode.DELETE_FILE_FAIL);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> deleteAvatar(int id, String avatarId) {
+        try {
+            Employee employee = employeeRepository.findByUserId(id).orElseThrow(()-> new  AppException(ErrorCode.USER_NOT_EXISTED));
+
+            if(!avatarId.equals(employee.getId().getUser().getPictureId()) || avatarId.isEmpty()){
+                throw new AppException(ErrorCode.INVALID_FILE_ID);
+            }
+
+            Map deleteResult = cloudinary.uploader().destroy(avatarId, ObjectUtils.emptyMap());
+
+            if(deleteResult.get("result").toString().equals("ok")) {
+                employee.getId().getUser().setPictureId(null);
+                employee.getId().getUser().setPicture(null);
+                return new HashMap<>(){{
+                    put("status", deleteResult);
+                    put("user", UserMapper.instance.toUserDto(employeeRepository.save(employee).getId().getUser()));
+                }};
+            }else{
+                return new HashMap<>(){{
+                    put("status", deleteResult);
+                    put("user", UserMapper.instance.toUserDto(employeeRepository.save(employee).getId().getUser()));
+                }};
+            }
+        } catch (Exception e){
+            log.error(e.getMessage());
+            throw new AppException(ErrorCode.DELETE_FILE_FAIL);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public PostDto createPost(PostCreateRequest req) {
 
         Company company = _findCompanyById(req.getCompanyId());
 
-        // validate skills
-        List<Skill> skillList = skillRepository.findAllByIdList(req.getSkillIdList());
+        if (req.isUseTrialPost()) { // using trial
+            if (company.getTrialPost() < 1) {
+                throw new AppException(ErrorCode.TRIAL_POST_EXPIRED);
+            } else {
+                company.setTrialPost(company.getTrialPost() - 1);
 
-        if(skillList.size() != req.getSkillIdList().size()){
-            throw new AppException(ErrorCode.NOT_FOUND_SKILL);
-        }
+                // validate skills
+                List<Skill> skillList = skillRepository.findAllByIdList(req.getSkillIdList());
 
-        List<Skill> newSkills = new ArrayList<>();
+                if (skillList.size() != req.getSkillIdList().size()) {
+                    throw new AppException(ErrorCode.NOT_FOUND_SKILL);
+                }
 
-        for(String newSkillName: req.getNewSkills()){
-            Skill newSkill = Skill.builder()
-                    .name(newSkillName)
+                List<Skill> newSkills = new ArrayList<>();
+
+                for (String newSkillName : req.getNewSkills()) {
+                    Skill newSkill = Skill.builder()
+                            .name(newSkillName)
+                            .build();
+                    newSkills.add(newSkill);
+                }
+
+                List<Skill> savedNewSkills = skillRepository.saveAll(newSkills);
+
+                Post post = Post.builder()
+                        .company(company)
+                        .title(req.getTitle())
+                        .jobType(req.getJobType())
+                        .location(req.getLocation())
+                        .rank(req.getRank())
+                        .description(req.getDescription())
+                        .minPay(req.getMinPay())
+                        .maxPay(req.getMaxPay())
+                        .experience(req.getExperience())
+                        .quantity(req.getQuantity())
+                        .gender(req.getGender())
+                        .openDate(LocalDate.now())
+                        .closeDate(LocalDate.now().plusDays(30))
+                        .build();
+
+                Post savedPost = postRepository.save(post);
+
+                PostHistory postHistory = PostHistory.builder()
+                        .post(savedPost)
+                        .company(company)
+                        .build();
+
+                postHistoryRepository.save(postHistory);
+
+                List<PostSkill> postSkills = new ArrayList<>();
+
+                for (Skill skill : skillList) {
+                    PostSkillId id = PostSkillId.builder()
+                            .post(savedPost)
+                            .skill(skill)
+                            .build();
+
+                    PostSkill newPostSkill = PostSkill.builder()
+                            .id(id)
+                            .build();
+
+                    postSkills.add(newPostSkill);
+                }
+                for (Skill skill : savedNewSkills) {
+                    PostSkillId id = PostSkillId.builder()
+                            .post(savedPost)
+                            .skill(skill)
+                            .build();
+
+                    PostSkill newPostSkill = PostSkill.builder()
+                            .id(id)
+                            .build();
+
+                    postSkills.add(newPostSkill);
+                }
+
+                postSkillRepository.saveAll(postSkills);
+
+                return PostMapper.instance.eToDto(savedPost, postSkillRepository);
+            }
+        } else {
+            PurchasedProduct purchasedProduct = purchasedProductRepository.findById(req.getPurchasedProductId())
+                    .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PRODUCT));
+            if (purchasedProduct.getCompany().getId() != req.getCompanyId() ||
+                    purchasedProduct.getProductNumberOfPost() < 1) {
+                throw new AppException(ErrorCode.INVALID_PURCHASED_PRODUCT);
+            }
+            if (LocalDate.now().isAfter(purchasedProduct.getExpiryDate())) {
+                throw new AppException(ErrorCode.PURCHASED_PRODUCT_EXPIRE);
+            }
+
+            purchasedProduct.setProductNumberOfPost(purchasedProduct.getProductNumberOfPost()-1);
+            purchasedProductRepository.save(purchasedProduct);
+
+            // validate skills
+            List<Skill> skillList = skillRepository.findAllByIdList(req.getSkillIdList());
+
+            if (skillList.size() != req.getSkillIdList().size()) {
+                throw new AppException(ErrorCode.NOT_FOUND_SKILL);
+            }
+
+            List<Skill> newSkills = new ArrayList<>();
+
+            for (String newSkillName : req.getNewSkills()) {
+                Skill newSkill = Skill.builder()
+                        .name(newSkillName)
+                        .build();
+                newSkills.add(newSkill);
+            }
+
+            List<Skill> savedNewSkills = skillRepository.saveAll(newSkills);
+
+            Post post = Post.builder()
+                    .company(company)
+                    .title(req.getTitle())
+                    .jobType(req.getJobType())
+                    .location(req.getLocation())
+                    .rank(req.getRank())
+                    .description(req.getDescription())
+                    .minPay(req.getMinPay())
+                    .maxPay(req.getMaxPay())
+                    .experience(req.getExperience())
+                    .quantity(req.getQuantity())
+                    .gender(req.getGender())
+                    .openDate(LocalDate.now())
+                    .closeDate(LocalDate.now().plusDays(purchasedProduct.getProductPostDuration()))
                     .build();
-            newSkills.add(newSkill);
-        }
 
-        List<Skill> savedNewSkills = skillRepository.saveAll(newSkills);
+            Post savedPost = postRepository.save(post);
 
-        Post post = Post.builder()
-                .company(company)
-                .title(req.getTitle())
-                .jobType(req.getJobType())
-                .location(req.getLocation())
-                .rank(req.getRank())
-                .description(req.getDescription())
-                .minPay(req.getMinPay())
-                .maxPay(req.getMaxPay())
-                .experience(req.getExperience())
-                .quantity(req.getQuantity())
-                .gender(req.getGender())
-                .openDate(LocalDate.now())
-                .closeDate(LocalDate.now().plusDays(30))
-                .build();
-
-        Post savedPost = postRepository.save(post);
-
-        List<PostSkill> postSkills = new ArrayList<>();
-
-        for(Skill skill: skillList){
-            PostSkillId id = PostSkillId.builder()
+            PostHistory postHistory = PostHistory.builder()
                     .post(savedPost)
-                    .skill(skill)
+                    .company(company)
                     .build();
 
-            PostSkill newPostSkill = PostSkill.builder()
-                    .id(id)
-                    .build();
+            postHistoryRepository.save(postHistory);
 
-            postSkills.add(newPostSkill);
+            List<PostSkill> postSkills = new ArrayList<>();
+
+            for (Skill skill : skillList) {
+                PostSkillId id = PostSkillId.builder()
+                        .post(savedPost)
+                        .skill(skill)
+                        .build();
+
+                PostSkill newPostSkill = PostSkill.builder()
+                        .id(id)
+                        .build();
+
+                postSkills.add(newPostSkill);
+            }
+            for (Skill skill : savedNewSkills) {
+                PostSkillId id = PostSkillId.builder()
+                        .post(savedPost)
+                        .skill(skill)
+                        .build();
+
+                PostSkill newPostSkill = PostSkill.builder()
+                        .id(id)
+                        .build();
+
+                postSkills.add(newPostSkill);
+            }
+
+            postSkillRepository.saveAll(postSkills);
+
+            return PostMapper.instance.eToDto(savedPost, postSkillRepository);
         }
-        for(Skill skill: savedNewSkills){
-            PostSkillId id = PostSkillId.builder()
-                    .post(savedPost)
-                    .skill(skill)
-                    .build();
-
-            PostSkill newPostSkill = PostSkill.builder()
-                    .id(id)
-                    .build();
-
-            postSkills.add(newPostSkill);
-        }
-
-        postSkillRepository.saveAll(postSkills);
-
-        return PostMapper.instance.eToDto(savedPost, postSkillRepository);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -324,7 +496,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     protected void _sendMailWhenCreateCompany(Company company, Employee employee) {
 
         String token = String.valueOf(UUID.randomUUID());
-        LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(10);
+        LocalDateTime expiryTime = LocalDateTime.now().plusHours(24);
 
         String bodyMailRequestCompanyVerifyEmail = String.format("""
                         <html>
@@ -374,6 +546,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                                     <td>%s</td>
                                 </table>
                                 <p>If this information pertains to your company, we kindly ask you to verify your email by clicking the link below:</p>
+                                <p>The confirmation will expire at %s</p>
                                 <button>
                                     <a href="https://jspace-804e64747ec6.herokuapp.com/jspace-service/api/v1/companies/verify-email?mac=%s"
                                         style="text-decoration: none; color: #000000;"
@@ -393,6 +566,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 StringUtils.isBlank(company.getEmail()) ? "" : company.getEmail(),
                 StringUtils.isBlank(company.getPhone()) ? "" : company.getPhone(),
                 StringUtils.isBlank(company.getCompanySize()) ? "" : company.getCompanySize(),
+                expiryTime,
                 token);
 
         SendMailRequest sendMailRequestCompanyVerifyEmail = SendMailRequest.builder()
@@ -448,6 +622,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                             </table>
                             <p>If this information corresponds to an employee of your company authorized to recruit on our platform, we kindly request verification.</p>
                             <p>Please confirm the accuracy of the details provided by clicking the link below:</p>
+                            <p>The confirmation will expire at %s</p>
                             <button>
                                 <a href="https://jspace-804e64747ec6.herokuapp.com/jspace-service/api/v1/companies/verify-employee?mac=%s" 
                                     style="text-decoration: none; color: #000000;"
@@ -464,6 +639,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 StringUtils.isBlank(employee.getId().getUser().getName()) ? "" : employee.getId().getUser().getName(),
                 StringUtils.isBlank(employee.getId().getUser().getEmail()) ? "" : employee.getId().getUser().getEmail(),
                 StringUtils.isBlank(employee.getId().getUser().getPhone()) ? "" : employee.getId().getUser().getPhone(),
+                expiryTime,
                 token);
 
         SendMailRequest sendMailRequestCompanyToVerifyForEmployee = SendMailRequest.builder()
@@ -496,7 +672,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 
         if (Objects.nonNull(savedCompanyVerifyEmailRequestHistory)
-            && Objects.nonNull(savedEmployeeHistoryRequestCompanyVerify)) {
+                && Objects.nonNull(savedEmployeeHistoryRequestCompanyVerify)) {
             applicationEventPublisher.publishEvent(requestCompanyVerifyEmailEvent);
             applicationEventPublisher.publishEvent(requestCompanyToVerifyForEmployeeEvent);
         }
@@ -506,7 +682,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     protected void _sendMailWhenPickCompany(Company company, Employee employee) {
 
         String token = String.valueOf(UUID.randomUUID());
-        LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(10);
+        LocalDateTime expiryTime = LocalDateTime.now().plusHours(24);
 
         String bodyMailRequestCompanyToVerifyForEmployee = String.format("""
                         <html lang="en">
@@ -551,6 +727,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                             </table>
                             <p>If this information corresponds to an employee of your company authorized to recruit on our platform, we kindly request verification.</p>
                             <p>Please confirm the accuracy of the details provided by clicking the link below:</p>
+                            <p>The confirmation will expire at %s</p>
                             <button>
                                 <a href="https://jspace-804e64747ec6.herokuapp.com/jspace-service/api/v1/companies/verify-employee?mac=%s" 
                                     style="text-decoration: none; color: #000000;"
@@ -567,6 +744,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 StringUtils.isBlank(employee.getId().getUser().getName()) ? "" : employee.getId().getUser().getName(),
                 StringUtils.isBlank(employee.getId().getUser().getEmail()) ? "" : employee.getId().getUser().getEmail(),
                 StringUtils.isBlank(employee.getId().getUser().getPhone()) ? "" : employee.getId().getUser().getPhone(),
+                expiryTime,
                 token);
 
         SendMailRequest sendMailRequestCompanyToVerifyForEmployee = SendMailRequest.builder()
@@ -589,7 +767,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         applicationEventPublisher.publishEvent(requestCompanyToVerifyForEmployeeEvent);
     }
 
-    private Company _findCompanyById(int id){
-        return companyRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+    private Company _findCompanyById(int id) {
+        return companyRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
     }
 }

@@ -54,6 +54,7 @@ public class JwtService {
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", user.getRole().getCode())
                 .claim("email", Objects.nonNull(user.getEmail()) ? user.getEmail() : "")
+                .claim("id", user.getId())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -80,6 +81,7 @@ public class JwtService {
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", user.getRole().getCode())
                 .claim("email", Objects.nonNull(user.getEmail()) ? user.getEmail() : "")
+                .claim("id", user.getId())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());

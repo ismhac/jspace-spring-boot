@@ -1,6 +1,5 @@
 package com.ismhac.jspace.dto.company.response;
 
-import com.ismhac.jspace.dto.common.response.BaseEntityDto;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -20,6 +19,7 @@ public class CompanyDto {
     String companySize;
     String description;
     String companyLink;
+    Integer trialPost;
     Boolean emailVerified;
     Boolean verifiedByAdmin;
     Boolean activateStatus;

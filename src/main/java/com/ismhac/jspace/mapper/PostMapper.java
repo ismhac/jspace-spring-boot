@@ -1,19 +1,13 @@
 package com.ismhac.jspace.mapper;
 
 import com.ismhac.jspace.dto.company.response.CompanyDto;
-import com.ismhac.jspace.dto.other.GenderDto;
-import com.ismhac.jspace.dto.other.JobTypeDto;
-import com.ismhac.jspace.dto.other.LocationDto;
-import com.ismhac.jspace.dto.other.PostStatusDto;
+import com.ismhac.jspace.dto.other.*;
 import com.ismhac.jspace.dto.post.PostDto;
 import com.ismhac.jspace.dto.skill.response.SkillDto;
 import com.ismhac.jspace.model.Company;
 import com.ismhac.jspace.model.Post;
 import com.ismhac.jspace.model.PostSkill;
-import com.ismhac.jspace.model.enums.Gender;
-import com.ismhac.jspace.model.enums.JobType;
-import com.ismhac.jspace.model.enums.Location;
-import com.ismhac.jspace.model.enums.PostStatus;
+import com.ismhac.jspace.model.enums.*;
 import com.ismhac.jspace.repository.PostSkillRepository;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
@@ -32,6 +26,8 @@ public interface PostMapper {
     @Mapping(target = "location", source = "location", qualifiedByName = "convertLocationToDto")
     @Mapping(target = "gender", source = "gender", qualifiedByName = "convertGenderToDto")
     @Mapping(target = "postStatus", source = "postStatus", qualifiedByName = "convertPostStatusToDto")
+    @Mapping(target = "rank", source = "rank", qualifiedByName = "convertRankToDto")
+    @Mapping(target = "experience", source = "experience", qualifiedByName = "convertExperienceToDto")
     @Mapping(target = "skills", expression = "java(getSkillDtoList(e.getId(), postSkillRepository))")
     PostDto eToDto(Post e, @Context PostSkillRepository postSkillRepository);
 
@@ -71,6 +67,22 @@ public interface PostMapper {
         return PostStatusDto.builder()
                 .value(postStatus.name())
                 .code(postStatus.getStatus())
+                .build();
+    }
+
+    @Named("convertRankToDto")
+    default RankDto convertRankToDto(Rank rank){
+        return RankDto.builder()
+                .value(rank.name())
+                .code(rank.getCode())
+                .build();
+    }
+
+    @Named("convertExperienceToDto")
+    default ExperienceDto convertExperienceToDto(Experience experience){
+        return ExperienceDto.builder()
+                .value(experience.name())
+                .code(experience.getCode())
                 .build();
     }
 

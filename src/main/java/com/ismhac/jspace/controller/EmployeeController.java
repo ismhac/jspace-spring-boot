@@ -19,6 +19,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("api/v1/employees")
 @RequiredArgsConstructor
@@ -110,11 +112,34 @@ public class EmployeeController {
 
     @PutMapping(value = "/{id}/update-avatar",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('EMPLOYEE')")
     public ApiResponse<EmployeeDto> updateAvatar(
             @PathVariable("id") int id,
             @RequestParam("file") MultipartFile avatar){
         var result = employeeService.updateAvatar(id, avatar);
         return ApiResponse.<EmployeeDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @DeleteMapping("/{id}/delete-avatar")
+    @PreAuthorize("hasAnyRole('EMPLOYEE')")
+    public ApiResponse<Map<String, Object>> deleteAvatar(
+            @PathVariable("id") int id,
+            @RequestParam("avatarId") String avatarId){
+        var result = employeeService.deleteAvatar(id, avatarId);
+        return ApiResponse.<Map<String, Object>>builder()
+                .result(result)
+                .build();
+    }
+
+    @DeleteMapping("/{id}/delete-background")
+    @PreAuthorize("hasAnyRole('EMPLOYEE')")
+    public ApiResponse<Map<String, Object>> deleteBackground(
+            @PathVariable("id") int id,
+            @RequestParam("backgroundId") String backgroundId){
+        var result = employeeService.deleteBackground(id, backgroundId);
+        return ApiResponse.<Map<String, Object>>builder()
                 .result(result)
                 .build();
     }

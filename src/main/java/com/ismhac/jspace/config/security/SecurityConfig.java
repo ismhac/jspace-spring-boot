@@ -48,7 +48,8 @@ public class SecurityConfig {
             "/favicon.ico",
             "/test/**",
             "/api/v1/companies/verify-email",
-            "/api/v1/companies/verify-employee"
+            "/api/v1/companies/verify-employee",
+            "/api/v1/commons/**"
     };
 
     @Bean
