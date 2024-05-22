@@ -2,6 +2,7 @@ package com.ismhac.jspace.dto.skill.response;
 
 import com.ismhac.jspace.dto.common.response.BaseEntityDto;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
