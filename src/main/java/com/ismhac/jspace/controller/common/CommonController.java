@@ -3,6 +3,7 @@ package com.ismhac.jspace.controller.common;
 import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.other.*;
 import com.ismhac.jspace.service.common.CommonService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/commons")
 @RequiredArgsConstructor
+@Tag(name = "Common")
 public class CommonController {
     private final CommonService commonService;
 
