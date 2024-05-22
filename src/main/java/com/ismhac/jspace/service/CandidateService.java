@@ -18,8 +18,6 @@ public interface CandidateService {
 
     PageResponse<ResumeDto> getListResume(int id, Pageable pageable);
 
-    // UserDto updateBackground, avatar // todo
-
     UserDto updateAvatar(int id, MultipartFile avatar);
 
     UserDto updateBackground(int id, MultipartFile avatar);
@@ -27,4 +25,6 @@ public interface CandidateService {
     Map<String, Object> deleteBackground(int id, String backgroundId);
 
     Map<String, Object> deleteAvatar(int id, String avatarId);
+
+    Map<String, Object> deleteResume(int id, int resumeId);
 }

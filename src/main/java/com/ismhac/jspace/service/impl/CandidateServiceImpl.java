@@ -8,6 +8,7 @@ import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
+import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.mapper.EmployeeMapper;
 import com.ismhac.jspace.mapper.ResumeMapper;
 import com.ismhac.jspace.mapper.UserMapper;
@@ -190,7 +191,6 @@ public class CandidateServiceImpl implements CandidateService {
     @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> deleteBackground(int id, String backgroundId){
         try {
-
             Candidate candidate = candidateRepository.findByUserId(id).orElseThrow(()-> new  AppException(ErrorCode.USER_NOT_EXISTED));
 
             if(!backgroundId.equals(candidate.getId().getUser().getBackgroundId()) || backgroundId.isEmpty()){
@@ -219,6 +219,7 @@ public class CandidateServiceImpl implements CandidateService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> deleteAvatar(int id, String avatarId) {
         try {
             Candidate candidate = candidateRepository.findByUserId(id).orElseThrow(()-> new  AppException(ErrorCode.USER_NOT_EXISTED));
@@ -240,6 +241,38 @@ public class CandidateServiceImpl implements CandidateService {
                 return new HashMap<>(){{
                     put("status", deleteResult);
                     put("user", UserMapper.instance.toUserDto(candidateRepository.save(candidate).getId().getUser()));
+                }};
+            }
+        } catch (Exception e){
+            log.error(e.getMessage());
+            throw new AppException(ErrorCode.DELETE_FILE_FAIL);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> deleteResume(int id, int resumeId) {
+        try {
+            Candidate candidate = candidateRepository.findByUserId(id).orElseThrow(()-> new  AppException(ErrorCode.USER_NOT_EXISTED));
+
+            Resume resume = resumeRepository.findById(resumeId)
+                    .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_RESUME));
+
+            Map deleteResult = cloudinary.uploader().destroy(resume.getFile().getPublicId(), ObjectUtils.emptyMap());
+
+            if(deleteResult.get("result").toString().equals("ok")) {
+                candidate.getId().getUser().setPicture(null);
+                candidate.getId().getUser().setPictureId(null);
+
+                fileRepository.deleteById(resume.getFile().getId());
+                resumeRepository.deleteById(resumeId);
+
+                return new HashMap<>(){{
+                    put("status", deleteResult);
+                }};
+            }else{
+                return new HashMap<>(){{
+                    put("status", deleteResult);
                 }};
             }
         } catch (Exception e){

@@ -1,32 +1,26 @@
 package com.ismhac.jspace.dto.post;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ismhac.jspace.model.enums.Gender;
-import com.ismhac.jspace.model.enums.JobType;
-import com.ismhac.jspace.model.enums.Location;
-import com.ismhac.jspace.model.enums.PostStatus;
-import jakarta.validation.constraints.NotBlank;
+import com.ismhac.jspace.model.enums.*;
 import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PostCreateRequest {
+    boolean useTrialPost;
+    Integer purchasedProductId;
     int companyId;
     String title;
     JobType jobType;
     Location location;
-    String rank;
+    Rank rank;
     String description;
     int minPay;
     int maxPay;
-    String experience;
+    Experience experience;
     int quantity;
     Gender gender;
     List<Integer> skillIdList;

@@ -52,7 +52,7 @@ public enum ErrorCode {
 
     USER_HAS_BEEN_BLOCKED(HttpStatus.BAD_REQUEST.value(), "User has been blocked", HttpStatus.BAD_REQUEST),
 
-    EMAIL_HAS_BEEN_USED(HttpStatus.BAD_REQUEST.value(), "Emaill has been used", HttpStatus.BAD_REQUEST),
+    EMAIL_HAS_BEEN_USED(HttpStatus.BAD_REQUEST.value(), "Email has been used", HttpStatus.BAD_REQUEST),
 
     TOKEN_EXPIRE(HttpStatus.BAD_REQUEST.value(), "Token expire", HttpStatus.BAD_REQUEST),
 
@@ -66,7 +66,17 @@ public enum ErrorCode {
 
     INVALID_FILE_ID(HttpStatus.BAD_REQUEST.value(), "Invalid file id", HttpStatus.BAD_REQUEST),
 
-    NOT_FOUND_SKILL(HttpStatus.NOT_FOUND.value(), "Not found skill", HttpStatus.NOT_FOUND)
+    NOT_FOUND_SKILL(HttpStatus.NOT_FOUND.value(), "Not found skill", HttpStatus.NOT_FOUND),
+
+    TRIAL_POST_EXPIRED(HttpStatus.BAD_REQUEST.value(), "The number of trial recruitment posts has expired", HttpStatus.BAD_REQUEST),
+
+    NOT_FOUND_PURCHASED_PRODUCT(HttpStatus.NOT_FOUND.value(), "Not found purchased product", HttpStatus.NOT_FOUND),
+
+    INVALID_PURCHASED_PRODUCT(HttpStatus.BAD_REQUEST.value(), "Invalid purchased product", HttpStatus.BAD_REQUEST),
+
+    PURCHASED_PRODUCT_EXPIRE(HttpStatus.BAD_REQUEST.value(), "Purchased product expire", HttpStatus.BAD_REQUEST),
+
+    NOT_FOUND_RESUME(HttpStatus.NOT_FOUND.value(), "Not found resume", HttpStatus.NOT_FOUND),
     ;
 
     private final int code;
