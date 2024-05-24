@@ -42,4 +42,6 @@ public class PurchaseHistory extends BaseEntity {   // lịch sử mua sản ph�
 
     @Column(name = "total_price")
     int totalPrice;
+
+    // enum paypal: FAIL, PAID.
 }
