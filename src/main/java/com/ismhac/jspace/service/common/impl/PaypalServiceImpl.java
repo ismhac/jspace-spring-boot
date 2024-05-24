@@ -6,6 +6,7 @@ import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
 import lombok.RequiredArgsConstructor;
+import org.cloudinary.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,12 @@ public class PaypalServiceImpl implements PaypalService {
 
             Transaction transaction = new Transaction();
             transaction.setAmount(amount);
+
+            // Add custom parameters
+            JSONObject customParams = new JSONObject();
+            customParams.put("companyId", paymentCreateRequest.getCompanyId());
+            customParams.put("productId", paymentCreateRequest.getProductId());
+            transaction.setCustom(customParams.toString());
 
             Payment payment = getPayment(paymentCreateRequest, transaction);
 
