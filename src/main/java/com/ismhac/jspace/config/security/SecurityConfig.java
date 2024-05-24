@@ -50,7 +50,8 @@ public class SecurityConfig {
             "/api/v1/companies/verify-email",
             "/api/v1/companies/verify-employee",
             "/api/v1/commons/**",
-            "/api/v1/skills"
+            "/api/v1/skills",
+            "/api/v1/payment/paypal-webhooks"
     };
 
     @Bean
