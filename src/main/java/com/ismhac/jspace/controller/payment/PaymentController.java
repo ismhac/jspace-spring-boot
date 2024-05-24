@@ -34,13 +34,9 @@ public class PaymentController {
 
 
     @Hidden()
-    @PostMapping(value = "/paypal-webhooks", // "Listen action payment, callback method"
-            consumes = MediaType.ALL_VALUE)
-    public ResponseEntity<Void> listenActionPaymentCompleted(HttpServletRequest request) {
-        Map<String, String[]> requestBodyMap = request.getParameterMap();
-        Map<String, String> body = new HashMap<>();
-        requestBodyMap.forEach((key, values) -> body.put(key, values[0]));
-        log.info(String.format("------Body input: %s", body));
+    @PostMapping("/paypal-webhooks") // "Listen action payment, callback method"
+    public ResponseEntity<Void> listenActionPaymentCompleted(@RequestBody String request) {
+        log.info(String.format("------Body input: %s", request));
         return ResponseEntity.ok().build();
     }
 }
