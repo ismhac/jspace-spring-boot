@@ -119,7 +119,7 @@ public class PaypalServiceImpl implements PaypalService {
                 .company(company.get())
                 .productName(product.get().getName())
                 .productPrice(product.get().getPrice())
-                .productNumberOfPost(product.get().getNumberOfPost())
+                .productNumberOfPost(product.get().getNumberOfPost() * quantity)
                 .productPostDuration(product.get().getPostDuration())
                 .productDurationDayNumber(product.get().getDurationDayNumber())
                 .expiryDate(LocalDate.now().plusDays(product.get().getDurationDayNumber()))

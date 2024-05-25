@@ -2,6 +2,7 @@ package com.ismhac.jspace.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.ismhac.jspace.dto.candidatePostLiked.response.CandidatePostLikedDto;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
@@ -9,18 +10,11 @@ import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
-import com.ismhac.jspace.mapper.EmployeeMapper;
-import com.ismhac.jspace.mapper.ResumeMapper;
-import com.ismhac.jspace.mapper.UserMapper;
-import com.ismhac.jspace.model.Candidate;
-import com.ismhac.jspace.model.File;
-import com.ismhac.jspace.model.Resume;
-import com.ismhac.jspace.model.User;
+import com.ismhac.jspace.mapper.*;
+import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.primaryKey.CandidateId;
-import com.ismhac.jspace.repository.CandidateRepository;
-import com.ismhac.jspace.repository.FileRepository;
-import com.ismhac.jspace.repository.ResumeRepository;
-import com.ismhac.jspace.repository.UserRepository;
+import com.ismhac.jspace.model.primaryKey.CandidatePostLikedId;
+import com.ismhac.jspace.repository.*;
 import com.ismhac.jspace.service.CandidateService;
 import com.ismhac.jspace.util.BeanUtils;
 import com.ismhac.jspace.util.PageUtils;
@@ -36,9 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -59,6 +51,12 @@ public class CandidateServiceImpl implements CandidateService {
     private final FileRepository fileRepository;
 
     private final PageUtils pageUtils;
+
+    private final PostRepository postRepository;
+
+    private final CandidatePostLikedRepository candidatePostLikedRepository;
+
+    private final PostSkillRepository postSkillRepository;
 
     @Autowired
     private BeanUtils beanUtils;
@@ -133,7 +131,7 @@ public class CandidateServiceImpl implements CandidateService {
     @Transactional(rollbackFor = Exception.class)
     public UserDto updateAvatar(int id, MultipartFile avatar) {
         Candidate candidate = candidateRepository.findByUserId(id)
-                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         if (avatar == null || avatar.isEmpty()) {
             throw new IllegalArgumentException("background must not be empty");
@@ -162,7 +160,7 @@ public class CandidateServiceImpl implements CandidateService {
     @Transactional(rollbackFor = Exception.class)
     public UserDto updateBackground(int id, MultipartFile avatar) {
         Candidate candidate = candidateRepository.findByUserId(id)
-                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         if (avatar == null || avatar.isEmpty()) {
             throw new IllegalArgumentException("background must not be empty");
@@ -189,30 +187,30 @@ public class CandidateServiceImpl implements CandidateService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Map<String, Object> deleteBackground(int id, String backgroundId){
+    public Map<String, Object> deleteBackground(int id, String backgroundId) {
         try {
-            Candidate candidate = candidateRepository.findByUserId(id).orElseThrow(()-> new  AppException(ErrorCode.USER_NOT_EXISTED));
+            Candidate candidate = candidateRepository.findByUserId(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-            if(!backgroundId.equals(candidate.getId().getUser().getBackgroundId()) || backgroundId.isEmpty()){
+            if (!backgroundId.equals(candidate.getId().getUser().getBackgroundId()) || backgroundId.isEmpty()) {
                 throw new AppException(ErrorCode.INVALID_FILE_ID);
             }
 
             Map deleteResult = cloudinary.uploader().destroy(backgroundId, ObjectUtils.emptyMap());
 
-            if(deleteResult.get("result").toString().equals("ok")) {
+            if (deleteResult.get("result").toString().equals("ok")) {
                 candidate.getId().getUser().setBackgroundId(null);
                 candidate.getId().getUser().setBackground(null);
-                return new HashMap<>(){{
+                return new HashMap<>() {{
                     put("status", deleteResult);
                     put("user", UserMapper.instance.toUserDto(candidateRepository.save(candidate).getId().getUser()));
                 }};
-            }else{
-                return new HashMap<>(){{
+            } else {
+                return new HashMap<>() {{
                     put("status", deleteResult);
                     put("user", UserMapper.instance.toUserDto(candidateRepository.save(candidate).getId().getUser()));
                 }};
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
             throw new AppException(ErrorCode.DELETE_FILE_FAIL);
         }
@@ -222,28 +220,28 @@ public class CandidateServiceImpl implements CandidateService {
     @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> deleteAvatar(int id, String avatarId) {
         try {
-            Candidate candidate = candidateRepository.findByUserId(id).orElseThrow(()-> new  AppException(ErrorCode.USER_NOT_EXISTED));
+            Candidate candidate = candidateRepository.findByUserId(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-            if(!avatarId.equals(candidate.getId().getUser().getPictureId()) || avatarId.isEmpty()){
+            if (!avatarId.equals(candidate.getId().getUser().getPictureId()) || avatarId.isEmpty()) {
                 throw new AppException(ErrorCode.INVALID_FILE_ID);
             }
 
             Map deleteResult = cloudinary.uploader().destroy(avatarId, ObjectUtils.emptyMap());
 
-            if(deleteResult.get("result").toString().equals("ok")) {
+            if (deleteResult.get("result").toString().equals("ok")) {
                 candidate.getId().getUser().setPicture(null);
                 candidate.getId().getUser().setPictureId(null);
-                return new HashMap<>(){{
+                return new HashMap<>() {{
                     put("status", deleteResult);
                     put("user", UserMapper.instance.toUserDto(candidateRepository.save(candidate).getId().getUser()));
                 }};
-            }else{
-                return new HashMap<>(){{
+            } else {
+                return new HashMap<>() {{
                     put("status", deleteResult);
                     put("user", UserMapper.instance.toUserDto(candidateRepository.save(candidate).getId().getUser()));
                 }};
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
             throw new AppException(ErrorCode.DELETE_FILE_FAIL);
         }
@@ -253,32 +251,71 @@ public class CandidateServiceImpl implements CandidateService {
     @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> deleteResume(int id, int resumeId) {
         try {
-            Candidate candidate = candidateRepository.findByUserId(id).orElseThrow(()-> new  AppException(ErrorCode.USER_NOT_EXISTED));
+            Candidate candidate = candidateRepository.findByUserId(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
             Resume resume = resumeRepository.findById(resumeId)
-                    .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_RESUME));
+                    .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_RESUME));
 
             Map deleteResult = cloudinary.uploader().destroy(resume.getFile().getPublicId(), ObjectUtils.emptyMap());
 
-            if(deleteResult.get("result").toString().equals("ok")) {
-                candidate.getId().getUser().setPicture(null);
-                candidate.getId().getUser().setPictureId(null);
+            if (deleteResult.get("result").toString().equals("ok")) {
 
-                fileRepository.deleteById(resume.getFile().getId());
                 resumeRepository.deleteById(resumeId);
+                fileRepository.deleteById(resume.getFile().getId());
 
-                return new HashMap<>(){{
+                return new HashMap<>() {{
                     put("status", deleteResult);
                 }};
-            }else{
-                return new HashMap<>(){{
+            } else {
+                return new HashMap<>() {{
                     put("status", deleteResult);
                 }};
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
             throw new AppException(ErrorCode.DELETE_FILE_FAIL);
         }
+    }
+
+    @Override
+    public CandidatePostLikedDto likePost(int id, int postId) {
+
+        Candidate candidate = candidateRepository.findByUserId(id)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_USER));
+
+        Post post = postRepository.findById(postId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST));
+
+        CandidatePostLikedId candidatePostLikedId = CandidatePostLikedId.builder()
+                .candidate(candidate)
+                .post(post)
+                .build();
+
+        CandidatePostLiked candidatePostLiked = CandidatePostLiked.builder()
+                .id(candidatePostLikedId)
+                .build();
+
+        return CandidatePostLikedMapper.instance.eToDto(candidatePostLikedRepository.save(candidatePostLiked), postSkillRepository);
+    }
+
+    @Override
+    public PageResponse<Map<String, Object>> getPagePost(int id, Pageable pageable) {
+        Page<Map<String, Object>> postPage = postRepository.candidateGetPagePost(id, pageable);
+
+        List<Map<String, Object>> dtoList = postPage.getContent().stream()
+                .map(item -> {
+                    Map<String, Object> map = new HashMap<>(item);
+                    map.put("post", PostMapper.instance.eToDto((Post) item.get("post"), postSkillRepository));
+                    return map;
+                }).toList();
+
+        return PageResponse.<Map<String, Object>>builder()
+                .content(dtoList)
+                .pageNumber(postPage.getNumber())
+                .pageSize(postPage.getSize())
+                .totalElements(postPage.getTotalElements())
+                .totalPages(postPage.getTotalPages())
+                .numberOfElements(postPage.getNumberOfElements())
+                .build();
     }
 
 
