@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ismhac.jspace.dto.payment.request.PaymentCreateRequest;
 import com.ismhac.jspace.service.common.PaypalService;
+import com.paypal.api.payments.Webhook;
+import com.paypal.api.payments.WebhookList;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +37,6 @@ public class PaymentController {
         return result.toJSON();
     }
 
-
     @Hidden()
     @PostMapping("/paypal-webhooks") // "Listen action payment, callback method"
     public ResponseEntity<Void> listenActionPaymentCompleted(@RequestBody String request) {
@@ -45,33 +46,10 @@ public class PaymentController {
 
     @Hidden()
     @PostMapping("/paypal-webhooks/simulate")
-    public ResponseEntity<Void> simulateListenActionPaymentCompleted(@RequestBody String request) {
+    public ResponseEntity<Void> simulateListenActionPaymentCompleted(@RequestBody String body) {
 //        log.info(String.format("------Body input: %s", request));
-
-        Gson gson = new Gson();
-
-        Map<String, Object> body = gson.fromJson(request, new TypeToken<Map<String, Object>>(){}.getType());
-
-        Map<String, Object> resource = (Map<String, Object>) body.get("resource");
-
-        List<Map<String, Object>> transactions = (List<Map<String, Object>>) resource.get("transactions");
-
-        Map<String, Object> payer = (Map<String, Object>) resource.get("payer");
-
-        String paymentMethod = (String) payer.get("payment_method");
-        String status = (String) payer.get("status");
-
-        Map<String, Object> amount = (Map<String, Object>) transactions.get(0).get("amount");
-
-        String total = (String) amount.get("total");
-
-        String custom = (String) transactions.get(0).get("custom");
-
-        Map<String, Object> customObj = gson.fromJson(custom, new TypeToken<Map<String, Object>>(){}.getType());
-
-        int companyId = ((Double) customObj.get("companyId")).intValue();
-        int productId = ((Double) customObj.get("productId")).intValue();
-
+        var result = paypalService.listenPaypalWebhooks(body);
+        log.info("result: {}", result.toString());
         return ResponseEntity.ok().build();
     }
 

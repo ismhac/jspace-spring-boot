@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class ProductUpdateRequest {
     String name;
-    int price;
+    double price;
     int numberOfPost;
     int postDuration;
     int durationDayNumber;

@@ -16,4 +16,5 @@ public class PaymentCreateRequest {
     // custom params
     private int companyId;
     private int productId;
+    private int quantity;
 }

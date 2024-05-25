@@ -2,16 +2,15 @@ package com.ismhac.jspace.controller;
 
 import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.response.PageResponse;
-import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.companyRequestReview.response.CompanyRequestReviewDto;
 import com.ismhac.jspace.dto.product.request.ProductCreateRequest;
 import com.ismhac.jspace.dto.product.request.ProductUpdateRequest;
 import com.ismhac.jspace.dto.product.response.ProductDto;
-import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
-import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
+import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
+import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.service.AdminService;
 import com.ismhac.jspace.util.PageUtils;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -28,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
     private final PageUtils pageUtils;
     private final AdminService adminService;
-    
+
     /* create new basic admin */
     @PostMapping()
     public ApiResponse<AdminDto> create(
@@ -45,9 +44,9 @@ public class AdminController {
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "email", required = false) String email,
             @RequestParam(value = "activated", required = false) Boolean activated,
-            Pageable pageable){
+            Pageable pageable) {
         Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
-        var result =  adminService.getPageUserAndFilterByRoleIdNameAndEmailAndActivated(roleId, name, email, activated, adjustedPageable);
+        var result = adminService.getPageUserAndFilterByRoleIdNameAndEmailAndActivated(roleId, name, email, activated, adjustedPageable);
         return ApiResponse.<PageResponse<UserDto>>builder()
                 .result(result)
                 .build();
@@ -68,8 +67,8 @@ public class AdminController {
     }
 
     @PutMapping("/users/update/activated")
-    public ApiResponse< UserDto> updateActivatedUser(
-            @RequestBody @Valid UpdateActivatedUserRequest updateActivatedUserRequest){
+    public ApiResponse<UserDto> updateActivatedUser(
+            @RequestBody @Valid UpdateActivatedUserRequest updateActivatedUserRequest) {
         var result = adminService.updateActivatedUser(updateActivatedUserRequest);
         return ApiResponse.<UserDto>builder()
                 .result(result)
@@ -79,7 +78,7 @@ public class AdminController {
     @GetMapping("/company-request-reviews")
     public ApiResponse<PageResponse<CompanyRequestReviewDto>> getRequestReviewDtoPageResponse(
             @RequestParam(value = "reviewed", required = false) Boolean reviewed,
-            Pageable pageable){
+            Pageable pageable) {
         Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
         var result = adminService.getRequestReviewDtoPageResponse(reviewed, adjustedPageable);
         return ApiResponse.<PageResponse<CompanyRequestReviewDto>>builder()
@@ -90,7 +89,7 @@ public class AdminController {
     @PutMapping("/company-request-reviews")
     public ApiResponse<CompanyRequestReviewDto> adminVerifyForCompany(
             @RequestParam("companyId") Integer companyId,
-            @RequestParam("reviewed") Boolean reviewed){
+            @RequestParam("reviewed") Boolean reviewed) {
         var result = adminService.adminVerifyForCompany(companyId, reviewed);
         return ApiResponse.<CompanyRequestReviewDto>builder()
                 .result(result)
@@ -105,7 +104,7 @@ public class AdminController {
             @RequestParam(value = "phone", required = false) String phone,
             @RequestParam(value = "emailVerified", required = false) Boolean emailVerified,
             @RequestParam(value = "verifiedByAdmin", required = false) Boolean verifiedByAdmin,
-            Pageable pageable){
+            Pageable pageable) {
         Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
         var result = adminService.getPageCompanyAndFilter(name, address, email, phone, emailVerified, verifiedByAdmin, adjustedPageable);
         return ApiResponse.<PageResponse<CompanyDto>>builder()
@@ -116,7 +115,7 @@ public class AdminController {
     @PutMapping("/companies/{id}/update-activate-status")
     public ApiResponse<CompanyDto> updateCompanyActivateStatus(
             @PathVariable("id") int id,
-            @RequestParam("activateStatus") boolean activateStatus){
+            @RequestParam("activateStatus") boolean activateStatus) {
         var result = adminService.updateCompanyActivateStatus(id, activateStatus);
         return ApiResponse.<CompanyDto>builder()
                 .result(result)
@@ -124,8 +123,8 @@ public class AdminController {
     }
 
     @PostMapping("/products")
-    public ApiResponse <ProductDto> createProduct(
-            @RequestBody ProductCreateRequest request){
+    public ApiResponse<ProductDto> createProduct(
+            @RequestBody ProductCreateRequest request) {
         var result = adminService.createProduct(request);
         return ApiResponse.<ProductDto>builder()
                 .result(result)
@@ -135,16 +134,16 @@ public class AdminController {
     @PatchMapping("/products/{id}")
     public ApiResponse<ProductDto> updateProduct(
             @PathVariable("id") int id,
-            @RequestBody ProductUpdateRequest request){
-        var result = adminService.updateProduct(id,request);
+            @RequestBody ProductUpdateRequest request) {
+        var result = adminService.updateProduct(id, request);
         return ApiResponse.<ProductDto>builder()
                 .result(result)
                 .build();
     }
 
-    @PatchMapping("/products")
+    @GetMapping("/products")
     public ApiResponse<PageResponse<ProductDto>> getPageProduct(
-            Pageable pageable){
+            Pageable pageable) {
         Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
         var result = adminService.getPageProduct(adjustedPageable);
         return ApiResponse.<PageResponse<ProductDto>>builder()

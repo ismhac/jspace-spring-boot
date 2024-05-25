@@ -5,4 +5,6 @@ import com.paypal.api.payments.Payment;
 
 public interface PaypalService {
     Payment createPayment(PaymentCreateRequest paymentCreateRequest);
+
+    Object listenPaypalWebhooks(String body);
 }
