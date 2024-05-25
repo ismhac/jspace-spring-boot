@@ -6,6 +6,7 @@ import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.post.PostCreateRequest;
 import com.ismhac.jspace.dto.post.PostDto;
+import com.ismhac.jspace.dto.purchasedProduct.response.PurchasedProductDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -19,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -140,6 +142,16 @@ public class EmployeeController {
             @RequestParam("backgroundId") String backgroundId){
         var result = employeeService.deleteBackground(id, backgroundId);
         return ApiResponse.<Map<String, Object>>builder()
+                .result(result)
+                .build();
+    }
+
+    @GetMapping("/purchased-products")
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ApiResponse<List<Map<String, Object>>> getListByCompanyId(
+            @RequestParam("companyId") int companyId){
+        var result = employeeService.getListPurchasedByCompanyId(companyId);
+        return ApiResponse.<List<Map<String, Object>>>builder()
                 .result(result)
                 .build();
     }

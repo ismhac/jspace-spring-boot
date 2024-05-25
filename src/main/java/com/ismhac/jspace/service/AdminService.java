@@ -37,5 +37,5 @@ public interface AdminService {
 
     ProductDto updateProduct(int id, ProductUpdateRequest request);
 
-    PageResponse<ProductDto> getPageProduct(Pageable pageable);
+//    PageResponse<ProductDto> getPageProduct(Pageable pageable);
 }

@@ -9,6 +9,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface PurchasedProductMapper {
     PurchasedProductMapper instance = Mappers.getMapper(PurchasedProductMapper.class);
@@ -16,8 +18,13 @@ public interface PurchasedProductMapper {
     @Mapping(target = "company", source = "company", qualifiedByName = "convertCompanyToDto")
     PurchasedProductDto eToDto(PurchasedProduct e );
 
+    default List<PurchasedProductDto> eListToDtoList(List<PurchasedProduct> eList){
+        return eList.stream().map(this::eToDto).toList();
+    }
+
     @Named("convertCompanyToDto")
     default CompanyDto convertCompanyToDto(Company company){
         return CompanyMapper.instance.eToDto(company);
     }
+
 }

@@ -141,14 +141,14 @@ public class AdminController {
                 .build();
     }
 
-    @GetMapping("/products")
-    public ApiResponse<PageResponse<ProductDto>> getPageProduct(
-            Pageable pageable) {
-        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
-        var result = adminService.getPageProduct(adjustedPageable);
-        return ApiResponse.<PageResponse<ProductDto>>builder()
-                .result(result)
-                .build();
-    }
+//    @GetMapping("/products")
+//    public ApiResponse<PageResponse<ProductDto>> getPageProduct(
+//            Pageable pageable) {
+//        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
+//        var result = adminService.getPageProduct(adjustedPageable);
+//        return ApiResponse.<PageResponse<ProductDto>>builder()
+//                .result(result)
+//                .build();
+//    }
 
 }

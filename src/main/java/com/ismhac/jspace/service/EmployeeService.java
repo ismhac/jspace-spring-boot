@@ -5,12 +5,14 @@ import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.post.PostCreateRequest;
 import com.ismhac.jspace.dto.post.PostDto;
+import com.ismhac.jspace.dto.purchasedProduct.response.PurchasedProductDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 public interface EmployeeService {
@@ -34,4 +36,6 @@ public interface EmployeeService {
     Map<String, Object> deleteBackground(int id, String backgroundId);
 
     Map<String, Object> deleteAvatar(int id, String avatarId);
+
+    List<Map<String, Object>> getListPurchasedByCompanyId(int companyId);
  }
