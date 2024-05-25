@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -25,7 +27,7 @@ public class PurchaseHistory extends BaseEntity {   // lịch sử mua sản ph�
     String productName;
 
     @Column(name = "product_price")
-    int productPrice;
+    double productPrice;
 
     @Column(name = "product_number_of_post")
     int productNumberOfPost;
@@ -36,12 +38,18 @@ public class PurchaseHistory extends BaseEntity {   // lịch sử mua sản ph�
     @Column(name = "product_duration_day_number")
     int productDurationDayNumber;
 
+    LocalDate expiryDate;
+
     String description;
 
     int quantity;
 
     @Column(name = "total_price")
-    int totalPrice;
+    double totalPrice;
 
+    String status;
+
+    @Column(name = "payment_method")
+    String paymentMethod;
     // enum paypal: FAIL, PAID.
 }

@@ -27,7 +27,7 @@ public class PurchasedProduct extends BaseEntity{ // sản phẩm công ty đã 
     String productName;
 
     @Column(name = "product_price")
-    int productPrice;
+    double productPrice;
 
     @Column(name = "product_number_of_post")
     int productNumberOfPost;    // số lượng bài post còn lại
@@ -46,5 +46,5 @@ public class PurchasedProduct extends BaseEntity{ // sản phẩm công ty đã 
     int quantity;
 
     @Column(name = "total_price")
-    int totalPrice;
+    double totalPrice;
 }

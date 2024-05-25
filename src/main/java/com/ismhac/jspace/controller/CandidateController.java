@@ -1,5 +1,6 @@
 package com.ismhac.jspace.controller;
 
+import com.ismhac.jspace.dto.candidatePostLiked.response.CandidatePostLikedDto;
 import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.resume.request.ResumeCreateRequest;
@@ -118,6 +119,28 @@ public class CandidateController {
             @RequestParam("resumeId") int resumeId){
         var result = candidateService.deleteResume(id, resumeId);
         return ApiResponse.<Map<String, Object>>builder()
+                .result(result)
+                .build();
+    }
+
+    @PostMapping("/{id}/posts/like")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public ApiResponse<CandidatePostLikedDto> likePost(
+            @PathVariable("id") int id,
+            @RequestParam("postId") int postId){
+        var result = candidateService.likePost(id, postId);
+        return ApiResponse.<CandidatePostLikedDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @GetMapping("/{id}/posts")
+    public ApiResponse<PageResponse<Map<String, Object>>> getPagePost(
+            @PathVariable("id") int id,
+            Pageable pageable){
+        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
+        var result = candidateService.getPagePost(id, adjustedPageable);
+        return ApiResponse.<PageResponse<Map<String, Object>>>builder()
                 .result(result)
                 .build();
     }

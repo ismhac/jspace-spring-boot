@@ -38,7 +38,7 @@ public class Post extends BaseEntity {
     @Convert(converter = RankConverter.class)
     Rank rank;
 
-    @Lob
+//    @Lob
     @Column(columnDefinition = "text")
     String description;
 

@@ -21,7 +21,7 @@ public class Product extends BaseEntity{
 
     String name;
 
-    int price;
+    double price;
 
     @Column(name = "number_of_post")
     int numberOfPost; // số lượng bài post mà gói sản phẩm này định nghĩa
