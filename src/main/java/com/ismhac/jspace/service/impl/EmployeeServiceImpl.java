@@ -8,6 +8,7 @@ import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.post.PostCreateRequest;
 import com.ismhac.jspace.dto.post.PostDto;
+import com.ismhac.jspace.dto.purchasedProduct.response.PurchasedProductDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -15,10 +16,7 @@ import com.ismhac.jspace.event.RequestCompanyToVerifyForEmployeeEvent;
 import com.ismhac.jspace.event.RequestCompanyVerifyEmailEvent;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
-import com.ismhac.jspace.mapper.CompanyMapper;
-import com.ismhac.jspace.mapper.EmployeeMapper;
-import com.ismhac.jspace.mapper.PostMapper;
-import com.ismhac.jspace.mapper.UserMapper;
+import com.ismhac.jspace.mapper.*;
 import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.primaryKey.CompanyRequestReviewId;
 import com.ismhac.jspace.model.primaryKey.PostSkillId;
@@ -45,6 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -300,6 +299,21 @@ public class EmployeeServiceImpl implements EmployeeService {
             log.error(e.getMessage());
             throw new AppException(ErrorCode.DELETE_FILE_FAIL);
         }
+    }
+
+    @Override
+    public List<Map<String, Object>> getListPurchasedByCompanyId(int companyId) {
+        LocalDate now = LocalDate.now();
+        List<PurchasedProduct> purchasedProducts = purchasedProductRepository.getListByCompanyId(companyId, now);
+        return purchasedProducts.stream().map(item -> {
+            Map<String, Object> map = new HashMap<>();
+
+            int remainingDate = (int) ChronoUnit.DAYS.between(now,(PurchasedProductMapper.instance.eToDto(item)).getExpiryDate());
+
+            map.put("purchasedProduct", PurchasedProductMapper.instance.eToDto(item));
+            map.put("remainingDate", remainingDate);
+            return map;
+        }).toList();
     }
 
     @Override

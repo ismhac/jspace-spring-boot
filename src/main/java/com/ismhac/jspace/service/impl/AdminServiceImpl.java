@@ -307,11 +307,9 @@ public class AdminServiceImpl implements AdminService {
         return ProductMapper.instance.eToDto(productRepository.save(product));
     }
 
-    @Override
-    public PageResponse<ProductDto> getPageProduct(Pageable pageable) {
-        Page<Product> productPage = productRepository.getPage(pageable);
-        return pageUtils.toPageResponse(ProductMapper.instance.ePageToDtoPage(productPage));
-    }
-
-
+//    @Override
+//    public PageResponse<ProductDto> getPageProduct(Pageable pageable) {
+//        Page<Product> productPage = productRepository.getPage(pageable);
+//        return pageUtils.toPageResponse(ProductMapper.instance.ePageToDtoPage(productPage));
+//    }
 }

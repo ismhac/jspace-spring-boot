@@ -52,7 +52,8 @@ public class SecurityConfig {
             "/api/v1/commons/**",
             "/api/v1/skills",
             "/api/v1/payment/paypal-webhooks",
-            "/api/v1/payment/paypal-webhooks/simulate"
+            "/api/v1/payment/paypal-webhooks/simulate",
+            "/api/v1/products"
     };
 
     @Bean
