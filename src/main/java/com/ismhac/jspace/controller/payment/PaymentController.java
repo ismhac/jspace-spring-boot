@@ -39,8 +39,10 @@ public class PaymentController {
 
     @Hidden()
     @PostMapping("/paypal-webhooks") // "Listen action payment, callback method"
-    public ResponseEntity<Void> listenActionPaymentCompleted(@RequestBody String request) {
-        log.info(String.format("------Body input: %s", request));
+    public ResponseEntity<Void> listenActionPaymentCompleted(@RequestBody String body) {
+        //        log.info(String.format("------Body input: %s", request));
+        var result = paypalService.listenPaypalWebhooks(body);
+        log.info("result: {}", result.toString());
         return ResponseEntity.ok().build();
     }
 
