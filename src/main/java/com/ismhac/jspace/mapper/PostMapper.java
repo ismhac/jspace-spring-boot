@@ -14,6 +14,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -30,6 +31,10 @@ public interface PostMapper {
     @Mapping(target = "experience", source = "experience", qualifiedByName = "convertExperienceToDto")
     @Mapping(target = "skills", expression = "java(getSkillDtoList(e.getId(), postSkillRepository))")
     PostDto eToDto(Post e, @Context PostSkillRepository postSkillRepository);
+
+    default Page<PostDto> ePageToDtoPage(Page<Post> ePage, @Context PostSkillRepository postSkillRepository){
+        return ePage.map(item-> eToDto(item, postSkillRepository));
+    }
 
 
     @Named("convertCompanyToDto")

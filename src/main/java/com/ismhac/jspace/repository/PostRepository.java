@@ -41,22 +41,10 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             """)
     Page<Map<String, Object>> candidateGetPagePost(int candidateId, Pageable pageable);
 
-    /*
-    * SELECT
-	tp.id,
-	tp.title,
-	(CASE WHEN EXISTS(
-				SELECT 1
-				FROM tbl_candidate_post_liked tcpl
-				WHERE tcpl.post_id = tp.id
-					AND tcpl.candidate_id = 2)
-			THEN true ELSE FALSE END ) AS liked,
-	(CASE WHEN EXISTS (
-				SELECT 1
-				FROM tbl_candidate_post tcp
-				WHERE tcp.post_id = tp.id
-					AND tcp.candidate_id = 2)
-			THEN TRUE ELSE FALSE END) AS applied
-FROM tbl_post tp
-    * */
+    @Query("""
+            select p
+            from Post p
+            where p.company.id = :companyId
+            """)
+    Page<Post> getPageByCompanyId(int companyId, Pageable pageable);
 }
