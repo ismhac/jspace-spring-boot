@@ -9,6 +9,7 @@ import com.ismhac.jspace.dto.purchasedProduct.response.PurchasedProductDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,4 +39,6 @@ public interface EmployeeService {
     Map<String, Object> deleteAvatar(int id, String avatarId);
 
     List<Map<String, Object>> getListPurchasedByCompanyId(int companyId);
+
+    PageResponse<PostDto> getPagePosted(int companyId, Pageable pageable);
  }

@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.ismhac.jspace.dto.candidatePostLiked.response.CandidatePostLikedDto;
 import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.post.PostDto;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -295,6 +296,23 @@ public class CandidateServiceImpl implements CandidateService {
                 .build();
 
         return CandidatePostLikedMapper.instance.eToDto(candidatePostLikedRepository.save(candidatePostLiked), postSkillRepository);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean unlikePost(int id, int postId) {
+        CandidatePostLiked candidatePostLiked = candidatePostLikedRepository
+                .findByCandiDateIdAndPostId(id, postId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_POST_LIKED));
+
+        int deleted = candidatePostLikedRepository.deleteByCandidateIdAndPostId(id, postId);
+        if(deleted == 1) return true;
+        return false;
+    }
+
+    @Override
+    public PageResponse<PostDto> getPagePostLiked(int id, Pageable pageable) {
+        Page<Post> posts = candidatePostLikedRepository.getPagePostByCandidateId(id, pageable);
+        return pageUtils.toPageResponse(PostMapper.instance.ePageToDtoPage(posts, postSkillRepository));
     }
 
     @Override

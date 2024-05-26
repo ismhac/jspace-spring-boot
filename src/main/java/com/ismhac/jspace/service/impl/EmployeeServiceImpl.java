@@ -317,6 +317,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public PageResponse<PostDto> getPagePosted(int companyId, Pageable pageable) {
+        Page<Post> posts = postRepository.getPageByCompanyId(companyId, pageable);
+        return pageUtils.toPageResponse(PostMapper.instance.ePageToDtoPage(posts, postSkillRepository));
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public PostDto createPost(PostCreateRequest req) {
 

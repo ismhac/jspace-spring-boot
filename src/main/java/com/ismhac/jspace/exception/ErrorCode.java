@@ -78,7 +78,9 @@ public enum ErrorCode {
 
     NOT_FOUND_RESUME(HttpStatus.NOT_FOUND.value(), "Not found resume", HttpStatus.NOT_FOUND),
 
-    NOT_FOUND_POST(HttpStatus.NOT_FOUND.value(), "Not found post", HttpStatus.NOT_FOUND)
+    NOT_FOUND_POST(HttpStatus.NOT_FOUND.value(), "Not found post", HttpStatus.NOT_FOUND),
+
+    NOT_FOUND_POST_LIKED(HttpStatus.NOT_FOUND.value(), "Not found post liked", HttpStatus.NOT_FOUND)
     ;
 
     private final int code;

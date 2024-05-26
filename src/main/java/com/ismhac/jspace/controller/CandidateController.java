@@ -3,6 +3,7 @@ package com.ismhac.jspace.controller;
 import com.ismhac.jspace.dto.candidatePostLiked.response.CandidatePostLikedDto;
 import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.post.PostDto;
 import com.ismhac.jspace.dto.resume.request.ResumeCreateRequest;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
@@ -130,6 +131,29 @@ public class CandidateController {
             @RequestParam("postId") int postId){
         var result = candidateService.likePost(id, postId);
         return ApiResponse.<CandidatePostLikedDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @DeleteMapping("/{id}/posts/unlike")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public ApiResponse<Boolean> unlikePost(
+            @PathVariable("id") int id,
+            @RequestParam("postId") int postId){
+        var result = candidateService.unlikePost(id, postId);
+        return ApiResponse.<Boolean>builder()
+                .result(result)
+                .build();
+    }
+
+    @GetMapping("/{id}/posts/like")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public ApiResponse<PageResponse<PostDto>> getPagePostLiked(
+            @PathVariable("id") int id,
+            Pageable pageable){
+        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
+        var result = candidateService.getPagePostLiked(id, adjustedPageable);
+        return ApiResponse.<PageResponse<PostDto>>builder()
                 .result(result)
                 .build();
     }

@@ -2,6 +2,7 @@ package com.ismhac.jspace.service;
 
 import com.ismhac.jspace.dto.candidatePostLiked.response.CandidatePostLikedDto;
 import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.post.PostDto;
 import com.ismhac.jspace.dto.resume.request.ResumeCreateRequest;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
@@ -32,6 +33,10 @@ public interface CandidateService {
     Map<String, Object> deleteResume(int id, int resumeId);
 
     CandidatePostLikedDto likePost(int id, int postId);
+
+    boolean unlikePost(int id, int postId);
+
+    PageResponse<PostDto> getPagePostLiked(int id, Pageable pageable);
 
     PageResponse<Map<String, Object>> getPagePost(int id, Pageable pageable);
 }

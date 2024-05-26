@@ -155,4 +155,16 @@ public class EmployeeController {
                 .result(result)
                 .build();
     }
+
+    @GetMapping("/posts")
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ApiResponse<PageResponse<PostDto>> getPagePosted(
+            @RequestParam("companyId") int companyId,
+            Pageable pageable){
+        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
+        var result = employeeService.getPagePosted(companyId, adjustedPageable);
+        return ApiResponse.<PageResponse<PostDto>>builder()
+                .result(result)
+                .build();
+    }
 }
