@@ -6,4 +6,5 @@ import com.ismhac.jspace.dto.post.PostDto;
 public interface PostService {
 
     PostDto create(PostCreateRequest postCreateRequest);
+    PostDto getById(int id);
 }

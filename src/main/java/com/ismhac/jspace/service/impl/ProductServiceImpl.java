@@ -2,6 +2,8 @@ package com.ismhac.jspace.service.impl;
 
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.product.response.ProductDto;
+import com.ismhac.jspace.exception.AppException;
+import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.mapper.ProductMapper;
 import com.ismhac.jspace.model.Product;
 import com.ismhac.jspace.repository.ProductRepository;
@@ -23,5 +25,12 @@ public class ProductServiceImpl implements ProductService {
     public PageResponse<ProductDto> getPage(Pageable pageable) {
         Page<Product> productPage = productRepository.getPage(pageable);
         return pageUtils.toPageResponse(ProductMapper.instance.ePageToDtoPage(productPage));
+    }
+
+    @Override
+    public ProductDto getById(int productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_PRODUCT));
+        return ProductMapper.instance.eToDto(product);
     }
 }
