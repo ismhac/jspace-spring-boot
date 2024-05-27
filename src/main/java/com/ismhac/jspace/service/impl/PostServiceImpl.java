@@ -2,6 +2,7 @@ package com.ismhac.jspace.service.impl;
 
 import com.ismhac.jspace.dto.post.PostCreateRequest;
 import com.ismhac.jspace.dto.post.PostDto;
+import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.mapper.PostMapper;
@@ -29,8 +30,6 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
 
-    private final PostMapper postMapper;
-
     private final EmployeeRepository employeeRepository;
 
     private final UserRepository userRepository;
@@ -51,6 +50,13 @@ public class PostServiceImpl implements PostService {
                 .build();
         Post savedPost = postRepository.save(post);
         return PostMapper.instance.eToDto(savedPost, postSkillRepository);
+    }
+
+    @Override
+    public PostDto getById(int id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_POST));
+        return PostMapper.instance.eToDto(post, postSkillRepository);
     }
 
 

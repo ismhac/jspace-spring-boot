@@ -6,4 +6,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface ProductService {
     PageResponse<ProductDto> getPage(Pageable pageable);
+
+    ProductDto getById(int productId);
 }
