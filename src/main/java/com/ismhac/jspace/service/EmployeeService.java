@@ -1,5 +1,7 @@
 package com.ismhac.jspace.service;
 
+import com.ismhac.jspace.dto.cart.request.CartCreateRequest;
+import com.ismhac.jspace.dto.cart.response.CartDto;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
@@ -41,4 +43,10 @@ public interface EmployeeService {
     List<Map<String, Object>> getListPurchasedByCompanyId(int companyId);
 
     PageResponse<PostDto> getPagePosted(int companyId, Pageable pageable);
+
+    CartDto addProductToCart(CartCreateRequest request);
+
+    CartDto updateCart(int cartId, int quantity);
+
+    String deleteCart(int cartId);
  }

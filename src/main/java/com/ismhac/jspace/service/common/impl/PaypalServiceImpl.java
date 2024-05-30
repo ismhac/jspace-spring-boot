@@ -6,14 +6,8 @@ import com.ismhac.jspace.dto.payment.request.PaymentCreateRequest;
 import com.ismhac.jspace.dto.payment.request.PaymentCreateRequestV2;
 import com.ismhac.jspace.mapper.PurchaseHistoryMapper;
 import com.ismhac.jspace.mapper.PurchasedProductMapper;
-import com.ismhac.jspace.model.Company;
-import com.ismhac.jspace.model.Product;
-import com.ismhac.jspace.model.PurchaseHistory;
-import com.ismhac.jspace.model.PurchasedProduct;
-import com.ismhac.jspace.repository.CompanyRepository;
-import com.ismhac.jspace.repository.ProductRepository;
-import com.ismhac.jspace.repository.PurchaseHistoryRepository;
-import com.ismhac.jspace.repository.PurchasedProductRepository;
+import com.ismhac.jspace.model.*;
+import com.ismhac.jspace.repository.*;
 import com.ismhac.jspace.service.common.PaypalService;
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
@@ -38,6 +32,8 @@ public class PaypalServiceImpl implements PaypalService {
     private final CompanyRepository companyRepository;
 
     private final ProductRepository productRepository;
+
+    private final CartRepository cartRepository;
 
     @Override
     public Payment createPayment(PaymentCreateRequest paymentCreateRequest) {
@@ -140,6 +136,82 @@ public class PaypalServiceImpl implements PaypalService {
     }
 
     @Override
+    public Object listenPaypalWebhooksV2(String body) {
+        Gson gson = new Gson();
+
+        Map<String, Object> bodyObj = gson.fromJson(body, new TypeToken<Map<String, Object>>() {
+        }.getType());
+
+        Map<String, Object> resource = (Map<String, Object>) bodyObj.get("resource");
+
+        List<Map<String, Object>> transactions = (List<Map<String, Object>>) resource.get("transactions");
+
+        Map<String, Object> payer = (Map<String, Object>) resource.get("payer");
+
+        String paymentMethod = (String) payer.get("payment_method");
+        String status = (String) payer.get("status");
+
+        Map<String, Object> amount = (Map<String, Object>) transactions.get(0).get("amount");
+
+        String total = (String) amount.get("total");
+
+        String custom = (String) transactions.get(0).get("custom");
+
+        Map<String, List<Double>> customObj = gson
+                .fromJson(custom, new TypeToken<Map<String, Object>>() {}.getType());
+
+        List<Integer> cartIds = (customObj.get("cartIds")).stream().map(Double::intValue).toList();
+
+        List<PurchasedProduct> purchasedProducts = new ArrayList<>();
+        List<PurchaseHistory> purchaseHistories = new ArrayList<>();
+
+        for(Integer item: cartIds){
+            Optional<Cart> cart = cartRepository.findById(item);
+            Company company = cart.get().getCompany();
+            Product product = cart.get().getProduct();
+            int quantity =cart.get().getQuantity();
+
+            PurchaseHistory purchaseHistory = PurchaseHistory.builder()
+                    .company(company)
+                    .productName(product.getName())
+                    .productPrice(product.getPrice())
+                    .productNumberOfPost(product.getNumberOfPost())
+                    .productPostDuration(product.getPostDuration())
+                    .productDurationDayNumber(product.getDurationDayNumber())
+                    .expiryDate(LocalDate.now().plusDays(product.getDurationDayNumber()))
+                    .description(product.getDescription())
+                    .quantity(quantity)
+                    .totalPrice(product.getPrice() * quantity)
+                    .paymentMethod(paymentMethod)
+                    .status(status)
+                    .build();
+
+            PurchasedProduct purchasedProduct = PurchasedProduct.builder()
+                    .company(company)
+                    .productName(product.getName())
+                    .productPrice(product.getPrice())
+                    .productNumberOfPost(product.getNumberOfPost() * quantity)
+                    .productPostDuration(product.getPostDuration())
+                    .productDurationDayNumber(product.getDurationDayNumber())
+                    .expiryDate(LocalDate.now().plusDays(product.getDurationDayNumber()))
+                    .description(product.getDescription())
+                    .quantity(quantity)
+                    .totalPrice(product.getPrice() * quantity)
+                    .build();
+
+            purchaseHistories.add(purchaseHistory);
+            purchasedProducts.add(purchasedProduct);
+
+            cartRepository.delete(cart.get());
+        }
+
+        return new HashMap<>() {{
+            put("purchaseHistory", PurchaseHistoryMapper.instance.eListToDtoList(purchaseHistoryRepository.saveAll(purchaseHistories)));
+            put("purchasedProduct", PurchasedProductMapper.instance.eListToDtoList(purchasedProductRepository.saveAll(purchasedProducts)));
+        }};
+    }
+
+    @Override
     public Payment createPaymentV2(PaymentCreateRequestV2 paymentCreateRequestV2) {
         Payment createPayment;
         try {
@@ -152,7 +224,7 @@ public class PaypalServiceImpl implements PaypalService {
 
             // Add custom parameters
             JSONObject customParams = new JSONObject();
-            customParams.put("customParams", paymentCreateRequestV2.getCustomParams());
+            customParams.put("cartIds", paymentCreateRequestV2.getCartIds());
             transaction.setCustom(customParams.toString());
 
             Payment payment = getPaymentV2(paymentCreateRequestV2, transaction);

@@ -57,6 +57,7 @@ public class SecurityConfig {
             "/api/v1/skills",
             "/api/v1/payment/paypal-webhooks",
             "/api/v1/payment/paypal-webhooks/simulate",
+            "/api/v1/payment/paypal-webhooks/simulate-v2",
             "/api/v1/products",
             "/api/v1/products/{id}",
             "/api/v1/posts/{id}"

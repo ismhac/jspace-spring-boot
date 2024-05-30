@@ -54,4 +54,13 @@ public class PaymentController {
         return ResponseEntity.ok().build();
     }
 
+    @Hidden()
+    @PostMapping("/paypal-webhooks/simulate-v2")
+    public ResponseEntity<Object> simulateListenActionPaymentCompletedV2(@RequestBody String body) {
+//        log.info(String.format("------Body input: %s", request));
+        var result = paypalService.listenPaypalWebhooksV2(body);
+        log.info("result: {}", result.toString());
+        return ResponseEntity.ok(result);
+    }
+
 }

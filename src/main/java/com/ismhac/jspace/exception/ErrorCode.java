@@ -80,7 +80,11 @@ public enum ErrorCode {
 
     NOT_FOUND_POST(HttpStatus.NOT_FOUND.value(), "Not found post", HttpStatus.NOT_FOUND),
 
-    NOT_FOUND_POST_LIKED(HttpStatus.NOT_FOUND.value(), "Not found post liked", HttpStatus.NOT_FOUND)
+    NOT_FOUND_POST_LIKED(HttpStatus.NOT_FOUND.value(), "Not found post liked", HttpStatus.NOT_FOUND),
+
+    NOT_FOUND_CART(HttpStatus.NOT_FOUND.value(), "Not found cart", HttpStatus.NOT_FOUND),
+
+    HAS_APPLIED(HttpStatus.BAD_REQUEST.value(), "Has applied", HttpStatus.BAD_REQUEST)
     ;
 
     private final int code;

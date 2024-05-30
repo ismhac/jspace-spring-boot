@@ -2,6 +2,8 @@ package com.ismhac.jspace.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.ismhac.jspace.dto.candidatePost.request.CandidatePostCreateRequest;
+import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.candidatePostLiked.response.CandidatePostLikedDto;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.post.PostDto;
@@ -13,7 +15,9 @@ import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.mapper.*;
 import com.ismhac.jspace.model.*;
+import com.ismhac.jspace.model.enums.ApplyStatus;
 import com.ismhac.jspace.model.primaryKey.CandidateId;
+import com.ismhac.jspace.model.primaryKey.CandidatePostId;
 import com.ismhac.jspace.model.primaryKey.CandidatePostLikedId;
 import com.ismhac.jspace.repository.*;
 import com.ismhac.jspace.service.CandidateService;
@@ -58,6 +62,8 @@ public class CandidateServiceImpl implements CandidateService {
     private final CandidatePostLikedRepository candidatePostLikedRepository;
 
     private final PostSkillRepository postSkillRepository;
+
+    private final CandidatePostRepository candidatePostRepository;
 
     @Autowired
     private BeanUtils beanUtils;
@@ -334,6 +340,34 @@ public class CandidateServiceImpl implements CandidateService {
                 .totalPages(postPage.getTotalPages())
                 .numberOfElements(postPage.getNumberOfElements())
                 .build();
+    }
+
+    @Override
+    public CandidatePostDto applyPost(CandidatePostCreateRequest request) {
+
+        Optional<CandidatePost> candidatePostOptional = candidatePostRepository
+                .findByCandidateIdAndPostId(request.getCandidateId(), request.getPostId());
+
+        if(candidatePostOptional.isPresent()){
+            throw new AppException(ErrorCode.HAS_APPLIED);
+        }
+
+        Candidate candidate = candidateRepository.findByUserId(request.getCandidateId())
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_USER));
+        Post post = postRepository.findById(request.getPostId())
+                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_POST));
+        Resume resume = resumeRepository.findById(request.getResumeId())
+                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_RESUME));
+
+        CandidatePost candidatePost = CandidatePost.builder()
+                .id(CandidatePostId.builder()
+                        .candidate(candidate)
+                        .post(post)
+                        .build())
+                .resume(resume)
+                .applyStatus(ApplyStatus.PROGRESS)
+                .build();
+        return CandidatePostMapper.instance.eToDto(candidatePostRepository.save(candidatePost), postSkillRepository);
     }
 
 

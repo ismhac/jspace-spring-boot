@@ -9,5 +9,7 @@ public interface PaypalService {
 
     Object listenPaypalWebhooks(String body);
 
+    Object listenPaypalWebhooksV2(String body);
+
     Payment createPaymentV2(PaymentCreateRequestV2 paymentCreateRequestV2);
 }
