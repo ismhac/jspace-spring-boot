@@ -1,25 +1,17 @@
 package com.ismhac.jspace.controller.payment;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.ismhac.jspace.dto.payment.request.PaymentCreateRequest;
+import com.ismhac.jspace.dto.payment.request.PaymentCreateRequestV2;
 import com.ismhac.jspace.service.common.PaypalService;
-import com.paypal.api.payments.Webhook;
-import com.paypal.api.payments.WebhookList;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/payment")
@@ -37,10 +29,17 @@ public class PaymentController {
         return result.toJSON();
     }
 
+    @PostMapping("/request-payment-v2")
+    public String requestPaymentV2(@RequestBody PaymentCreateRequestV2 paymentCreateRequestV2) {
+        var result = paypalService.createPaymentV2(paymentCreateRequestV2);
+//        log.info("--- result: {}", result.toString());
+        return result.toJSON();
+    }
+
     @Hidden()
     @PostMapping("/paypal-webhooks") // "Listen action payment, callback method"
     public ResponseEntity<Void> listenActionPaymentCompleted(@RequestBody String body) {
-        //        log.info(String.format("------Body input: %s", request));
+                log.info(String.format("------Body input: %s", body));
         var result = paypalService.listenPaypalWebhooks(body);
         log.info("result: {}", result.toString());
         return ResponseEntity.ok().build();

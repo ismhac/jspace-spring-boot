@@ -16,6 +16,8 @@ import com.ismhac.jspace.repository.EmployeeHistoryRequestCompanyVerifyRepositor
 import com.ismhac.jspace.repository.EmployeeRepository;
 import com.ismhac.jspace.service.CompanyService;
 import com.ismhac.jspace.util.PageUtils;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -47,6 +50,8 @@ public class CompanyServiceImpl implements CompanyService {
     private final Cloudinary cloudinary;
 
     private final PageUtils pageUtils;
+
+    private final EntityManager entityManager;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -175,5 +180,10 @@ public class CompanyServiceImpl implements CompanyService {
         company.setBackgroundId(backgroundId);
 
         return CompanyMapper.instance.eToDto(companyRepository.save(company));
+    }
+
+    @Override
+    public PageResponse<CompanyDto> getALl() {
+        return null;
     }
 }
