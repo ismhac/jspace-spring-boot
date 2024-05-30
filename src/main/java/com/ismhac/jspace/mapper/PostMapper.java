@@ -6,7 +6,6 @@ import com.ismhac.jspace.dto.post.PostDto;
 import com.ismhac.jspace.dto.skill.response.SkillDto;
 import com.ismhac.jspace.model.Company;
 import com.ismhac.jspace.model.Post;
-import com.ismhac.jspace.model.PostSkill;
 import com.ismhac.jspace.model.enums.*;
 import com.ismhac.jspace.repository.PostSkillRepository;
 import org.mapstruct.Context;

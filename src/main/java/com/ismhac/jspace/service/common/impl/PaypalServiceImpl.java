@@ -3,6 +3,7 @@ package com.ismhac.jspace.service.common.impl;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ismhac.jspace.dto.payment.request.PaymentCreateRequest;
+import com.ismhac.jspace.dto.payment.request.PaymentCreateRequestV2;
 import com.ismhac.jspace.mapper.PurchaseHistoryMapper;
 import com.ismhac.jspace.mapper.PurchasedProductMapper;
 import com.ismhac.jspace.model.Company;
@@ -19,11 +20,9 @@ import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
 import lombok.RequiredArgsConstructor;
 import org.cloudinary.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -73,7 +72,8 @@ public class PaypalServiceImpl implements PaypalService {
 
         Gson gson = new Gson();
 
-        Map<String, Object> bodyObj = gson.fromJson(body, new TypeToken<Map<String, Object>>(){}.getType());
+        Map<String, Object> bodyObj = gson.fromJson(body, new TypeToken<Map<String, Object>>() {
+        }.getType());
 
         Map<String, Object> resource = (Map<String, Object>) bodyObj.get("resource");
 
@@ -90,7 +90,8 @@ public class PaypalServiceImpl implements PaypalService {
 
         String custom = (String) transactions.get(0).get("custom");
 
-        Map<String, Object> customObj = gson.fromJson(custom, new TypeToken<Map<String, Object>>(){}.getType());
+        Map<String, Object> customObj = gson.fromJson(custom, new TypeToken<Map<String, Object>>() {
+        }.getType());
 
         int companyId = ((Double) customObj.get("companyId")).intValue();
         int productId = ((Double) customObj.get("productId")).intValue();
@@ -110,12 +111,12 @@ public class PaypalServiceImpl implements PaypalService {
                 .expiryDate(LocalDate.now().plusDays(product.get().getDurationDayNumber()))
                 .description(product.get().getDescription())
                 .quantity(quantity)
-                .totalPrice(product.get().getPrice() *  quantity)
+                .totalPrice(product.get().getPrice() * quantity)
                 .paymentMethod(paymentMethod)
                 .status(status)
                 .build();
 
-        PurchasedProduct purchasedProduct =  PurchasedProduct.builder()
+        PurchasedProduct purchasedProduct = PurchasedProduct.builder()
                 .company(company.get())
                 .productName(product.get().getName())
                 .productPrice(product.get().getPrice())
@@ -132,10 +133,35 @@ public class PaypalServiceImpl implements PaypalService {
 
         PurchasedProduct savedPurchasedProduct = purchasedProductRepository.save(purchasedProduct);
 
-        return new HashMap<>(){{
-           put("purchaseHistory", PurchaseHistoryMapper.instance.eToDto(savedPurchaseHistory));
-           put("purchasedProduct", PurchasedProductMapper.instance.eToDto(savedPurchasedProduct));
+        return new HashMap<>() {{
+            put("purchaseHistory", PurchaseHistoryMapper.instance.eToDto(savedPurchaseHistory));
+            put("purchasedProduct", PurchasedProductMapper.instance.eToDto(savedPurchasedProduct));
         }};
+    }
+
+    @Override
+    public Payment createPaymentV2(PaymentCreateRequestV2 paymentCreateRequestV2) {
+        Payment createPayment;
+        try {
+            Amount amount = new Amount(
+                    paymentCreateRequestV2.getCurrency(),
+                    paymentCreateRequestV2.getTotal());
+
+            Transaction transaction = new Transaction();
+            transaction.setAmount(amount);
+
+            // Add custom parameters
+            JSONObject customParams = new JSONObject();
+            customParams.put("customParams", paymentCreateRequestV2.getCustomParams());
+            transaction.setCustom(customParams.toString());
+
+            Payment payment = getPaymentV2(paymentCreateRequestV2, transaction);
+
+            createPayment = payment.create(apiContext);
+        } catch (PayPalRESTException e) {
+            throw new RuntimeException(String.valueOf(e.getDetails()));
+        }
+        return createPayment;
     }
 
     public static Payment getPayment(PaymentCreateRequest paymentCreateRequest, Transaction transaction) {
@@ -152,6 +178,24 @@ public class PaypalServiceImpl implements PaypalService {
         RedirectUrls redirectUrls = new RedirectUrls();
         redirectUrls.setCancelUrl(paymentCreateRequest.getCancelUrl());
         redirectUrls.setReturnUrl(paymentCreateRequest.getSuccessUrl());
+        payment.setRedirectUrls(redirectUrls);
+        return payment;
+    }
+
+    public static Payment getPaymentV2(PaymentCreateRequestV2 paymentCreateRequestV2, Transaction transaction) {
+        List<Transaction> transactions = Arrays.asList(transaction);
+
+        Payer payer = new Payer();
+        payer.setPaymentMethod("paypal");
+
+        Payment payment = new Payment();
+        payment.setIntent("sale");
+        payment.setPayer(payer);
+        payment.setTransactions(transactions);
+
+        RedirectUrls redirectUrls = new RedirectUrls();
+        redirectUrls.setCancelUrl(paymentCreateRequestV2.getCancelUrl());
+        redirectUrls.setReturnUrl(paymentCreateRequestV2.getSuccessUrl());
         payment.setRedirectUrls(redirectUrls);
         return payment;
     }
