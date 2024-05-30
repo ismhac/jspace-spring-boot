@@ -1,5 +1,7 @@
 package com.ismhac.jspace.controller;
 
+import com.ismhac.jspace.dto.cart.request.CartCreateRequest;
+import com.ismhac.jspace.dto.cart.response.CartDto;
 import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
@@ -164,6 +166,47 @@ public class EmployeeController {
         Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
         var result = employeeService.getPagePosted(companyId, adjustedPageable);
         return ApiResponse.<PageResponse<PostDto>>builder()
+                .result(result)
+                .build();
+    }
+
+    @PostMapping("/carts")
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ApiResponse<CartDto> addProductToCart(@RequestBody CartCreateRequest request){
+        var result = employeeService.addProductToCart(request);
+        return ApiResponse.<CartDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @PutMapping("/carts")
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ApiResponse<CartDto> addProductToCart(
+            @RequestParam("cartId") int cartId,
+            @RequestParam("quantity") int quantity){
+        var result = employeeService.updateCart(cartId, quantity);
+        return ApiResponse.<CartDto>builder()
+                .result(result)
+                .build();
+    }
+
+    @DeleteMapping("/carts")
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ApiResponse<String> addProductToCart(@RequestParam("cartId") int cartId){
+        var result = employeeService.deleteCart(cartId);
+        return ApiResponse.<String>builder()
+                .result(result)
+                .build();
+    }
+
+    @GetMapping("/carts")
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ApiResponse<PageResponse<CartDto>> getCarts(
+            @RequestParam("companyId") int companyId,
+            Pageable pageable){
+        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
+        var result = employeeService.getCarts(companyId, pageable);
+        return ApiResponse.<PageResponse<CartDto>>builder()
                 .result(result)
                 .build();
     }

@@ -1,6 +1,5 @@
 package com.ismhac.jspace.dto.payment.request;
 
-import com.ismhac.jspace.dto.payment.request.custom.CustomParamV1;
 import lombok.Data;
 
 import java.util.List;
@@ -14,5 +13,7 @@ public class PaymentCreateRequestV2 {
     private String cancelUrl; // Redirect URL when payment fails
     private String successUrl; // Redirect URL when payment is successful
 
-    private List<CustomParamV1> customParams;
+    //    private List<CustomParamV1> customParams;
+    private List<Integer> cartIds;
 }
+

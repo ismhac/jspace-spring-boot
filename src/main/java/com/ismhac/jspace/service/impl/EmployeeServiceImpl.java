@@ -2,6 +2,8 @@ package com.ismhac.jspace.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.ismhac.jspace.dto.cart.request.CartCreateRequest;
+import com.ismhac.jspace.dto.cart.response.CartDto;
 import com.ismhac.jspace.dto.common.request.SendMailRequest;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
@@ -76,10 +78,13 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final PurchasedProductRepository purchasedProductRepository;
 
     private final PostHistoryRepository postHistoryRepository;
+    private final CartRepository cartRepository;
 
     @Autowired
     private BeanUtils beanUtils;
-    private RequestService requestBuilder;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Override
     public PageResponse<EmployeeDto> getPageByCompanyIdFilterByEmailAndName(int companyId, String email, String name, Pageable pageable) {
@@ -320,6 +325,53 @@ public class EmployeeServiceImpl implements EmployeeService {
     public PageResponse<PostDto> getPagePosted(int companyId, Pageable pageable) {
         Page<Post> posts = postRepository.getPageByCompanyId(companyId, pageable);
         return pageUtils.toPageResponse(PostMapper.instance.ePageToDtoPage(posts, postSkillRepository));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CartDto addProductToCart(CartCreateRequest request) {
+        Company company = companyRepository.findById(request.getCompanyId())
+                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_PRODUCT));
+
+
+        Optional<Cart> cart = cartRepository.findByCompanyIdAndProductId(request.getCompanyId(), request.getProductId());
+        if(cart.isEmpty()){
+            Cart newCart = Cart.builder()
+                    .company(company)
+                    .product(product)
+                    .quantity(request.getQuantity())
+                    .build();
+            return CartMapper.instance.eToDto(cartRepository.save(newCart));
+        }else {
+            cart.get().setQuantity(cart.get().getQuantity()+ request.getQuantity());
+            return CartMapper.instance.eToDto(cartRepository.save(cart.get()));
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CartDto updateCart(int cartId, int quantity) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_CART));
+        cart.setQuantity(quantity);
+        return CartMapper.instance.eToDto(cartRepository.save(cart));
+    }
+
+    @Override
+    public PageResponse<CartDto> getCarts(int companyId, Pageable pageable) {
+        return pageUtils.toPageResponse(CartMapper.instance.ePageToDtoPage(cartRepository.getPageByCompanyId(companyId, pageable)));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String deleteCart(int cartId) {
+        if(cartRepository.deleteById(cartId) == 0){
+            return "Delete fail";
+        }
+        return "Delete success";
     }
 
     @Override

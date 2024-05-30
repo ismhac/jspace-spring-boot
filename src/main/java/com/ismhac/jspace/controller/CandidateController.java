@@ -1,5 +1,7 @@
 package com.ismhac.jspace.controller;
 
+import com.ismhac.jspace.dto.candidatePost.request.CandidatePostCreateRequest;
+import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.candidatePostLiked.response.CandidatePostLikedDto;
 import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.response.PageResponse;
@@ -169,4 +171,11 @@ public class CandidateController {
                 .build();
     }
 
+    @PostMapping("/posts/apply")
+    public ApiResponse<CandidatePostDto> applyPost(@RequestBody CandidatePostCreateRequest request){
+        var result = candidateService.applyPost(request);
+        return ApiResponse.<CandidatePostDto>builder()
+                .result(result)
+                .build();
+    }
 }
