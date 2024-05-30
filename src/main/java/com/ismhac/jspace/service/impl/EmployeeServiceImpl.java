@@ -361,6 +361,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public PageResponse<CartDto> getCarts(int companyId, Pageable pageable) {
+        return pageUtils.toPageResponse(CartMapper.instance.ePageToDtoPage(cartRepository.getPageByCompanyId(companyId, pageable)));
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public String deleteCart(int cartId) {
         if(cartRepository.deleteById(cartId) == 0){

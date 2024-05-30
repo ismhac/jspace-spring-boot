@@ -198,4 +198,16 @@ public class EmployeeController {
                 .result(result)
                 .build();
     }
+
+    @GetMapping("/carts")
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ApiResponse<PageResponse<CartDto>> getCarts(
+            @RequestParam("companyId") int companyId,
+            Pageable pageable){
+        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
+        var result = employeeService.getCarts(companyId, pageable);
+        return ApiResponse.<PageResponse<CartDto>>builder()
+                .result(result)
+                .build();
+    }
 }

@@ -48,5 +48,7 @@ public interface EmployeeService {
 
     CartDto updateCart(int cartId, int quantity);
 
+    PageResponse<CartDto> getCarts(int companyId, Pageable pageable);
+
     String deleteCart(int cartId);
  }

@@ -10,6 +10,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
 
 @Mapper(componentModel = "spring")
 public interface CartMapper {
@@ -19,6 +20,10 @@ public interface CartMapper {
     @Mapping(target ="product", source = "product", qualifiedByName = "convertProductToDto")
     @Mapping(target = "totalPrice", expression = "java(calculateTotalPrice(e.getProduct(), e.getQuantity()))")
     CartDto eToDto(Cart e);
+
+    default Page<CartDto> ePageToDtoPage(Page<Cart> ePage){
+        return ePage.map(this::eToDto);
+    }
 
     @Named("convertCompanyToDto")
     default CompanyDto convertCompanyToDto(Company company){

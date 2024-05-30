@@ -22,6 +22,7 @@ public class PaymentController {
 
     private final PaypalService paypalService;
 
+    @Hidden
     @PostMapping("/request-payment")
     public String requestPayment(@RequestBody PaymentCreateRequest paymentCreateRequest) {
         var result = paypalService.createPayment(paymentCreateRequest);
