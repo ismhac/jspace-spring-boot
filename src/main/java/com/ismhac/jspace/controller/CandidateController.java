@@ -178,4 +178,14 @@ public class CandidateController {
                 .result(result)
                 .build();
     }
+
+    @GetMapping("{id}/posts/{postId}")
+    public ApiResponse<Map<String, Object>> getPostById(
+            @PathVariable("id") int candidateId,
+            @PathVariable("postId") int postId){
+        var result = candidateService.getPostById(candidateId, postId);
+        return ApiResponse.<Map<String, Object>>builder()
+                .result(result)
+                .build();
+    }
 }

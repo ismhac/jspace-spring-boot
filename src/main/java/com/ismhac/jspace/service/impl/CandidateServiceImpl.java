@@ -370,6 +370,14 @@ public class CandidateServiceImpl implements CandidateService {
         return CandidatePostMapper.instance.eToDto(candidatePostRepository.save(candidatePost), postSkillRepository);
     }
 
+    @Override
+    public Map<String, Object> getPostById(int candidateId, int postId) {
+        Map<String, Object> result = postRepository.candidateFindPostById(candidateId, postId);
+        Map<String, Object> map = new HashMap<>(result);
+        map.put("post", PostMapper.instance.eToDto((Post) result.get("post"), postSkillRepository));
+        return map;
+    }
+
 
     @Transactional(rollbackFor = Exception.class)
     protected File uploadFile(MultipartFile multipartFile) throws Exception {
