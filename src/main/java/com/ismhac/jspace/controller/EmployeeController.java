@@ -205,7 +205,7 @@ public class EmployeeController {
             @RequestParam("companyId") int companyId,
             Pageable pageable){
         Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
-        var result = employeeService.getCarts(companyId, pageable);
+        var result = employeeService.getCarts(companyId, adjustedPageable);
         return ApiResponse.<PageResponse<CartDto>>builder()
                 .result(result)
                 .build();
