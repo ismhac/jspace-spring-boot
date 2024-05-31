@@ -11,7 +11,7 @@ import java.util.Map;
 public interface PostRepository extends JpaRepository<Post, Integer> {
 
     @Query("""
-            select 
+            select
                 p as post,
                 (
                     case
@@ -22,8 +22,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                                 where cpl.id.post.id = p.id
                                     and cpl.id.candidate.id.user.id = :candidateId
                             )
-                        then true else false  
-                    end 
+                        then true else false
+                    end
                 ) as liked,
                 (
                     case
@@ -40,6 +40,38 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             from Post p
             """)
     Page<Map<String, Object>> candidateGetPagePost(int candidateId, Pageable pageable);
+
+    @Query("""
+            select
+                p as post,
+                (
+                    case
+                        when
+                            exists (
+                                select 1
+                                from CandidatePostLiked cpl
+                                where cpl.id.post.id = p.id
+                                    and cpl.id.candidate.id.user.id = :candidateId
+                            )
+                        then true else false
+                    end
+                ) as liked,
+                (
+                    case
+                        when
+                            exists (
+                                select 1
+                                from CandidatePost cp
+                                where cp.id.post.id = p.id
+                                    and cp.id.candidate.id.user.id = :candidateId
+                            )
+                        then true else false
+                    end
+                ) as applied
+            from Post p
+            where p.id = :postId
+            """)
+    Map<String, Object> candidateFindPostById(int candidateId, int postId);
 
     @Query("""
             select p

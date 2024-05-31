@@ -44,4 +44,6 @@ public interface CandidateService {
     PageResponse<Map<String, Object>> getPagePost(int id, Pageable pageable);
 
     CandidatePostDto applyPost(CandidatePostCreateRequest request);
+
+    Map<String, Object> getPostById(int candidateId, int postId);
 }
