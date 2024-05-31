@@ -49,10 +49,6 @@ public class CompanyServiceImpl implements CompanyService {
 
     private final Cloudinary cloudinary;
 
-    private final PageUtils pageUtils;
-
-    private final EntityManager entityManager;
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void verifyEmail(String token, HttpServletResponse httpServletResponse) throws IOException {
