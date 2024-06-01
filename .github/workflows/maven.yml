@@ -1,57 +1,57 @@
-# name: CI/CD Pipeline
+name: CI/CD Pipeline
 
-# on:
-#   push:
-#     branches:
-#       - '**'
-#   pull_request:
-#     branches:
-#       - 'develop'
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - 'develop'
 
-# env:
-#   SERVICE_NAME: "jspace-service"
-#   IMAGE_NAME: "jspace-service:${{ github.sha }}"
-#   IMAGE_TAR: "jspace-service.tar"
-#   DOCKER_HUB_REPO: "hacit1412/jspace-service"
+env:
+  SERVICE_NAME: "jspace-service"
+  IMAGE_NAME: "jspace-service:${{ github.sha }}"
+  IMAGE_TAR: "jspace-service.tar"
+  DOCKER_HUB_REPO: "hacit1412/jspace-service"
 
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-#     steps:
-#     - name: Checkout code
-#       uses: actions/checkout@v2
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-#     - name: Set up Maven
-#       uses: actions/setup-java@v2
-#       with:
-#         distribution: 'adopt'
-#         java-version: '17'
+    - name: Set up Maven
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: '17'
 
-#     - name: Build with Maven
-#       run: mvn clean package
+    - name: Build with Maven
+      run: mvn clean package
 
-#     - name: Test with Maven
-#       run: mvn test
+    - name: Test with Maven
+      run: mvn test
 
-#     - name: Set up Docker Buildx
-#       uses: docker/setup-buildx-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
 
-#     - name: Login to DockerHub
-#       uses: docker/login-action@v1
-#       with:
-#         username: ${{ secrets.DOCKER_HUB_USERNAME }}
-#         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-#     - name: Build and push Docker image
-#       uses: docker/build-push-action@v2
-#       with:
-#         context: .
-#         push: true
-#         tags: ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }}
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }}
 
-#     # - name: Remove Docker image
-#     #   run: docker image inspect ${{ env.IMAGE_NAME }} > /dev/null 2>&1 && docker rmi ${{ env.IMAGE_NAME }}
+    # - name: Remove Docker image
+    #   run: docker image inspect ${{ env.IMAGE_NAME }} > /dev/null 2>&1 && docker rmi ${{ env.IMAGE_NAME }}
 
-#     # - name: Remove Docker Hub image
-#     #   run: docker image inspect ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }} > /dev/null 2>&1 && docker rmi ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }}
+    # - name: Remove Docker Hub image
+    #   run: docker image inspect ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }} > /dev/null 2>&1 && docker rmi ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }}
