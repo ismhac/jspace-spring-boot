@@ -1,8 +1,6 @@
 package com.ismhac.jspace.dto.purchaseHistory.response;
 
 import com.ismhac.jspace.dto.company.response.CompanyDto;
-import com.ismhac.jspace.model.Company;
-import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -38,5 +36,4 @@ public class PurchaseHistoryDto {
     String status;
 
     String paymentMethod;
-    // enum paypal: FAIL, PAID.
 }

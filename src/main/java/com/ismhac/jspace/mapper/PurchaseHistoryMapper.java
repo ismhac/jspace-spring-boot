@@ -8,6 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -20,6 +21,10 @@ public interface PurchaseHistoryMapper {
 
     default List<PurchaseHistoryDto> eListToDtoList(List<PurchaseHistory> eList){
         return eList.stream().map(this::eToDto).toList();
+    }
+
+    default Page<PurchaseHistoryDto> ePageToDtoPage(Page<PurchaseHistory> ePage){
+        return ePage.map(this::eToDto);
     }
 
     @Named("convertCompanyToDto")

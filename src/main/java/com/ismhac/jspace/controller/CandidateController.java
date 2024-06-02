@@ -5,8 +5,7 @@ import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.candidatePostLiked.response.CandidatePostLikedDto;
 import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.response.PageResponse;
-import com.ismhac.jspace.dto.post.PostDto;
-import com.ismhac.jspace.dto.resume.request.ResumeCreateRequest;
+import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -20,8 +19,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.print.attribute.standard.Media;
-import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -186,6 +183,13 @@ public class CandidateController {
         var result = candidateService.getPostById(candidateId, postId);
         return ApiResponse.<Map<String, Object>>builder()
                 .result(result)
+                .build();
+    }
+
+    @GetMapping("{id}/posts/applied")
+    public ApiResponse<PageResponse<PostDto>> getAppliedPost(@PathVariable("id") int candidateId, Pageable pageable){
+        return ApiResponse.<PageResponse<PostDto>>builder()
+                .result(candidateService.getAppliedPost(candidateId, pageUtils.adjustPageable(pageable)))
                 .build();
     }
 }

@@ -7,6 +7,7 @@ import com.ismhac.jspace.dto.companyRequestReview.response.CompanyRequestReviewD
 import com.ismhac.jspace.dto.product.request.ProductCreateRequest;
 import com.ismhac.jspace.dto.product.request.ProductUpdateRequest;
 import com.ismhac.jspace.dto.product.response.ProductDto;
+import com.ismhac.jspace.dto.purchaseHistory.response.PurchaseHistoryDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
 import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
@@ -37,5 +38,5 @@ public interface AdminService {
 
     ProductDto updateProduct(int id, ProductUpdateRequest request);
 
-//    PageResponse<ProductDto> getPageProduct(Pageable pageable);
+    PageResponse<PurchaseHistoryDto> getPagePurchaseHistory(String companyName, String productName, Pageable pageable);
 }

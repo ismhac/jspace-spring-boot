@@ -60,7 +60,10 @@ public class SecurityConfig {
             "/api/v1/payment/paypal-webhooks/simulate-v2",
             "/api/v1/products",
             "/api/v1/products/{id}",
-            "/api/v1/posts/{id}"
+            "/api/v1/posts/{id}",
+            "/api/v1/posts/**",
+            "/api/v1/companies",
+            "/api/v1/companies/{id}"
     };
 
     @Bean

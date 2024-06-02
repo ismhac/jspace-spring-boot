@@ -1,90 +1,53 @@
 package com.ismhac.jspace.service.impl;
 
-import com.ismhac.jspace.dto.post.PostCreateRequest;
-import com.ismhac.jspace.dto.post.PostDto;
+import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
-import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.mapper.PostMapper;
-import com.ismhac.jspace.model.Company;
-import com.ismhac.jspace.model.Employee;
 import com.ismhac.jspace.model.Post;
-import com.ismhac.jspace.model.User;
-import com.ismhac.jspace.model.primaryKey.EmployeeId;
-import com.ismhac.jspace.repository.EmployeeRepository;
+import com.ismhac.jspace.model.enums.*;
 import com.ismhac.jspace.repository.PostRepository;
 import com.ismhac.jspace.repository.PostSkillRepository;
-import com.ismhac.jspace.repository.UserRepository;
 import com.ismhac.jspace.service.PostService;
+import com.ismhac.jspace.util.PageUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
-
     private final PostRepository postRepository;
-
-    private final EmployeeRepository employeeRepository;
-
-    private final UserRepository userRepository;
-
     private final PostSkillRepository postSkillRepository;
-
-    @Override
-    public PostDto create(PostCreateRequest postCreateRequest) {
-
-        /* prepare data*/
-        String description = postCreateRequest.getDescription().trim();
-        String employeeEmail = getEmployeeEmailFromToken();
-        Company company = getCompanyByEmployee(findEmployeeByEmail(employeeEmail));
-        /**/
-
-        Post post = Post.builder()
-                .company(company)
-                .build();
-        Post savedPost = postRepository.save(post);
-        return PostMapper.instance.eToDto(savedPost, postSkillRepository);
-    }
+    private final PageUtils pageUtils;
 
     @Override
     public PostDto getById(int id) {
         Post post = postRepository.findById(id)
-                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_POST));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST));
         return PostMapper.instance.eToDto(post, postSkillRepository);
     }
 
+    @Override
+    public PageResponse<Map<String, Object>> getAllAndFilter(Integer candidateId, Experience experience, Gender gender, JobType jobType, Location location, Rank rank, Integer quantity, String title, String companyName, Integer maxPay, Integer minPay, Pageable pageable) {
+        Page<Map<String, Object>> resultPage = postRepository.getPageAndFilter(
+                candidateId, Objects.isNull(experience) ? null : experience.getCode(), Objects.isNull(gender) ? null : gender.getCode(),
+                Objects.isNull(jobType) ? null : jobType.getCode(), Objects.isNull(location) ? null : location.getAreaCode(),
+                Objects.isNull(rank) ? null : rank.getCode(), quantity, title, companyName, maxPay, minPay, pageable);
 
-    /* */
-    private String getEmployeeEmailFromToken() {
-        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Map<String, Object> claims = jwt.getClaims();
-        String employeeEmail = (String) claims.get("sub");
-        return employeeEmail;
-    }
+        List<Map<String, Object>> results = resultPage.getContent().stream().map(result -> {
+            Map<String, Object> map = new HashMap<>(result);
+            return map;
+        }).toList();
 
-    private Employee findEmployeeByEmail(String email) {
-
-        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_USER));
-
-        EmployeeId id = EmployeeId.builder()
-                .user(user)
-                .build();
-
-        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_EMPLOYEE));
-        return employee;
-    }
-
-    private Company getCompanyByEmployee(Employee employee) {
-        Company company = employee.getCompany();
-        if (Objects.isNull(company)) {
-            throw new NotFoundException(ErrorCode.NOT_FOUND_EMPLOYEE);
-        }
-        return company;
+        return pageUtils.toPageResponse(new PageImpl<>(results, resultPage.getPageable(), resultPage.getTotalPages()));
     }
 }

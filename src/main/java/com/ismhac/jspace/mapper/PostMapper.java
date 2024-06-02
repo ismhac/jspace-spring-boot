@@ -2,7 +2,7 @@ package com.ismhac.jspace.mapper;
 
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.other.*;
-import com.ismhac.jspace.dto.post.PostDto;
+import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.skill.response.SkillDto;
 import com.ismhac.jspace.model.Company;
 import com.ismhac.jspace.model.Post;

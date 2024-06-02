@@ -6,9 +6,10 @@ import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
-import com.ismhac.jspace.dto.post.PostCreateRequest;
-import com.ismhac.jspace.dto.post.PostDto;
-import com.ismhac.jspace.dto.purchasedProduct.response.PurchasedProductDto;
+import com.ismhac.jspace.dto.post.request.PostCreateRequest;
+import com.ismhac.jspace.dto.post.request.PostUpdateRequest;
+import com.ismhac.jspace.dto.post.response.PostDto;
+import com.ismhac.jspace.dto.purchaseHistory.response.PurchaseHistoryDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -209,5 +210,18 @@ public class EmployeeController {
         return ApiResponse.<PageResponse<CartDto>>builder()
                 .result(result)
                 .build();
+    }
+
+    @GetMapping("/purchase-history")
+    public ApiResponse<PageResponse<PurchaseHistoryDto>> getPageAndFilterByProductName(
+            @RequestParam("companyId") int companyId,
+            @RequestParam(value = "productName", required = false) String productName,
+            Pageable pageable){
+        return ApiResponse.<PageResponse<PurchaseHistoryDto>>builder().result(employeeService.getPageAndFilterByProductName(companyId, productName, pageUtils.adjustPageable(pageable))).build();
+    }
+
+    @PutMapping("/posts/{postId}")
+    public ApiResponse<PostDto> updatePost(@PathVariable("postId") int postId, @RequestBody PostUpdateRequest request){
+        return ApiResponse.<PostDto>builder().result(employeeService.updatePost(postId, request)).build();
     }
 }

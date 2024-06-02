@@ -7,6 +7,7 @@ import com.ismhac.jspace.dto.companyRequestReview.response.CompanyRequestReviewD
 import com.ismhac.jspace.dto.product.request.ProductCreateRequest;
 import com.ismhac.jspace.dto.product.request.ProductUpdateRequest;
 import com.ismhac.jspace.dto.product.response.ProductDto;
+import com.ismhac.jspace.dto.purchaseHistory.response.PurchaseHistoryDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
 import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
@@ -47,36 +48,23 @@ public class AdminServiceImpl implements AdminService {
 
     @Value("${init.admin.username}")
     private String superAdminUsername;
-
     @Value("${init.admin.password}")
     private String superAdminPassword;
-
     private final PasswordEncoder passwordEncoder;
-
     private final AdminRepository adminRepository;
-
     private final UserRepository userRepository;
-
     private final RoleRepository roleRepository;
-
     private final CompanyRepository companyRepository;
-
     private final ProductRepository productRepository;
-
     private final CompanyRequestReviewRepository companyRequestReviewRepository;
-
     private final PageUtils pageUtils;
-
     private final AdminMapper adminMapper;
     private final UserMapper userMapper;
-
     private final UserUtils userUtils;
-
     private final ApplicationEventPublisher applicationEventPublisher;
-
     private final AdminRequestVerifyEmailRepository adminRequestVerifyEmailRepository;
-
     private final JwtService jwtService;
+    private final PurchaseHistoryRepository purchaseHistoryRepository;
 
     @Autowired
     private com.ismhac.jspace.util.BeanUtils beanUtils;
@@ -246,8 +234,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
-    public PageResponse<CompanyRequestReviewDto> getRequestReviewDtoPageResponse(
-            Boolean reviewed, Pageable pageable) {
+    public PageResponse<CompanyRequestReviewDto> getRequestReviewDtoPageResponse(Boolean reviewed, Pageable pageable) {
         return pageUtils.toPageResponse(CompanyRequestReviewMapper
                 .instance.ePageToDtoPage(
                        companyRequestReviewRepository.getPageFilterByReviewed(reviewed, pageable)
@@ -273,8 +260,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
-    public PageResponse<CompanyDto> getPageCompanyAndFilter(
-            String name, String address, String email, String phone, Boolean emailVerified, Boolean verifiedByAdmin, Pageable pageable) {
+    public PageResponse<CompanyDto> getPageCompanyAndFilter(String name, String address, String email, String phone, Boolean emailVerified, Boolean verifiedByAdmin, Pageable pageable) {
         Page<Company> companyPage = companyRepository.getPageAndFilter(name, address, email, phone, emailVerified, verifiedByAdmin, pageable);
         return pageUtils.toPageResponse(CompanyMapper.instance.ePageToDtoPage(companyPage));
     }
@@ -307,9 +293,8 @@ public class AdminServiceImpl implements AdminService {
         return ProductMapper.instance.eToDto(productRepository.save(product));
     }
 
-//    @Override
-//    public PageResponse<ProductDto> getPageProduct(Pageable pageable) {
-//        Page<Product> productPage = productRepository.getPage(pageable);
-//        return pageUtils.toPageResponse(ProductMapper.instance.ePageToDtoPage(productPage));
-//    }
+    @Override
+    public PageResponse<PurchaseHistoryDto> getPagePurchaseHistory(String companyName, String productName, Pageable pageable) {
+        return pageUtils.toPageResponse(PurchaseHistoryMapper.instance.ePageToDtoPage(purchaseHistoryRepository.findAndFilter(companyName, productName, pageable)));
+    }
 }

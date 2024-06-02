@@ -6,13 +6,12 @@ import com.ismhac.jspace.dto.candidatePost.request.CandidatePostCreateRequest;
 import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.candidatePostLiked.response.CandidatePostLikedDto;
 import com.ismhac.jspace.dto.common.response.PageResponse;
-import com.ismhac.jspace.dto.post.PostDto;
+import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
-import com.ismhac.jspace.exception.NotFoundException;
 import com.ismhac.jspace.mapper.*;
 import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.enums.ApplyStatus;
@@ -35,36 +34,28 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class CandidateServiceImpl implements CandidateService {
-    @Autowired
-    private UserRepository userRepository;
-
+    private final UserRepository userRepository;
     private final ResumeRepository resumeRepository;
     private final UserUtils userUtils;
     private final CandidateRepository candidateRepository;
-
     private final UserMapper userMapper;
-
     private final ResumeMapper resumeMapper;
-
     private final Cloudinary cloudinary;
     private final FileRepository fileRepository;
-
     private final PageUtils pageUtils;
-
     private final PostRepository postRepository;
-
     private final CandidatePostLikedRepository candidatePostLikedRepository;
-
     private final PostSkillRepository postSkillRepository;
-
     private final CandidatePostRepository candidatePostRepository;
-
     @Autowired
     private BeanUtils beanUtils;
 
@@ -308,10 +299,10 @@ public class CandidateServiceImpl implements CandidateService {
     @Transactional(rollbackFor = Exception.class)
     public boolean unlikePost(int id, int postId) {
         CandidatePostLiked candidatePostLiked = candidatePostLikedRepository
-                .findByCandiDateIdAndPostId(id, postId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_POST_LIKED));
+                .findByCandiDateIdAndPostId(id, postId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST_LIKED));
 
         int deleted = candidatePostLikedRepository.deleteByCandidateIdAndPostId(id, postId);
-        if(deleted == 1) return true;
+        if (deleted == 1) return true;
         return false;
     }
 
@@ -348,16 +339,16 @@ public class CandidateServiceImpl implements CandidateService {
         Optional<CandidatePost> candidatePostOptional = candidatePostRepository
                 .findByCandidateIdAndPostId(request.getCandidateId(), request.getPostId());
 
-        if(candidatePostOptional.isPresent()){
+        if (candidatePostOptional.isPresent()) {
             throw new AppException(ErrorCode.HAS_APPLIED);
         }
 
         Candidate candidate = candidateRepository.findByUserId(request.getCandidateId())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_USER));
         Post post = postRepository.findById(request.getPostId())
-                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_POST));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST));
         Resume resume = resumeRepository.findById(request.getResumeId())
-                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_RESUME));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_RESUME));
 
         CandidatePost candidatePost = CandidatePost.builder()
                 .id(CandidatePostId.builder()
@@ -376,6 +367,12 @@ public class CandidateServiceImpl implements CandidateService {
         Map<String, Object> map = new HashMap<>(result);
         map.put("post", PostMapper.instance.eToDto((Post) result.get("post"), postSkillRepository));
         return map;
+    }
+
+    @Override
+    public PageResponse<PostDto> getAppliedPost(int candidateId, Pageable pageable) {
+        Candidate candidate = candidateRepository.findByUserId(candidateId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_USER));
+        return pageUtils.toPageResponse(PostMapper.instance.ePageToDtoPage(candidatePostRepository.candidateGetPageAppliedPost(candidateId, pageable), postSkillRepository));
     }
 
 

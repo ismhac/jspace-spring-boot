@@ -14,16 +14,13 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     @Query("""
             select company
             from Company company
-            where company.activateStatus = true
-                and (:name is null or :name = '' or lower(company.name) like lower(concat('%', :name, '%')))
+            where company.activateStatus = true and (:name is null or :name = '' or lower(company.name) like lower(concat('%', :name, '%')))
                 and (:address is null or :address = '' or lower(company.address) like lower(concat('%', :address, '%')))
             """)
     Page<Company> getPage(@Param("name") String name, @Param("address") String address, Pageable pageable);
 
     @Query("""
-            select company
-            from Company company
-            where company.email = :email or company.phone = :phone
+            select company from Company company where company.email = :email or company.phone = :phone
             """)
     Optional<Company> findByEmailOrPhone(String email, String phone);
 
@@ -38,4 +35,15 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
                 and (:verifiedByAdmin is null or company.verifiedByAdmin = :verifiedByAdmin)
             """)
     Page<Company> getPageAndFilter(String name, String address, String email, String phone, Boolean emailVerified, Boolean verifiedByAdmin, Pageable pageable);
+
+    @Query("""
+            select c
+            from Company c
+            where (:name is null or :name = '' or lower(c.name) like lower(concat('%', :name , '%')))
+                and (:address is null or :address = '' or lower(c.address) like lower(concat('%', :address, '%')))
+                and (:email is null or :email = '' or lower(c.email) like lower(concat('%', :email, '%')))
+                and (:phone is null or :phone = '' or lower(c.phone) like lower(concat('%', :phone, '%')))
+                and (:companySize is null or :companySize = '' or lower(c.companySize) like lower(concat('%', :companySize, '%')))
+            """)
+    Page<Company> findAllAndFilter(String name, String address, String email, String phone, String companySize, Pageable pageable);
 }

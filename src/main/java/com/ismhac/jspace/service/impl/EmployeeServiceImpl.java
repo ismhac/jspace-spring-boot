@@ -8,9 +8,10 @@ import com.ismhac.jspace.dto.common.request.SendMailRequest;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
-import com.ismhac.jspace.dto.post.PostCreateRequest;
-import com.ismhac.jspace.dto.post.PostDto;
-import com.ismhac.jspace.dto.purchasedProduct.response.PurchasedProductDto;
+import com.ismhac.jspace.dto.post.request.PostCreateRequest;
+import com.ismhac.jspace.dto.post.request.PostUpdateRequest;
+import com.ismhac.jspace.dto.post.response.PostDto;
+import com.ismhac.jspace.dto.purchaseHistory.response.PurchaseHistoryDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -23,7 +24,6 @@ import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.primaryKey.CompanyRequestReviewId;
 import com.ismhac.jspace.model.primaryKey.PostSkillId;
 import com.ismhac.jspace.repository.*;
-import com.ismhac.jspace.service.CompanyService;
 import com.ismhac.jspace.service.EmployeeService;
 import com.ismhac.jspace.util.BeanUtils;
 import com.ismhac.jspace.util.PageUtils;
@@ -31,7 +31,6 @@ import com.ismhac.jspace.util.UserUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springdoc.webmvc.core.service.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -52,31 +51,22 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class EmployeeServiceImpl implements EmployeeService {
-
     private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
-
     private final PageUtils pageUtils;
     private final UserUtils userUtils;
-
     private final UserMapper userMapper;
-
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final CompanyRequestReviewRepository companyRequestReviewRepository;
     private final EmployeeHistoryRequestCompanyVerifyRepository employeeHistoryRequestCompanyVerifyRepository;
-
     private final ApplicationEventPublisher applicationEventPublisher;
     private final CompanyVerifyEmailRequestHistoryRepository companyVerifyEmailRequestHistoryRepository;
-
     private final Cloudinary cloudinary;
     private final PostRepository postRepository;
-
     private final PostSkillRepository postSkillRepository;
     private final SkillRepository skillRepository;
-
     private final PurchasedProductRepository purchasedProductRepository;
-
     private final PostHistoryRepository postHistoryRepository;
     private final CartRepository cartRepository;
 
@@ -85,6 +75,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private PurchaseHistoryRepository purchaseHistoryRepository;
 
     @Override
     public PageResponse<EmployeeDto> getPageByCompanyIdFilterByEmailAndName(int companyId, String email, String name, Pageable pageable) {
@@ -132,7 +124,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         String phone = request.getPhone().trim();
 
         Optional<Company> company = companyRepository.findByEmailOrPhone(email, phone);
-
 
         if (company.isPresent()) {
             throw new AppException(ErrorCode.COMPANY_EXISTED);
@@ -375,6 +366,65 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public PageResponse<PurchaseHistoryDto> getPageAndFilterByProductName(int companyId, String productName, Pageable pageable) {
+        return pageUtils.toPageResponse(PurchaseHistoryMapper.instance.ePageToDtoPage(purchaseHistoryRepository.findByCompanyIdAndFilterByProductName(companyId, productName, pageable)));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public PostDto updatePost(int postId, PostUpdateRequest request) {
+        Post post = postRepository.findById(postId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_POST));
+        post.setTitle(request.getTitle());
+        post.setJobType(request.getJobType());
+        post.setLocation(request.getLocation());
+        post.setRank(request.getRank());
+        post.setDescription(request.getDescription());
+        post.setMinPay(request.getMinPay());
+        post.setMaxPay(request.getMaxPay());
+        post.setExperience(request.getExperience());
+        post.setQuantity(request.getQuantity());
+        post.setGender(request.getGender());
+
+        Post savedPost = postRepository.save(post);
+
+        postSkillRepository.deleteByPostId(postId);
+
+        List<Skill> skillList = skillRepository.findAllByIdList(request.getSkillIdList());
+
+        if (skillList.size() != request.getSkillIdList().size()) {
+            throw new AppException(ErrorCode.NOT_FOUND_SKILL);
+        }
+
+        List<Skill> newSkills = new ArrayList<>();
+
+        for (String newSkillName : request.getNewSkills()) {
+            Skill newSkill = Skill.builder()
+                    .name(newSkillName)
+                    .build();
+            newSkills.add(newSkill);
+        }
+
+        List<Skill> savedNewSkills = skillRepository.saveAll(newSkills);
+
+        List<PostSkill> postSkills = new ArrayList<>();
+
+        for (Skill skill : skillList) {
+            PostSkillId id = PostSkillId.builder().post(savedPost).skill(skill).build();
+            PostSkill newPostSkill = PostSkill.builder().id(id).build();
+            postSkills.add(newPostSkill);
+        }
+        for (Skill skill : savedNewSkills) {
+            PostSkillId id = PostSkillId.builder().post(savedPost).skill(skill).build();
+            PostSkill newPostSkill = PostSkill.builder().id(id).build();
+            postSkills.add(newPostSkill);
+        }
+
+        postSkillRepository.saveAll(postSkills);
+
+        return PostMapper.instance.eToDto(savedPost, postSkillRepository);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public PostDto createPost(PostCreateRequest req) {
 
@@ -484,9 +534,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             List<Skill> newSkills = new ArrayList<>();
 
             for (String newSkillName : req.getNewSkills()) {
-                Skill newSkill = Skill.builder()
-                        .name(newSkillName)
-                        .build();
+                Skill newSkill = Skill.builder().name(newSkillName).build();
                 newSkills.add(newSkill);
             }
 
@@ -520,27 +568,13 @@ public class EmployeeServiceImpl implements EmployeeService {
             List<PostSkill> postSkills = new ArrayList<>();
 
             for (Skill skill : skillList) {
-                PostSkillId id = PostSkillId.builder()
-                        .post(savedPost)
-                        .skill(skill)
-                        .build();
-
-                PostSkill newPostSkill = PostSkill.builder()
-                        .id(id)
-                        .build();
-
+                PostSkillId id = PostSkillId.builder().post(savedPost).skill(skill).build();
+                PostSkill newPostSkill = PostSkill.builder().id(id).build();
                 postSkills.add(newPostSkill);
             }
             for (Skill skill : savedNewSkills) {
-                PostSkillId id = PostSkillId.builder()
-                        .post(savedPost)
-                        .skill(skill)
-                        .build();
-
-                PostSkill newPostSkill = PostSkill.builder()
-                        .id(id)
-                        .build();
-
+                PostSkillId id = PostSkillId.builder().post(savedPost).skill(skill).build();
+                PostSkill newPostSkill = PostSkill.builder().id(id).build();
                 postSkills.add(newPostSkill);
             }
 
