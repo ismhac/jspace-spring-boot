@@ -4,18 +4,13 @@ import com.ismhac.jspace.dto.candidatePost.request.CandidatePostCreateRequest;
 import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.candidatePostLiked.response.CandidatePostLikedDto;
 import com.ismhac.jspace.dto.common.response.PageResponse;
-import com.ismhac.jspace.dto.post.PostDto;
-import com.ismhac.jspace.dto.resume.request.ResumeCreateRequest;
+import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
-import com.ismhac.jspace.model.CandidatePost;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 public interface CandidateService {
@@ -46,4 +41,6 @@ public interface CandidateService {
     CandidatePostDto applyPost(CandidatePostCreateRequest request);
 
     Map<String, Object> getPostById(int candidateId, int postId);
+
+    PageResponse<PostDto> getAppliedPost(int candidateId, Pageable pageable);
 }

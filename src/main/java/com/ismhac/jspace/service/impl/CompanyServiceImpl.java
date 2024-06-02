@@ -16,12 +16,8 @@ import com.ismhac.jspace.repository.EmployeeHistoryRequestCompanyVerifyRepositor
 import com.ismhac.jspace.repository.EmployeeRepository;
 import com.ismhac.jspace.service.CompanyService;
 import com.ismhac.jspace.util.PageUtils;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,24 +26,18 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CompanyServiceImpl implements CompanyService {
-
     private final CompanyRepository companyRepository;
-    private final CompanyVerifyEmailRequestHistoryRepository
-            companyVerifyEmailRequestHistoryRepository;
+    private final CompanyVerifyEmailRequestHistoryRepository companyVerifyEmailRequestHistoryRepository;
     private final EmployeeRepository employeeRepository;
-
-
-    private final EmployeeHistoryRequestCompanyVerifyRepository
-            employeeHistoryRequestCompanyVerifyRepository;
-
+    private final EmployeeHistoryRequestCompanyVerifyRepository employeeHistoryRequestCompanyVerifyRepository;
     private final Cloudinary cloudinary;
+    private final PageUtils pageUtils;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -113,7 +103,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public CompanyDto getCompanyById(int id) {
         Company company = companyRepository.findById(id)
-                .orElseThrow(()->new AppException(ErrorCode.NOT_FOUND_COMPANY));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
         return CompanyMapper.instance.eToDto(company);
     }
 
@@ -122,7 +112,7 @@ public class CompanyServiceImpl implements CompanyService {
     public CompanyDto updateLogo(int id, MultipartFile logo) {
 
         Company company = companyRepository.findById(id)
-                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
 
         if (logo == null || logo.isEmpty()) {
             throw new IllegalArgumentException("logo must not be empty");
@@ -152,7 +142,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Transactional(rollbackFor = Exception.class)
     public CompanyDto updateBackground(int id, MultipartFile background) {
         Company company = companyRepository.findById(id)
-                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
 
         if (background == null || background.isEmpty()) {
             throw new IllegalArgumentException("logo must not be empty");
@@ -179,7 +169,7 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public PageResponse<CompanyDto> getALl() {
-        return null;
+    public PageResponse<CompanyDto> getPageAndFilter(String name, String address, String email, String phone, String companySize, Pageable pageable) {
+        return pageUtils.toPageResponse(CompanyMapper.instance.ePageToDtoPage(companyRepository.findAllAndFilter(name, address, email, phone, companySize, pageable)));
     }
 }

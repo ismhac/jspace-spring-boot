@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "tbl_purchase_history")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PurchaseHistory extends BaseEntity {   // lịch sử mua sản phẩm
+public class PurchaseHistory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,5 +51,4 @@ public class PurchaseHistory extends BaseEntity {   // lịch sử mua sản ph�
 
     @Column(name = "payment_method")
     String paymentMethod;
-    // enum paypal: FAIL, PAID.
 }

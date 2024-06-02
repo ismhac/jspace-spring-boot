@@ -7,6 +7,7 @@ import com.ismhac.jspace.dto.companyRequestReview.response.CompanyRequestReviewD
 import com.ismhac.jspace.dto.product.request.ProductCreateRequest;
 import com.ismhac.jspace.dto.product.request.ProductUpdateRequest;
 import com.ismhac.jspace.dto.product.response.ProductDto;
+import com.ismhac.jspace.dto.purchaseHistory.response.PurchaseHistoryDto;
 import com.ismhac.jspace.dto.user.admin.request.AdminCreateRequest;
 import com.ismhac.jspace.dto.user.admin.response.AdminDto;
 import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
@@ -141,14 +142,10 @@ public class AdminController {
                 .build();
     }
 
-//    @GetMapping("/products")
-//    public ApiResponse<PageResponse<ProductDto>> getPageProduct(
-//            Pageable pageable) {
-//        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
-//        var result = adminService.getPageProduct(adjustedPageable);
-//        return ApiResponse.<PageResponse<ProductDto>>builder()
-//                .result(result)
-//                .build();
-//    }
-
+    @GetMapping("/purchase-histories")
+    public ApiResponse<PageResponse<PurchaseHistoryDto>> getPagePurchaseHistory(
+            @RequestParam(value = "companyName", required = false) String companyName,
+            @RequestParam(value = "productName", required = false) String productName, Pageable pageable){
+        return ApiResponse.<PageResponse<PurchaseHistoryDto>>builder().result(adminService.getPagePurchaseHistory(companyName, productName, pageUtils.adjustPageable(pageable))).build();
+    }
 }

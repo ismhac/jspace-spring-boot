@@ -1,7 +1,7 @@
 package com.ismhac.jspace.dto.candidatePost.response;
 
 import com.ismhac.jspace.dto.other.ApplyStatusDto;
-import com.ismhac.jspace.dto.post.PostDto;
+import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
 import lombok.Data;
