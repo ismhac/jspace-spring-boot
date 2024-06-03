@@ -1,9 +1,6 @@
 package com.ismhac.jspace.service.impl;
 
 import com.ismhac.jspace.dto.common.response.PageResponse;
-import com.ismhac.jspace.dto.post.response.PostDto;
-import com.ismhac.jspace.exception.AppException;
-import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.mapper.PostMapper;
 import com.ismhac.jspace.model.Post;
 import com.ismhac.jspace.model.enums.*;
@@ -11,16 +8,14 @@ import com.ismhac.jspace.repository.PostRepository;
 import com.ismhac.jspace.repository.PostSkillRepository;
 import com.ismhac.jspace.service.PostService;
 import com.ismhac.jspace.util.PageUtils;
+import jakarta.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,10 +25,14 @@ public class PostServiceImpl implements PostService {
     private final PageUtils pageUtils;
 
     @Override
-    public PostDto getById(int id) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST));
-        return PostMapper.instance.eToDto(post, postSkillRepository);
+    public LinkedHashMap<String, Object> getById(int id, Integer candidateId) {
+        Tuple result = postRepository.findPostByIdAndCandidateId(id, candidateId);
+        return new LinkedHashMap<>() {{
+            put("post", PostMapper.instance.eToDto((Post) result.get("post"), postSkillRepository));
+            put("userMode", result.get("userMode"));
+            put("liked", result.get("liked"));
+            put("applied", result.get("applied"));
+        }};
     }
 
     @Override
@@ -45,6 +44,7 @@ public class PostServiceImpl implements PostService {
 
         List<Map<String, Object>> results = resultPage.getContent().stream().map(result -> {
             Map<String, Object> map = new HashMap<>(result);
+            map.put("post", PostMapper.instance.eToDto((Post) result.get("post"), postSkillRepository));
             return map;
         }).toList();
 
