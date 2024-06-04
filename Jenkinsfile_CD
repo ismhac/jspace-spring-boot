@@ -23,8 +23,8 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-account', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD'),
                                      string(credentialsId: 'docker-hub-repo', variable: 'DOCKER_HUB_REPO'),
                                      string(credentialsId: 'jasypt-pw', variable: 'JASYPT_PW')]) {
-                        sh "sudo docker login -u ${USERNAME} -p ${PASSWORD}"
-                        sh "sudo docker pull ${DOCKER_HUB_REPO}:${params.GIT_SHA}"
+                        sh "docker login -u ${USERNAME} -p ${PASSWORD}"
+                        sh "docker pull ${DOCKER_HUB_REPO}:${params.GIT_SHA}"
                     }
                 }
             }
@@ -35,7 +35,7 @@ pipeline {
                 script {
                     requiredParameters()
                     echo "Stop previous version"
-                    sh "sudo docker ps -q --filter name=${SERVICE_NAME} | xargs -r docker rm -f"
+                    sh "docker ps -q --filter name=${SERVICE_NAME} | xargs -r docker rm -f"
                 }
             }
         }
@@ -44,8 +44,8 @@ pipeline {
             steps {
                 script {
                     echo "Deploy to ${ENVIRONMENT}"
-                    sh "sudo docker run -dit --name ${CONTAINER_NAME} ${PORT_CONFIGURATION} -e jasypt.encryptor.password=${JASYPT_PW} ${DOCKER_HUB_REPO} ${PROFILE_CONFIGURATION} ${IMAGE_NAME}"
-                    sh "sudo docker ps"
+                    sh "docker run -dit --name ${CONTAINER_NAME} ${PORT_CONFIGURATION} -e jasypt.encryptor.password=${JASYPT_PW} ${DOCKER_HUB_REPO} ${PROFILE_CONFIGURATION} ${IMAGE_NAME}"
+                    sh "docker ps"
                 }
             }
         }
