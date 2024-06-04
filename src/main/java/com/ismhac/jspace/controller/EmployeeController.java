@@ -136,8 +136,8 @@ public class EmployeeController {
         return ApiResponse.<PostDto>builder().result(employeeService.updatePost(postId, request)).build();
     }
 
-    @GetMapping("/purchased-products")
-    public ApiResponse<PurchasedProductDto> getPurchasedProductById(@RequestParam("companyId") int companyId, @RequestParam("purchasedProductId") int purchasedProductId) {
+    @GetMapping("/purchased-products/{purchasedProductId}")
+    public ApiResponse<PurchasedProductDto> getPurchasedProductById(@RequestParam("companyId") int companyId, @PathVariable("purchasedProductId") int purchasedProductId) {
         return ApiResponse.<PurchasedProductDto>builder().result(employeeService.getPurchasedProductById(companyId, purchasedProductId)).build();
     }
 }

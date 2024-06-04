@@ -1,3 +1,13 @@
+def requiredParameters() {
+    if (params.GIT_SHA == '') {
+        error("Require GIT SHA to deploy")
+    }
+
+    if (params.ENV == '') {
+        error("Require ENV value to deploy")
+    }
+}
+
 pipeline {
     agent any
 
@@ -46,22 +56,6 @@ pipeline {
                     echo "Deploy to ${ENVIRONMENT}"
                     sh "docker run -dit --name ${CONTAINER_NAME} ${PORT_CONFIGURATION} -e jasypt.encryptor.password=${JASYPT_PW} ${DOCKER_HUB_REPO} ${PROFILE_CONFIGURATION} ${IMAGE_NAME}"
                     sh "docker ps"
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            script {
-                def requiredParameters = {
-                    if (params.GIT_SHA == '') {
-                        error("Require GIT SHA to deploy")
-                    }
-
-                    if (params.ENV == '') {
-                        error("Require ENV value to deploy")
-                    }
                 }
             }
         }
