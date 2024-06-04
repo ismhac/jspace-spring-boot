@@ -53,9 +53,13 @@ pipeline {
         stage('Deploy EC2') {
             steps {
                 script {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-account', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD'),
+                                                     string(credentialsId: 'docker-hub-repo', variable: 'DOCKER_HUB_REPO'),
+                                                     string(credentialsId: 'jasypt-pw', variable: 'JASYPT_PW')]){
                     echo "Deploy to ${ENVIRONMENT}"
                     sh "docker run -dit --name ${CONTAINER_NAME} ${PORT_CONFIGURATION} -e jasypt.encryptor.password=${JASYPT_PW} ${DOCKER_HUB_REPO} ${PROFILE_CONFIGURATION} ${IMAGE_NAME}"
                     sh "docker ps"
+                    }
                 }
             }
         }
