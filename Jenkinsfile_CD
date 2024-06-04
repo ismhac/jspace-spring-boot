@@ -49,6 +49,21 @@ pipeline {
                 }
             }
         }
+    }
 
+    post {
+        always {
+            script {
+                def requiredParameters = {
+                    if (params.GIT_SHA == '') {
+                        error("Require GIT SHA to deploy")
+                    }
+
+                    if (params.ENV == '') {
+                        error("Require ENV value to deploy")
+                    }
+                }
+            }
+        }
     }
 }
