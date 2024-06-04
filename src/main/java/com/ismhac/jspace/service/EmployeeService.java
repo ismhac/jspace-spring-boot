@@ -9,6 +9,7 @@ import com.ismhac.jspace.dto.post.request.PostCreateRequest;
 import com.ismhac.jspace.dto.post.request.PostUpdateRequest;
 import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.purchaseHistory.response.PurchaseHistoryDto;
+import com.ismhac.jspace.dto.purchasedProduct.response.PurchasedProductDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -54,4 +55,8 @@ public interface EmployeeService {
     PageResponse<PurchaseHistoryDto> getPageAndFilterByProductName(int companyId, String productName, Pageable pageable);
 
     PostDto updatePost(int postId, PostUpdateRequest request);
+
+    PageResponse<PurchasedProductDto> getPagePurchasedProduct(int companyId, String productName, Pageable pageable);
+
+    PurchasedProductDto getPurchasedProductById(int companyId, int purchasedProductId);
  }

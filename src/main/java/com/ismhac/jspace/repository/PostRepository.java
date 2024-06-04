@@ -1,6 +1,7 @@
 package com.ismhac.jspace.repository;
 
 import com.ismhac.jspace.model.Post;
+import com.ismhac.jspace.model.enums.Location;
 import jakarta.persistence.Tuple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -62,5 +63,5 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                     or (:minPay is null and :maxPay is not null and p.maxPay <= :maxPay)
                     or (:minPay is not null and :maxPay is not null and p.maxPay between :minPay and :maxPay and p.minPay between :minPay and :maxPay))
             """)
-    Page<Map<String, Object>> getPageAndFilter(Integer candidateId, String experience, String gender, String jobType, Integer location, String rank, Integer quantity, String title, String companyName, Integer maxPay, Integer minPay, Pageable pageable);
+    Page<Map<String, Object>> getPageAndFilter(Integer candidateId, String experience, String gender, String jobType, Location location, String rank, Integer quantity, String title, String companyName, Integer maxPay, Integer minPay, Pageable pageable);
 }

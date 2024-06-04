@@ -10,6 +10,7 @@ import com.ismhac.jspace.dto.post.request.PostCreateRequest;
 import com.ismhac.jspace.dto.post.request.PostUpdateRequest;
 import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.purchaseHistory.response.PurchaseHistoryDto;
+import com.ismhac.jspace.dto.purchasedProduct.response.PurchasedProductDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -35,193 +36,108 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     @GetMapping()
-    ApiResponse<PageResponse<EmployeeDto>> getPage(
-            @RequestParam("company_id") int companyId,
-            @RequestParam("email") String email,
-            @RequestParam("name") String name,
-            Pageable pageable) {
-
-        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
-
-        var result = employeeService.getPageByCompanyIdFilterByEmailAndName(companyId, email, name, adjustedPageable);
-
-        return ApiResponse.<PageResponse<EmployeeDto>>builder()
-                .result(result)
-                .build();
+    ApiResponse<PageResponse<EmployeeDto>> getPage(@RequestParam("company_id") int companyId, @RequestParam("email") String email, @RequestParam("name") String name, Pageable pageable) {
+        return ApiResponse.<PageResponse<EmployeeDto>>builder().result(employeeService.getPageByCompanyIdFilterByEmailAndName(companyId, email, name, pageUtils.adjustPageable(pageable))).build();
     }
 
     @GetMapping("/companies")
-    public ApiResponse<PageResponse<CompanyDto>> getPageCompany(
-            @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "address", required = false) String address,
-            Pageable pageable){
-        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
-
-        var result = employeeService.getPageCompany(name, address, adjustedPageable);
-        return ApiResponse.<PageResponse<CompanyDto>>builder()
-                .result(result)
-                .build();
+    public ApiResponse<PageResponse<CompanyDto>> getPageCompany(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "address", required = false) String address, Pageable pageable) {
+        return ApiResponse.<PageResponse<CompanyDto>>builder().result(employeeService.getPageCompany(name, address, pageUtils.adjustPageable(pageable))).build();
     }
 
-
     @PostMapping("/companies")
-    public ApiResponse<CompanyDto> createCompany(
-            @RequestBody CompanyCreateRequest request){
-        var result = employeeService.createCompany(request);
-        return ApiResponse.<CompanyDto>builder()
-                .result(result)
-                .build();
+    public ApiResponse<CompanyDto> createCompany(@RequestBody CompanyCreateRequest request) {
+        return ApiResponse.<CompanyDto>builder().result(employeeService.createCompany(request)).build();
     }
 
     @PatchMapping("/{id}")
-    public ApiResponse<UserDto> update(
-            @PathVariable("id") int id,
-            @RequestBody EmployeeUpdateRequest request) {
-        var result = employeeService.update(id, request);
-
-        return ApiResponse.<UserDto>builder()
-                .result(result)
-                .build();
+    public ApiResponse<UserDto> update(@PathVariable("id") int id, @RequestBody EmployeeUpdateRequest request) {
+        return ApiResponse.<UserDto>builder().result(employeeService.update(id, request)).build();
     }
 
     @PutMapping("/pick-company")
-    public ApiResponse<String> employeePickCompany(
-            @RequestParam("companyId") Integer companyId) {
-        var result = employeeService.employeePickCompany(companyId);
-        return ApiResponse.<String>builder()
-                .result(result)
-                .build();
+    public ApiResponse<String> employeePickCompany(@RequestParam("companyId") Integer companyId) {
+        return ApiResponse.<String>builder().result(employeeService.employeePickCompany(companyId)).build();
     }
 
-    @PutMapping(value = "/{id}/update-background",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{id}/update-background", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('EMPLOYEE')")
-    public ApiResponse<EmployeeDto> updateBackground(
-            @PathVariable("id") int id,
-            @RequestParam("file") MultipartFile background){
-        var result = employeeService.updateBackground(id, background);
-        return ApiResponse.<EmployeeDto>builder()
-                .result(result)
-                .build();
+    public ApiResponse<EmployeeDto> updateBackground(@PathVariable("id") int id, @RequestParam("file") MultipartFile background) {
+        return ApiResponse.<EmployeeDto>builder().result(employeeService.updateBackground(id, background)).build();
     }
 
     @PostMapping("/posts")
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ApiResponse<PostDto> createPost(
-            @RequestBody PostCreateRequest req){
-        var result = employeeService.createPost(req);
-        return ApiResponse.<PostDto>builder()
-                .result(result)
-                .build();
+    public ApiResponse<PostDto> createPost(@RequestBody PostCreateRequest req) {
+        return ApiResponse.<PostDto>builder().result(employeeService.createPost(req)).build();
     }
 
-    @PutMapping(value = "/{id}/update-avatar",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{id}/update-avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('EMPLOYEE')")
-    public ApiResponse<EmployeeDto> updateAvatar(
-            @PathVariable("id") int id,
-            @RequestParam("file") MultipartFile avatar){
-        var result = employeeService.updateAvatar(id, avatar);
-        return ApiResponse.<EmployeeDto>builder()
-                .result(result)
-                .build();
+    public ApiResponse<EmployeeDto> updateAvatar(@PathVariable("id") int id, @RequestParam("file") MultipartFile avatar) {
+        return ApiResponse.<EmployeeDto>builder().result(employeeService.updateAvatar(id, avatar)).build();
     }
 
     @DeleteMapping("/{id}/delete-avatar")
     @PreAuthorize("hasAnyRole('EMPLOYEE')")
-    public ApiResponse<Map<String, Object>> deleteAvatar(
-            @PathVariable("id") int id,
-            @RequestParam("avatarId") String avatarId){
-        var result = employeeService.deleteAvatar(id, avatarId);
-        return ApiResponse.<Map<String, Object>>builder()
-                .result(result)
-                .build();
+    public ApiResponse<Map<String, Object>> deleteAvatar(@PathVariable("id") int id, @RequestParam("avatarId") String avatarId) {
+        return ApiResponse.<Map<String, Object>>builder().result(employeeService.deleteAvatar(id, avatarId)).build();
     }
 
     @DeleteMapping("/{id}/delete-background")
     @PreAuthorize("hasAnyRole('EMPLOYEE')")
-    public ApiResponse<Map<String, Object>> deleteBackground(
-            @PathVariable("id") int id,
-            @RequestParam("backgroundId") String backgroundId){
-        var result = employeeService.deleteBackground(id, backgroundId);
-        return ApiResponse.<Map<String, Object>>builder()
-                .result(result)
-                .build();
+    public ApiResponse<Map<String, Object>> deleteBackground(@PathVariable("id") int id, @RequestParam("backgroundId") String backgroundId) {
+        return ApiResponse.<Map<String, Object>>builder().result(employeeService.deleteBackground(id, backgroundId)).build();
     }
 
     @GetMapping("/purchased-products")
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ApiResponse<List<Map<String, Object>>> getListByCompanyId(
-            @RequestParam("companyId") int companyId){
-        var result = employeeService.getListPurchasedByCompanyId(companyId);
-        return ApiResponse.<List<Map<String, Object>>>builder()
-                .result(result)
-                .build();
+    public ApiResponse<List<Map<String, Object>>> getListByCompanyId(@RequestParam("companyId") int companyId) {
+        return ApiResponse.<List<Map<String, Object>>>builder().result(employeeService.getListPurchasedByCompanyId(companyId)).build();
     }
 
     @GetMapping("/posts")
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ApiResponse<PageResponse<PostDto>> getPagePosted(
-            @RequestParam("companyId") int companyId,
-            Pageable pageable){
-        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
-        var result = employeeService.getPagePosted(companyId, adjustedPageable);
-        return ApiResponse.<PageResponse<PostDto>>builder()
-                .result(result)
-                .build();
+    public ApiResponse<PageResponse<PostDto>> getPagePosted(@RequestParam("companyId") int companyId, Pageable pageable) {
+        return ApiResponse.<PageResponse<PostDto>>builder().result(employeeService.getPagePosted(companyId, pageUtils.adjustPageable(pageable))).build();
     }
 
     @PostMapping("/carts")
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ApiResponse<CartDto> addProductToCart(@RequestBody CartCreateRequest request){
-        var result = employeeService.addProductToCart(request);
-        return ApiResponse.<CartDto>builder()
-                .result(result)
-                .build();
+    public ApiResponse<CartDto> addProductToCart(@RequestBody CartCreateRequest request) {
+        return ApiResponse.<CartDto>builder().result(employeeService.addProductToCart(request)).build();
     }
 
     @PutMapping("/carts")
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ApiResponse<CartDto> addProductToCart(
-            @RequestParam("cartId") int cartId,
-            @RequestParam("quantity") int quantity){
-        var result = employeeService.updateCart(cartId, quantity);
-        return ApiResponse.<CartDto>builder()
-                .result(result)
-                .build();
+    public ApiResponse<CartDto> addProductToCart(@RequestParam("cartId") int cartId, @RequestParam("quantity") int quantity) {
+        return ApiResponse.<CartDto>builder().result(employeeService.updateCart(cartId, quantity)).build();
     }
 
     @DeleteMapping("/carts")
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ApiResponse<String> addProductToCart(@RequestParam("cartId") int cartId){
-        var result = employeeService.deleteCart(cartId);
-        return ApiResponse.<String>builder()
-                .result(result)
-                .build();
+    public ApiResponse<String> DeleteProductFromCart(@RequestParam("cartId") int cartId) {
+        return ApiResponse.<String>builder().result(employeeService.deleteCart(cartId)).build();
     }
 
     @GetMapping("/carts")
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ApiResponse<PageResponse<CartDto>> getCarts(
-            @RequestParam("companyId") int companyId,
-            Pageable pageable){
-        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
-        var result = employeeService.getCarts(companyId, adjustedPageable);
-        return ApiResponse.<PageResponse<CartDto>>builder()
-                .result(result)
-                .build();
+    public ApiResponse<PageResponse<CartDto>> getCarts(@RequestParam("companyId") int companyId, Pageable pageable) {
+        return ApiResponse.<PageResponse<CartDto>>builder().result(employeeService.getCarts(companyId, pageUtils.adjustPageable(pageable))).build();
     }
 
     @GetMapping("/purchase-history")
-    public ApiResponse<PageResponse<PurchaseHistoryDto>> getPageAndFilterByProductName(
-            @RequestParam("companyId") int companyId,
-            @RequestParam(value = "productName", required = false) String productName,
-            Pageable pageable){
+    public ApiResponse<PageResponse<PurchaseHistoryDto>> getPageAndFilterByProductName(@RequestParam("companyId") int companyId, @RequestParam(value = "productName", required = false) String productName, Pageable pageable) {
         return ApiResponse.<PageResponse<PurchaseHistoryDto>>builder().result(employeeService.getPageAndFilterByProductName(companyId, productName, pageUtils.adjustPageable(pageable))).build();
     }
 
     @PutMapping("/posts/{postId}")
-    public ApiResponse<PostDto> updatePost(@PathVariable("postId") int postId, @RequestBody PostUpdateRequest request){
+    public ApiResponse<PostDto> updatePost(@PathVariable("postId") int postId, @RequestBody PostUpdateRequest request) {
         return ApiResponse.<PostDto>builder().result(employeeService.updatePost(postId, request)).build();
+    }
+
+    @GetMapping("/purchased-products")
+    public ApiResponse<PurchasedProductDto> getPurchasedProductById(@RequestParam("companyId") int companyId, @RequestParam("purchasedProductId") int purchasedProductId) {
+        return ApiResponse.<PurchasedProductDto>builder().result(employeeService.getPurchasedProductById(companyId, purchasedProductId)).build();
     }
 }

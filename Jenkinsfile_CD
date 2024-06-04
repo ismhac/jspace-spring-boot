@@ -45,46 +45,17 @@ pipeline {
                 script {
                     requiredParameters()
                     echo "Stop previous version"
-
-                    if (ENVIRONMENT == "staging-naver") {
-                        echo "Load docker image: ${IMAGE_NAME}"
-                        withCredentials([usernamePassword(credentialsId: 'naver-server-account', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                            def remote = [:]
-                            remote.user = USERNAME
-                            remote.password = PASSWORD
-
-                            remote.name = "Naver dev"
-                            remote.host = "175.45.200.78"
-                            remote.allowAnyHosts = true
-                            sshCommand remote: remote, command: "docker ps -q --filter name=${SERVICE_NAME} | xargs -r docker rm -f"
-                        }
-                    } else {
-                        sh "sudo docker ps -q --filter name=${SERVICE_NAME} | xargs -r docker rm -f"
-                    }
+                    sh "sudo docker ps -q --filter name=${SERVICE_NAME} | xargs -r docker rm -f"
                 }
             }
         }
+
         stage('Deploy EC2') {
             steps {
                 script {
                     echo "Deploy to ${ENVIRONMENT}"
-
-                    if (ENVIRONMENT == "staging-naver") {
-                        echo "Load docker image: ${IMAGE_NAME}"
-                        withCredentials([usernamePassword(credentialsId: 'naver-server-account', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                            def remote = [:]
-                            remote.user = USERNAME
-                            remote.password = PASSWORD
-
-                            remote.name = "Naver dev"
-                            remote.host = "175.45.200.78"
-                            remote.allowAnyHosts = true
-                            sshCommand remote: remote, command: "docker run -dit --name ${CONTAINER_NAME} ${PORT_CONFIGURATION} ${NAVER_VOLUME_CONFIGURATINON} ${VOLUME_CONFIGURATINON} ${PROFILE_CONFIGURATION} ${ENCRYPTION_CONFIGURATION} ${IMAGE_NAME}"
-                        }
-                    } else {
-                        sh "sudo docker run -dit --name ${CONTAINER_NAME} ${PORT_CONFIGURATION} ${DOCKER_HUB_REPO} ${PROFILE_CONFIGURATION} ${JASYPT_PW} ${IMAGE_NAME}"
-                        sh "sudo docker ps"
-                    }
+                    sh "sudo docker run -dit --name ${CONTAINER_NAME} ${PORT_CONFIGURATION} ${DOCKER_HUB_REPO} ${PROFILE_CONFIGURATION} ${JASYPT_PW} ${IMAGE_NAME}"
+                    sh "sudo docker ps"
                 }
             }
         }
