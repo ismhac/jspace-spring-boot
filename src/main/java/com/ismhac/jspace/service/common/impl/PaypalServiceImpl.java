@@ -135,12 +135,89 @@ public class PaypalServiceImpl implements PaypalService {
         }};
     }
 
+//    @Override
+//    @Transactional(rollbackFor = Exception.class)
+//    public Object listenPaypalWebhooksV2(String body) {
+//        Gson gson = new Gson();
+//
+//        Map<String, Object> bodyObj = gson.fromJson(body, new TypeToken<Map<String, Object>>() {
+//        }.getType());
+//
+//        Map<String, Object> resource = (Map<String, Object>) bodyObj.get("resource");
+//
+//        List<Map<String, Object>> transactions = (List<Map<String, Object>>) resource.get("transactions");
+//
+//        Map<String, Object> payer = (Map<String, Object>) resource.get("payer");
+//
+//        String paymentMethod = (String) payer.get("payment_method");
+//        String status = (String) payer.get("status");
+//
+//        Map<String, Object> amount = (Map<String, Object>) transactions.get(0).get("amount");
+//
+//        String total = (String) amount.get("total");
+//
+//        String custom = (String) transactions.get(0).get("custom");
+//
+//        Map<String, List<Double>> customObj = gson
+//                .fromJson(custom, new TypeToken<Map<String, Object>>() {}.getType());
+//
+//        List<Integer> cartIds = (customObj.get("cartIds")).stream().map(Double::intValue).toList();
+//
+//        List<PurchasedProduct> purchasedProducts = new ArrayList<>();
+//        List<PurchaseHistory> purchaseHistories = new ArrayList<>();
+//
+//        for(Integer item: cartIds){
+//            Optional<Cart> cart = cartRepository.findById(item);
+//            Company company = cart.get().getCompany();
+//            Product product = cart.get().getProduct();
+//            int quantity =cart.get().getQuantity();
+//
+//            PurchaseHistory purchaseHistory = PurchaseHistory.builder()
+//                    .company(company)
+//                    .productName(product.getName())
+//                    .productPrice(product.getPrice())
+//                    .productNumberOfPost(product.getNumberOfPost())
+//                    .productPostDuration(product.getPostDuration())
+//                    .productDurationDayNumber(product.getDurationDayNumber())
+//                    .expiryDate(LocalDate.now().plusDays(product.getDurationDayNumber()))
+//                    .description(product.getDescription())
+//                    .quantity(quantity)
+//                    .totalPrice(product.getPrice() * quantity)
+//                    .paymentMethod(paymentMethod)
+//                    .status(status)
+//                    .build();
+//
+//            PurchasedProduct purchasedProduct = PurchasedProduct.builder()
+//                    .company(company)
+//                    .productName(product.getName())
+//                    .productPrice(product.getPrice())
+//                    .productNumberOfPost(product.getNumberOfPost() * quantity)
+//                    .productPostDuration(product.getPostDuration())
+//                    .productDurationDayNumber(product.getDurationDayNumber())
+//                    .expiryDate(LocalDate.now().plusDays(product.getDurationDayNumber()))
+//                    .description(product.getDescription())
+//                    .quantity(quantity)
+//                    .totalPrice(product.getPrice() * quantity)
+//                    .build();
+//
+//            purchaseHistories.add(purchaseHistory);
+//            purchasedProducts.add(purchasedProduct);
+//
+//            cartRepository.delete(cart.get());
+//        }
+//
+//        return new HashMap<>() {{
+//            put("purchaseHistory", PurchaseHistoryMapper.instance.eListToDtoList(purchaseHistoryRepository.saveAll(purchaseHistories)));
+//            put("purchasedProduct", PurchasedProductMapper.instance.eListToDtoList(purchasedProductRepository.saveAll(purchasedProducts)));
+//        }};
+//    }
+
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Object listenPaypalWebhooksV2(String body) {
         Gson gson = new Gson();
 
-        Map<String, Object> bodyObj = gson.fromJson(body, new TypeToken<Map<String, Object>>() {
-        }.getType());
+        Map<String, Object> bodyObj = gson.fromJson(body, new TypeToken<Map<String, Object>>() {}.getType());
 
         Map<String, Object> resource = (Map<String, Object>) bodyObj.get("resource");
 
@@ -165,11 +242,12 @@ public class PaypalServiceImpl implements PaypalService {
         List<PurchasedProduct> purchasedProducts = new ArrayList<>();
         List<PurchaseHistory> purchaseHistories = new ArrayList<>();
 
-        for(Integer item: cartIds){
-            Optional<Cart> cart = cartRepository.findById(item);
-            Company company = cart.get().getCompany();
-            Product product = cart.get().getProduct();
-            int quantity =cart.get().getQuantity();
+        List<Cart> carts = cartRepository.findAllById(cartIds);
+
+        for(Cart cart: carts){
+            Company company = cart.getCompany();
+            Product product = cart.getProduct();
+            int quantity = cart.getQuantity();
 
             PurchaseHistory purchaseHistory = PurchaseHistory.builder()
                     .company(company)
@@ -202,7 +280,7 @@ public class PaypalServiceImpl implements PaypalService {
             purchaseHistories.add(purchaseHistory);
             purchasedProducts.add(purchasedProduct);
 
-            cartRepository.delete(cart.get());
+            cartRepository.delete(cart);
         }
 
         return new HashMap<>() {{
@@ -210,6 +288,7 @@ public class PaypalServiceImpl implements PaypalService {
             put("purchasedProduct", PurchasedProductMapper.instance.eListToDtoList(purchasedProductRepository.saveAll(purchasedProducts)));
         }};
     }
+
 
     @Override
     public Payment createPaymentV2(PaymentCreateRequestV2 paymentCreateRequestV2) {

@@ -10,26 +10,15 @@ import java.time.LocalDate;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PurchasedProductDto {
-
     int id;
-
     CompanyDto company;
-
     String productName;
-
     double productPrice;
-
     int productNumberOfPost;
-
     int productPostDuration;
-
     int productDurationDayNumber;
-
     LocalDate expiryDate;
-
     String description;
-
     int quantity;
-
     double totalPrice;
 }
