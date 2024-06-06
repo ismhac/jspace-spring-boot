@@ -2,6 +2,7 @@ package com.ismhac.jspace.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.cart.request.CartCreateRequest;
 import com.ismhac.jspace.dto.cart.response.CartDto;
 import com.ismhac.jspace.dto.common.request.SendMailRequest;
@@ -78,6 +79,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     private ProductRepository productRepository;
     @Autowired
     private PurchaseHistoryRepository purchaseHistoryRepository;
+    @Autowired
+    private CandidatePostRepository candidatePostRepository;
 
     @Override
     public PageResponse<EmployeeDto> getPageByCompanyIdFilterByEmailAndName(int companyId, String email, String name, Pageable pageable) {
@@ -435,6 +438,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     public PurchasedProductDto getPurchasedProductById(int companyId, int purchasedProductId) {
         PurchasedProduct purchasedProduct = purchasedProductRepository.findByIdAndCompanyId(purchasedProductId, companyId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_PURCHASED_PRODUCT));
         return PurchasedProductMapper.instance.eToDto(purchasedProduct);
+    }
+
+    @Override
+    public PageResponse<CandidatePostDto> getPageCandidateAppliedPost(int companyId, Pageable pageable) {
+        return pageUtils.toPageResponse(CandidatePostMapper.instance.ePageToDtoPage(candidatePostRepository.getPageCandidateAppliedPost(companyId, pageUtils.adjustPageable(pageable)), postSkillRepository));
     }
 
     @Override

@@ -18,6 +18,8 @@ import com.ismhac.jspace.service.CompanyService;
 import com.ismhac.jspace.util.PageUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,9 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -101,10 +101,11 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public CompanyDto getCompanyById(int id) {
-        Company company = companyRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
-        return CompanyMapper.instance.eToDto(company);
+    public Map<String, Object> getCompanyById(int id, Integer candidateId) {
+        Map<String, Object> result = companyRepository.findByIdAndOptionalCandidateId(id, candidateId);
+        Map<String, Object> response = new HashMap<>(result);
+        response.put("company", CompanyMapper.instance.eToDto((Company) result.get("company")));
+        return response;
     }
 
     @Override
@@ -169,7 +170,13 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public PageResponse<CompanyDto> getPageAndFilter(String name, String address, String email, String phone, String companySize, Pageable pageable) {
-        return pageUtils.toPageResponse(CompanyMapper.instance.ePageToDtoPage(companyRepository.findAllAndFilter(name, address, email, phone, companySize, pageable)));
+    public PageResponse<Map<String, Object>> getPageAndFilter(String name, String address, String email, String phone, String companySize, Integer candidateId,Pageable pageable) {
+        Page<Map<String, Object>> results = companyRepository.findAllAndFilter(name, address, email, phone, companySize, candidateId, pageUtils.adjustPageable(pageable));
+        List<Map<String, Object>> contents = results.getContent().stream().map(result->{
+            Map<String, Object> map = new HashMap<>(result);
+            map.put("company", CompanyMapper.instance.eToDto((Company) result.get("company")));
+            return map;
+        }).toList();
+        return pageUtils.toPageResponse(new PageImpl<>(contents, results.getPageable(), results.getTotalElements()));
     }
 }

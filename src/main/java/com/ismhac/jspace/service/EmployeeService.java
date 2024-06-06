@@ -1,5 +1,6 @@
 package com.ismhac.jspace.service;
 
+import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.cart.request.CartCreateRequest;
 import com.ismhac.jspace.dto.cart.response.CartDto;
 import com.ismhac.jspace.dto.common.response.PageResponse;
@@ -59,4 +60,6 @@ public interface EmployeeService {
     PageResponse<PurchasedProductDto> getPagePurchasedProduct(int companyId, String productName, Pageable pageable);
 
     PurchasedProductDto getPurchasedProductById(int companyId, int purchasedProductId);
+
+    PageResponse<CandidatePostDto> getPageCandidateAppliedPost(int companyId, Pageable pageable);
  }

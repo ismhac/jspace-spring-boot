@@ -1,5 +1,6 @@
 package com.ismhac.jspace.controller;
 
+import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.cart.request.CartCreateRequest;
 import com.ismhac.jspace.dto.cart.response.CartDto;
 import com.ismhac.jspace.dto.common.response.ApiResponse;
@@ -139,5 +140,10 @@ public class EmployeeController {
     @GetMapping("/purchased-products/{purchasedProductId}")
     public ApiResponse<PurchasedProductDto> getPurchasedProductById(@RequestParam("companyId") int companyId, @PathVariable("purchasedProductId") int purchasedProductId) {
         return ApiResponse.<PurchasedProductDto>builder().result(employeeService.getPurchasedProductById(companyId, purchasedProductId)).build();
+    }
+
+    @GetMapping("/posts/applied-candidates")
+    public ApiResponse<PageResponse<CandidatePostDto>> getPageCandidateAppliedPost(@RequestParam("companyId") int companyId, Pageable pageable){
+        return ApiResponse.<PageResponse<CandidatePostDto>>builder().result(employeeService.getPageCandidateAppliedPost(companyId,pageable)).build();
     }
 }

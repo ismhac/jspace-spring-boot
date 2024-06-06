@@ -17,6 +17,7 @@ public interface PurchaseHistoryMapper {
     PurchaseHistoryMapper instance = Mappers.getMapper(PurchaseHistoryMapper.class);
 
     @Mapping(target = "company", source = "company", qualifiedByName = "convertCompanyToDto")
+    @Mapping(target = "purchasedDate", source = "createdAt")
     PurchaseHistoryDto eToDto(PurchaseHistory e);
 
     default List<PurchaseHistoryDto> eListToDtoList(List<PurchaseHistory> eList){

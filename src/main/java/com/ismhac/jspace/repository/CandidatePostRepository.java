@@ -13,16 +13,19 @@ import java.util.Optional;
 public interface CandidatePostRepository extends JpaRepository<CandidatePost, CandidatePostId> {
 
     @Query("""
-            select cp
-            from CandidatePost cp
-            where cp.id.candidate.id.user.id = ?1 and cp.id.post.id = ?2
+            select cp from CandidatePost cp where cp.id.candidate.id.user.id = ?1 and cp.id.post.id = ?2
             """)
     Optional<CandidatePost> findByCandidateIdAndPostId(int candidateId, int PostId);
 
     @Query("""
-            select cp.id.post
-            from CandidatePost cp
-            where cp.id.candidate.id.user.id = ?1
+            select cp.id.post from CandidatePost cp where cp.id.candidate.id.user.id = ?1
             """)
     Page<Post> candidateGetPageAppliedPost(int candidateId, Pageable pageable);
+
+    @Query("""
+            select cp
+            from CandidatePost cp
+            where cp.id.post.company.id = ?1
+            """)
+    Page<CandidatePost> getPageCandidateAppliedPost(int companyId, Pageable pageable);
 }
