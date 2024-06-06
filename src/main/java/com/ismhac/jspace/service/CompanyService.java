@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public interface CompanyService {
 
@@ -14,11 +16,11 @@ public interface CompanyService {
 
     void verifyEmployee(String token, HttpServletResponse httpServletResponse) throws IOException;
 
-    CompanyDto getCompanyById(int id);
+    Map<String, Object> getCompanyById(int id, Integer candidateId);
 
     CompanyDto updateLogo(int id, MultipartFile logo);
 
     CompanyDto updateBackground(int id, MultipartFile background);
 
-    PageResponse<CompanyDto> getPageAndFilter(String name, String address, String email, String phone, String companySize, Pageable pageable);
+    PageResponse<Map<String, Object>> getPageAndFilter(String name, String address, String email, String phone, String companySize, Integer candidateId,Pageable pageable);
 }

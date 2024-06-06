@@ -2,10 +2,13 @@ package com.ismhac.jspace.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.ismhac.jspace.dto.candidateFollowCompany.request.CandidateFollowCompanyCreateRequest;
+import com.ismhac.jspace.dto.candidateFollowCompany.response.CandidateFollowCompanyDto;
 import com.ismhac.jspace.dto.candidatePost.request.CandidatePostCreateRequest;
 import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.candidatePostLiked.response.CandidatePostLikedDto;
 import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
@@ -15,6 +18,7 @@ import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.mapper.*;
 import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.enums.ApplyStatus;
+import com.ismhac.jspace.model.primaryKey.CandidateFollowCompanyId;
 import com.ismhac.jspace.model.primaryKey.CandidateId;
 import com.ismhac.jspace.model.primaryKey.CandidatePostId;
 import com.ismhac.jspace.model.primaryKey.CandidatePostLikedId;
@@ -56,8 +60,11 @@ public class CandidateServiceImpl implements CandidateService {
     private final CandidatePostLikedRepository candidatePostLikedRepository;
     private final PostSkillRepository postSkillRepository;
     private final CandidatePostRepository candidatePostRepository;
+    private final CandidateFollowCompanyRepository candidateFollowCompanyRepository;
     @Autowired
     private BeanUtils beanUtils;
+    @Autowired
+    private CompanyRepository companyRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -375,6 +382,27 @@ public class CandidateServiceImpl implements CandidateService {
         return pageUtils.toPageResponse(PostMapper.instance.ePageToDtoPage(candidatePostRepository.candidateGetPageAppliedPost(candidateId, pageable), postSkillRepository));
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CandidateFollowCompanyDto followCompany(CandidateFollowCompanyCreateRequest request) {
+        Company company = companyRepository.findById(request.getCompanyId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+        Candidate candidate = candidateRepository.findByUserId(request.getCandidateId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_USER));
+        CandidateFollowCompanyId id = CandidateFollowCompanyId.builder().company(company).candidate(candidate).build();
+        Optional<CandidateFollowCompany> candidateFollowCompanyOptional = candidateFollowCompanyRepository.findById(id);
+        if (candidateFollowCompanyOptional.isPresent()) throw new AppException(ErrorCode.CANDIDATE_FOLLOW_COMPANY_EXISTED);
+        return CandidateFollowCompanyMapper.instance.eToDto(candidateFollowCompanyRepository.save(CandidateFollowCompany.builder().id(id).build()));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean unFollowCompany(int candidateId, int companyId) {
+        return candidateFollowCompanyRepository.deleteById(candidateId, companyId) > 0;
+    }
+
+    @Override
+    public PageResponse<CompanyDto> getPageFollowedCompanies(int candidateId, Pageable pageable) {
+        return pageUtils.toPageResponse(CompanyMapper.instance.ePageToDtoPage(candidateFollowCompanyRepository.getPageFollowedCompaniesByCandidateId(candidateId, pageUtils.adjustPageable(pageable))));
+    }
 
     @Transactional(rollbackFor = Exception.class)
     protected File uploadFile(MultipartFile multipartFile) throws Exception {

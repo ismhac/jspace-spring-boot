@@ -1,9 +1,12 @@
 package com.ismhac.jspace.service;
 
+import com.ismhac.jspace.dto.candidateFollowCompany.request.CandidateFollowCompanyCreateRequest;
+import com.ismhac.jspace.dto.candidateFollowCompany.response.CandidateFollowCompanyDto;
 import com.ismhac.jspace.dto.candidatePost.request.CandidatePostCreateRequest;
 import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.candidatePostLiked.response.CandidatePostLikedDto;
 import com.ismhac.jspace.dto.common.response.PageResponse;
+import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
@@ -43,4 +46,10 @@ public interface CandidateService {
     Map<String, Object> getPostById(int candidateId, int postId);
 
     PageResponse<PostDto> getAppliedPost(int candidateId, Pageable pageable);
+
+    CandidateFollowCompanyDto followCompany(CandidateFollowCompanyCreateRequest request);
+
+    Boolean unFollowCompany(int candidateId, int companyId);
+
+    PageResponse<CompanyDto> getPageFollowedCompanies(int candidateId, Pageable pageable);
 }

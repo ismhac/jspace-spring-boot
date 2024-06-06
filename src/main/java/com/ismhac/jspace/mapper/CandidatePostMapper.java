@@ -16,6 +16,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
 
 @Mapper(componentModel = "spring")
 public interface CandidatePostMapper {
@@ -26,6 +27,10 @@ public interface CandidatePostMapper {
     @Mapping(target = "resume", source = "resume", qualifiedByName = "convertResumeToDto")
     @Mapping(target = "applyStatus", source = "applyStatus", qualifiedByName = "convertApplyStatusToDto")
     CandidatePostDto eToDto(CandidatePost e, @Context PostSkillRepository postSkillRepository);
+
+    default Page<CandidatePostDto> ePageToDtoPage(Page<CandidatePost> ePage, @Context PostSkillRepository postSkillRepository){
+        return ePage.map(item-> this.eToDto(item, postSkillRepository));
+    }
 
     @Named("convertCandidateToDto")
     default CandidateDto convertCandidateToDto(Candidate candidate){

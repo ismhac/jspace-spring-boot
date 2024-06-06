@@ -84,7 +84,9 @@ public enum ErrorCode {
 
     NOT_FOUND_CART(HttpStatus.NOT_FOUND.value(), "Not found cart", HttpStatus.NOT_FOUND),
 
-    HAS_APPLIED(HttpStatus.BAD_REQUEST.value(), "Has applied", HttpStatus.BAD_REQUEST)
+    HAS_APPLIED(HttpStatus.BAD_REQUEST.value(), "Has applied", HttpStatus.BAD_REQUEST),
+
+    CANDIDATE_FOLLOW_COMPANY_EXISTED(HttpStatus.BAD_REQUEST.value(), "Candidate has been followed this company", HttpStatus.BAD_REQUEST)
     ;
 
     private final int code;
