@@ -146,4 +146,9 @@ public class EmployeeController {
     public ApiResponse<PageResponse<CandidatePostDto>> getPageCandidateAppliedPost(@RequestParam("companyId") int companyId, Pageable pageable){
         return ApiResponse.<PageResponse<CandidatePostDto>>builder().result(employeeService.getPageCandidateAppliedPost(companyId,pageable)).build();
     }
+
+    @GetMapping("/posts/{postId}/applied-candidates")
+    public ApiResponse<PageResponse<CandidatePostDto>> getPageCandidateAppliedByPostId(@PathVariable("postId") int postId, Pageable pageable){
+        return ApiResponse.<PageResponse<CandidatePostDto>>builder().result(employeeService.getPageCandidateAppliedByPostId(postId,pageable)).build();
+    }
 }

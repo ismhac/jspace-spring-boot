@@ -23,9 +23,12 @@ public interface CandidatePostRepository extends JpaRepository<CandidatePost, Ca
     Page<Post> candidateGetPageAppliedPost(int candidateId, Pageable pageable);
 
     @Query("""
-            select cp
-            from CandidatePost cp
-            where cp.id.post.company.id = ?1
+            select cp from CandidatePost cp where cp.id.post.company.id = ?1
             """)
     Page<CandidatePost> getPageCandidateAppliedPost(int companyId, Pageable pageable);
+
+    @Query("""
+            select cp from CandidatePost cp where cp.id.post.id = ?1
+            """)
+    Page<CandidatePost> getPageCandidateAppliedByPostId(int postId, Pageable pageable);
 }

@@ -62,4 +62,6 @@ public interface EmployeeService {
     PurchasedProductDto getPurchasedProductById(int companyId, int purchasedProductId);
 
     PageResponse<CandidatePostDto> getPageCandidateAppliedPost(int companyId, Pageable pageable);
+
+    PageResponse<CandidatePostDto> getPageCandidateAppliedByPostId(int postId, Pageable pageable);
  }
