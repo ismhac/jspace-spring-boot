@@ -2,7 +2,6 @@ package com.ismhac.jspace.controller;
 
 import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.response.PageResponse;
-import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.model.enums.*;
 import com.ismhac.jspace.service.PostService;
 import com.ismhac.jspace.util.PageUtils;
@@ -23,9 +22,7 @@ public class PostController {
     private final PageUtils pageUtils;
 
     @GetMapping("/{id}")
-    public ApiResponse<LinkedHashMap<String, Object>> getById(
-            @PathVariable("id") int id,
-            @RequestParam(value = "candidateId", required = false) Integer candidateId) {
+    public ApiResponse<LinkedHashMap<String, Object>> getById(@PathVariable("id") int id, @RequestParam(value = "candidateId", required = false) Integer candidateId) {
         return ApiResponse.<LinkedHashMap<String, Object>>builder().result(postService.getById(id, candidateId)).build();
     }
 

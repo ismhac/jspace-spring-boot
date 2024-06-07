@@ -12,16 +12,12 @@ import java.util.Optional;
 public interface CandidateRepository extends JpaRepository<Candidate, CandidateId> {
 
     @Query("""
-            select t1
-            from Candidate t1
-            where t1.id.user.id = :id
+            select t1 from Candidate t1 where t1.id.user.id = :id
             """)
     Optional<Candidate> findByUserId(int id);
 
     @Query("""
-            select candidate
-            from Candidate candidate
-            where candidate.id.user.email = :email
+            select candidate from Candidate candidate where candidate.id.user.email = :email
             """)
     Optional<Candidate> findByUserEmail(String email);
 }

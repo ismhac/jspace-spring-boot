@@ -19,50 +19,32 @@ public class CommonController {
     private final CommonService commonService;
 
     @GetMapping("/locations")
-    public ApiResponse<List<LocationDto>> getLocations(){
-        var result = commonService.getLLocation();
-        return ApiResponse.<List<LocationDto>>builder()
-                .result(result)
-                .build();
+    public ApiResponse<List<LocationDto>> getLocations() {
+        return ApiResponse.<List<LocationDto>>builder().result(commonService.getLLocation()).build();
     }
 
     @GetMapping("/jobTypes")
-    public ApiResponse<List<JobTypeDto>> getJobTypes(){
-        var result = commonService.getJobType();
-        return ApiResponse.<List<JobTypeDto>>builder()
-                .result(result)
-                .build();
+    public ApiResponse<List<JobTypeDto>> getJobTypes() {
+        return ApiResponse.<List<JobTypeDto>>builder().result(commonService.getJobType()).build();
     }
 
     @GetMapping("/genders")
-    public ApiResponse<List<GenderDto>> getGenders(){
-        var result = commonService.getGender();
-        return ApiResponse.<List<GenderDto>>builder()
-                .result(result)
-                .build();
+    public ApiResponse<List<GenderDto>> getGenders() {
+        return ApiResponse.<List<GenderDto>>builder().result(commonService.getGender()).build();
     }
 
     @GetMapping("/applyStatus")
-    public ApiResponse<List<ApplyStatusDto>> getApplyStatus(){
-        var result = commonService.getApplyStatus();
-        return ApiResponse.<List<ApplyStatusDto>>builder()
-                .result(result)
-                .build();
+    public ApiResponse<List<ApplyStatusDto>> getApplyStatus() {
+        return ApiResponse.<List<ApplyStatusDto>>builder().result(commonService.getApplyStatus()).build();
     }
 
     @GetMapping("/ranks")
-    public ApiResponse<List<RankDto>> getRanks(){
-        var result = commonService.getRank();
-        return ApiResponse.<List<RankDto>>builder()
-                .result(result)
-                .build();
+    public ApiResponse<List<RankDto>> getRanks() {
+        return ApiResponse.<List<RankDto>>builder().result(commonService.getRank()).build();
     }
 
     @GetMapping("/experiences")
-    public ApiResponse<List<ExperienceDto>> getExperiences(){
-        var result = commonService.getExperience();
-        return ApiResponse.<List<ExperienceDto>>builder()
-                .result(result)
-                .build();
+    public ApiResponse<List<ExperienceDto>> getExperiences() {
+        return ApiResponse.<List<ExperienceDto>>builder().result(commonService.getExperience()).build();
     }
 }

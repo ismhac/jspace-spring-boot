@@ -21,9 +21,6 @@ public class SkillController {
 
     @GetMapping()
     public ApiResponse<List<SkillDto>> getAllSkills(){
-        var result = skillService.getAllSkills();
-        return ApiResponse.<List<SkillDto>>builder()
-                .result(result)
-                .build();
+        return ApiResponse.<List<SkillDto>>builder().result(skillService.getAllSkills()).build();
     }
 }

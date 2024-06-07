@@ -12,23 +12,18 @@ import java.util.Optional;
 public interface CartRepository extends JpaRepository<Cart, Integer> {
 
     @Query("""
-            select c
-            from Cart c
-            where c.company.id = ?1 and c.product.id = ?2
+            select c from Cart c where c.company.id = ?1 and c.product.id = ?2
             """)
     Optional<Cart> findByCompanyIdAndProductId(int companyId, int productId);
 
     @Modifying
     @Query("""
-            delete
-            from Cart c where c.id = ?1
+            delete from Cart c where c.id = ?1
             """)
     int deleteById(int cartId);
 
     @Query("""
-            select c
-            from Cart c
-            where c.company.id = ?1
+            select c from Cart c where c.company.id = ?1
             """)
     Page<Cart> getPageByCompanyId(int companyId, Pageable pageable);
 }

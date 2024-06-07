@@ -31,66 +31,46 @@ public interface PostMapper {
     @Mapping(target = "skills", expression = "java(getSkillDtoList(e.getId(), postSkillRepository))")
     PostDto eToDto(Post e, @Context PostSkillRepository postSkillRepository);
 
-    default Page<PostDto> ePageToDtoPage(Page<Post> ePage, @Context PostSkillRepository postSkillRepository){
-        return ePage.map(item-> eToDto(item, postSkillRepository));
+    default Page<PostDto> ePageToDtoPage(Page<Post> ePage, @Context PostSkillRepository postSkillRepository) {
+        return ePage.map(item -> eToDto(item, postSkillRepository));
     }
 
-
     @Named("convertCompanyToDto")
-    default CompanyDto convertCompanyToDto(Company e){
+    default CompanyDto convertCompanyToDto(Company e) {
         return CompanyMapper.instance.eToDto(e);
     }
 
     @Named("convertLocationToDto")
-    default LocationDto convertLocationToDto(Location location){
-        return LocationDto.builder()
-                .value(location.name())
-                .areaCode(location.getAreaCode())
-                .province(location.getProvince())
-                .build();
+    default LocationDto convertLocationToDto(Location location) {
+        return LocationDto.builder().value(location.name()).areaCode(location.getAreaCode()).province(location.getProvince()).build();
     }
 
     @Named("convertJobTypeToDto")
-    default JobTypeDto convertJobTypeToDto(JobType jobType){
-        return JobTypeDto.builder()
-                .value(jobType.name())
-                .code(jobType.getCode())
-                .build();
+    default JobTypeDto convertJobTypeToDto(JobType jobType) {
+        return JobTypeDto.builder().value(jobType.name()).code(jobType.getCode()).build();
     }
 
     @Named("convertGenderToDto")
-    default GenderDto convertGenderToDto(Gender gender){
-        return GenderDto.builder()
-                .value(gender.name())
-                .code(gender.getCode())
-                .build();
+    default GenderDto convertGenderToDto(Gender gender) {
+        return GenderDto.builder().value(gender.name()).code(gender.getCode()).build();
     }
 
     @Named("convertPostStatusToDto")
-    default PostStatusDto convertPostStatusToDto(PostStatus postStatus){
-        return PostStatusDto.builder()
-                .value(postStatus.name())
-                .code(postStatus.getStatus())
-                .build();
+    default PostStatusDto convertPostStatusToDto(PostStatus postStatus) {
+        return PostStatusDto.builder().value(postStatus.name()).code(postStatus.getStatus()).build();
     }
 
     @Named("convertRankToDto")
-    default RankDto convertRankToDto(Rank rank){
-        return RankDto.builder()
-                .value(rank.name())
-                .code(rank.getCode())
-                .build();
+    default RankDto convertRankToDto(Rank rank) {
+        return RankDto.builder().value(rank.name()).code(rank.getCode()).build();
     }
 
     @Named("convertExperienceToDto")
-    default ExperienceDto convertExperienceToDto(Experience experience){
-        return ExperienceDto.builder()
-                .value(experience.name())
-                .code(experience.getCode())
-                .build();
+    default ExperienceDto convertExperienceToDto(Experience experience) {
+        return ExperienceDto.builder().value(experience.name()).code(experience.getCode()).build();
     }
 
-    default List<SkillDto> getSkillDtoList(int postId, @Context PostSkillRepository postSkillRepository){
+    default List<SkillDto> getSkillDtoList(int postId, @Context PostSkillRepository postSkillRepository) {
         return postSkillRepository.findAllSkillsByPostId(postId);
     }
 }

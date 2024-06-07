@@ -10,9 +10,7 @@ public interface AdminRequestVerifyEmailRepository extends
         JpaRepository<AdminRequestVerifyEmail, Integer> {
 
     @Query("""
-            select t1
-            from AdminRequestVerifyEmail t1
-            where t1.token = :token
+            select t1 from AdminRequestVerifyEmail t1 where t1.token = :token
             """)
     Optional<AdminRequestVerifyEmail> findByToken(String token);
 }

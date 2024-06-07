@@ -16,9 +16,7 @@ public interface RoleRepository extends JpaRepository<Role, Integer> {
     Optional<Role> findRoleByCode(RoleCode code);
 
     @Query("""
-            select role
-            from Role role
-            where role.code not in (:superAdminRoleCode, :adminRoleCode)
+            select role from Role role where role.code not in (:superAdminRoleCode, :adminRoleCode)
             """)
     List<Role> findNonAdminRoles(RoleCode superAdminRoleCode, RoleCode adminRoleCode);
 }

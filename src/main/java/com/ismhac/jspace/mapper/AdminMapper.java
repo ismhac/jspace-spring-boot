@@ -14,7 +14,6 @@ import org.springframework.data.domain.Page;
 public interface AdminMapper {
     AdminMapper instance = Mappers.getMapper(AdminMapper.class);
 
-
     @Mapping(target = "user", source = "id.user", qualifiedByName = "convertToUserDto")
     AdminDto toAdminDto(Admin admin);
 

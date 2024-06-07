@@ -15,50 +15,44 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MailListener {
     private final MailService mailService;
+
     @EventListener
     @Async
     public void handleAdminForgotPasswordEvent(ForgotPasswordEvent event) {
-
-        SendMailRequest sendMailRequest = SendMailRequest.builder()
+        mailService.sendMail(SendMailRequest.builder()
                 .email(event.getAdminForgotPasswordRequest().getEmail())
                 .body(event.getAdminForgotPasswordRequest().getBody())
                 .subject(event.getAdminForgotPasswordRequest().getSubject())
-                .build();
-
-        mailService.sendMail(sendMailRequest);
+                .build());
     }
 
     @EventListener
     @Async
-    public void handleSendMailCreateAdmin(CreateAdminEvent event){
-        SendMailRequest sendMailRequest = SendMailRequest.builder()
+    public void handleSendMailCreateAdmin(CreateAdminEvent event) {
+        mailService.sendMailWithTemplate(SendMailRequest.builder()
                 .email(event.getAdminCreateRequest().getEmail())
                 .body(event.getAdminCreateRequest().getBody())
                 .subject(event.getAdminCreateRequest().getSubject())
-                .build();
-
-        mailService.sendMailWithTemplate(sendMailRequest);
+                .build());
     }
 
     @EventListener
     @Async
-    public void requestCompanyVerifyEmail(RequestCompanyVerifyEmailEvent event){
-        SendMailRequest sendMailRequest = SendMailRequest.builder()
+    public void requestCompanyVerifyEmail(RequestCompanyVerifyEmailEvent event) {
+        mailService.sendMail(SendMailRequest.builder()
                 .email(event.getSendMailRequest().getEmail())
                 .body(event.getSendMailRequest().getBody())
                 .subject(event.getSendMailRequest().getSubject())
-                .build();
-        mailService.sendMail(sendMailRequest);
+                .build());
     }
 
     @EventListener
     @Async
-    public void requestCompanyToVerifyForEmployee(RequestCompanyToVerifyForEmployeeEvent event){
-        SendMailRequest sendMailRequest = SendMailRequest.builder()
+    public void requestCompanyToVerifyForEmployee(RequestCompanyToVerifyForEmployeeEvent event) {
+        mailService.sendMail(SendMailRequest.builder()
                 .email(event.getSendMailRequest().getEmail())
                 .body(event.getSendMailRequest().getBody())
                 .subject(event.getSendMailRequest().getSubject())
-                .build();
-        mailService.sendMail(sendMailRequest);
+                .build());
     }
 }

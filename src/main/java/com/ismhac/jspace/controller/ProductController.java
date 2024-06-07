@@ -26,18 +26,11 @@ public class ProductController {
 
     @GetMapping()
     public ApiResponse<PageResponse<ProductDto>> getAll(Pageable pageable) {
-        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
-        var result = productService.getPage(adjustedPageable);
-        return ApiResponse.<PageResponse<ProductDto>>builder()
-                .result(result)
-                .build();
+        return ApiResponse.<PageResponse<ProductDto>>builder().result(productService.getPage(pageUtils.adjustPageable(pageable))).build();
     }
 
     @GetMapping("/{id}")
     public ApiResponse<ProductDto> getById(@PathVariable("id") int id) {
-        var result = productService.getById(id);
-        return ApiResponse.<ProductDto>builder()
-                .result(result)
-                .build();
+        return ApiResponse.<ProductDto>builder().result(productService.getById(id)).build();
     }
 }

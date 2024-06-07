@@ -41,7 +41,6 @@ import java.util.Map;
 @Tag(name = "Authentication")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthController {
-
     AuthService authService;
     OAuth2Service oAuth2Service;
 

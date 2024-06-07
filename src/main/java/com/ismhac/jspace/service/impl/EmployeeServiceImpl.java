@@ -71,16 +71,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final PurchasedProductRepository purchasedProductRepository;
     private final PostHistoryRepository postHistoryRepository;
     private final CartRepository cartRepository;
+    private final ProductRepository productRepository;
+    private final PurchaseHistoryRepository purchaseHistoryRepository;
+    private final CandidatePostRepository candidatePostRepository;
 
     @Autowired
     private BeanUtils beanUtils;
-
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private PurchaseHistoryRepository purchaseHistoryRepository;
-    @Autowired
-    private CandidatePostRepository candidatePostRepository;
 
     @Override
     public PageResponse<EmployeeDto> getPageByCompanyIdFilterByEmailAndName(int companyId, String email, String name, Pageable pageable) {
@@ -243,28 +239,28 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> deleteBackground(int id, String backgroundId) {
         try {
-            Employee employee = employeeRepository.findByUserId(id).orElseThrow(()-> new  AppException(ErrorCode.USER_NOT_EXISTED));
+            Employee employee = employeeRepository.findByUserId(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-            if(!backgroundId.equals(employee.getId().getUser().getBackgroundId()) || backgroundId.isEmpty()){
+            if (!backgroundId.equals(employee.getId().getUser().getBackgroundId()) || backgroundId.isEmpty()) {
                 throw new AppException(ErrorCode.INVALID_FILE_ID);
             }
 
             Map deleteResult = cloudinary.uploader().destroy(backgroundId, ObjectUtils.emptyMap());
 
-            if(deleteResult.get("result").toString().equals("ok")) {
+            if (deleteResult.get("result").toString().equals("ok")) {
                 employee.getId().getUser().setBackgroundId(null);
                 employee.getId().getUser().setBackground(null);
-                return new HashMap<>(){{
+                return new HashMap<>() {{
                     put("status", deleteResult);
                     put("user", UserMapper.instance.toUserDto(employeeRepository.save(employee).getId().getUser()));
                 }};
-            }else{
-                return new HashMap<>(){{
+            } else {
+                return new HashMap<>() {{
                     put("status", deleteResult);
                     put("user", UserMapper.instance.toUserDto(employeeRepository.save(employee).getId().getUser()));
                 }};
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
             throw new AppException(ErrorCode.DELETE_FILE_FAIL);
         }
@@ -274,28 +270,28 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> deleteAvatar(int id, String avatarId) {
         try {
-            Employee employee = employeeRepository.findByUserId(id).orElseThrow(()-> new  AppException(ErrorCode.USER_NOT_EXISTED));
+            Employee employee = employeeRepository.findByUserId(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-            if(!avatarId.equals(employee.getId().getUser().getPictureId()) || avatarId.isEmpty()){
+            if (!avatarId.equals(employee.getId().getUser().getPictureId()) || avatarId.isEmpty()) {
                 throw new AppException(ErrorCode.INVALID_FILE_ID);
             }
 
             Map deleteResult = cloudinary.uploader().destroy(avatarId, ObjectUtils.emptyMap());
 
-            if(deleteResult.get("result").toString().equals("ok")) {
+            if (deleteResult.get("result").toString().equals("ok")) {
                 employee.getId().getUser().setPictureId(null);
                 employee.getId().getUser().setPicture(null);
-                return new HashMap<>(){{
+                return new HashMap<>() {{
                     put("status", deleteResult);
                     put("user", UserMapper.instance.toUserDto(employeeRepository.save(employee).getId().getUser()));
                 }};
-            }else{
-                return new HashMap<>(){{
+            } else {
+                return new HashMap<>() {{
                     put("status", deleteResult);
                     put("user", UserMapper.instance.toUserDto(employeeRepository.save(employee).getId().getUser()));
                 }};
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
             throw new AppException(ErrorCode.DELETE_FILE_FAIL);
         }
@@ -308,7 +304,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return purchasedProducts.stream().map(item -> {
             Map<String, Object> map = new HashMap<>();
 
-            int remainingDate = (int) ChronoUnit.DAYS.between(now,(PurchasedProductMapper.instance.eToDto(item)).getExpiryDate());
+            int remainingDate = (int) ChronoUnit.DAYS.between(now, (PurchasedProductMapper.instance.eToDto(item)).getExpiryDate());
 
             map.put("purchasedProduct", PurchasedProductMapper.instance.eToDto(item));
             map.put("remainingDate", remainingDate);
@@ -326,22 +322,22 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional(rollbackFor = Exception.class)
     public CartDto addProductToCart(CartCreateRequest request) {
         Company company = companyRepository.findById(request.getCompanyId())
-                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
 
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_PRODUCT));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PRODUCT));
 
 
         Optional<Cart> cart = cartRepository.findByCompanyIdAndProductId(request.getCompanyId(), request.getProductId());
-        if(cart.isEmpty()){
+        if (cart.isEmpty()) {
             Cart newCart = Cart.builder()
                     .company(company)
                     .product(product)
                     .quantity(request.getQuantity())
                     .build();
             return CartMapper.instance.eToDto(cartRepository.save(newCart));
-        }else {
-            cart.get().setQuantity(cart.get().getQuantity()+ request.getQuantity());
+        } else {
+            cart.get().setQuantity(cart.get().getQuantity() + request.getQuantity());
             return CartMapper.instance.eToDto(cartRepository.save(cart.get()));
         }
     }
@@ -350,7 +346,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional(rollbackFor = Exception.class)
     public CartDto updateCart(int cartId, int quantity) {
         Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_CART));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_CART));
         cart.setQuantity(quantity);
         return CartMapper.instance.eToDto(cartRepository.save(cart));
     }
@@ -363,7 +359,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String deleteCart(int cartId) {
-        if(cartRepository.deleteById(cartId) == 0){
+        if (cartRepository.deleteById(cartId) == 0) {
             return "Delete fail";
         }
         return "Delete success";
@@ -377,7 +373,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public PostDto updatePost(int postId, PostUpdateRequest request) {
-        Post post = postRepository.findById(postId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_POST));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST));
         post.setTitle(request.getTitle());
         post.setJobType(request.getJobType());
         post.setLocation(request.getLocation());
@@ -436,7 +432,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public PurchasedProductDto getPurchasedProductById(int companyId, int purchasedProductId) {
-        PurchasedProduct purchasedProduct = purchasedProductRepository.findByIdAndCompanyId(purchasedProductId, companyId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_PURCHASED_PRODUCT));
+        PurchasedProduct purchasedProduct = purchasedProductRepository.findByIdAndCompanyId(purchasedProductId, companyId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PURCHASED_PRODUCT));
         return PurchasedProductMapper.instance.eToDto(purchasedProduct);
     }
 
@@ -547,7 +543,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 throw new AppException(ErrorCode.PURCHASED_PRODUCT_EXPIRE);
             }
 
-            purchasedProduct.setProductNumberOfPost(purchasedProduct.getProductNumberOfPost()-1);
+            purchasedProduct.setProductNumberOfPost(purchasedProduct.getProductNumberOfPost() - 1);
             purchasedProductRepository.save(purchasedProduct);
 
             // validate skills

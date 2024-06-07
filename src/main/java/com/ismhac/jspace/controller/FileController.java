@@ -23,11 +23,7 @@ public class FileController {
     private final FileService fileService;
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<FileInfo> uploadFileInfo(
-            @RequestParam("file") MultipartFile file) throws IOException{
-        var result =fileService.uploadFileInfo(file);
-        return ApiResponse.<FileInfo>builder()
-                .result(result)
-                .build();
+    public ApiResponse<FileInfo> uploadFileInfo(@RequestParam("file") MultipartFile file) throws IOException {
+        return ApiResponse.<FileInfo>builder().result(fileService.uploadFileInfo(file)).build();
     }
 }

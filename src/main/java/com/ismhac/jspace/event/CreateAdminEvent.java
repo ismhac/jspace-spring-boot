@@ -8,8 +8,8 @@ import org.springframework.context.ApplicationEvent;
 @Getter
 @Setter
 public class CreateAdminEvent extends ApplicationEvent {
-
     private AdminCreateRequest adminCreateRequest;
+
     public CreateAdminEvent(Object source, AdminCreateRequest adminCreateRequest) {
         super(source);
         this.adminCreateRequest = adminCreateRequest;
