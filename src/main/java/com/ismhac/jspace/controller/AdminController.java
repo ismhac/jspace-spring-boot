@@ -29,123 +29,60 @@ public class AdminController {
     private final PageUtils pageUtils;
     private final AdminService adminService;
 
-    /* create new basic admin */
     @PostMapping()
-    public ApiResponse<AdminDto> create(
-            @RequestBody @Valid AdminCreateRequest adminCreateRequest) {
-        var result = adminService.create(adminCreateRequest);
-        return ApiResponse.<AdminDto>builder()
-                .result(result)
-                .build();
+    public ApiResponse<AdminDto> create(@RequestBody @Valid AdminCreateRequest adminCreateRequest) {
+        return ApiResponse.<AdminDto>builder().result(adminService.create(adminCreateRequest)).build();
     }
 
     @GetMapping("/users")
-    public ApiResponse<PageResponse<UserDto>> getPageUserAndFilterByNameAndEmailAndActivated(
-            @RequestParam(value = "roleId", required = false) Integer roleId,
-            @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "email", required = false) String email,
-            @RequestParam(value = "activated", required = false) Boolean activated,
-            Pageable pageable) {
-        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
-        var result = adminService.getPageUserAndFilterByRoleIdNameAndEmailAndActivated(roleId, name, email, activated, adjustedPageable);
-        return ApiResponse.<PageResponse<UserDto>>builder()
-                .result(result)
-                .build();
+    public ApiResponse<PageResponse<UserDto>> getPageUserAndFilterByNameAndEmailAndActivated(@RequestParam(value = "roleId", required = false) Integer roleId, @RequestParam(value = "name", required = false) String name, @RequestParam(value = "email", required = false) String email, @RequestParam(value = "activated", required = false) Boolean activated, Pageable pageable) {
+        return ApiResponse.<PageResponse<UserDto>>builder().result(adminService.getPageUserAndFilterByRoleIdNameAndEmailAndActivated(roleId, name, email, activated, pageUtils.adjustPageable(pageable))).build();
     }
 
-    /* Get page basic admin, filter by name, activated */
     @Hidden
     @GetMapping("/basic")
-    public ApiResponse<PageResponse<AdminDto>> getBasicAdminPage(
-            @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "activated", required = false) Boolean activated,
-            Pageable pageable) {
-        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
-        var result = adminService.getPageAdminByTypeFilterByNameAndActivated(name, activated, adjustedPageable);
-        return ApiResponse.<PageResponse<AdminDto>>builder()
-                .result(result)
-                .build();
+    public ApiResponse<PageResponse<AdminDto>> getBasicAdminPage(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "activated", required = false) Boolean activated, Pageable pageable) {
+        return ApiResponse.<PageResponse<AdminDto>>builder().result(adminService.getPageAdminByTypeFilterByNameAndActivated(name, activated, pageUtils.adjustPageable(pageable))).build();
     }
 
     @PutMapping("/users/update/activated")
-    public ApiResponse<UserDto> updateActivatedUser(
-            @RequestBody @Valid UpdateActivatedUserRequest updateActivatedUserRequest) {
-        var result = adminService.updateActivatedUser(updateActivatedUserRequest);
-        return ApiResponse.<UserDto>builder()
-                .result(result)
-                .build();
+    public ApiResponse<UserDto> updateActivatedUser(@RequestBody @Valid UpdateActivatedUserRequest updateActivatedUserRequest) {
+        return ApiResponse.<UserDto>builder().result(adminService.updateActivatedUser(updateActivatedUserRequest)).build();
     }
 
     @GetMapping("/company-request-reviews")
-    public ApiResponse<PageResponse<CompanyRequestReviewDto>> getRequestReviewDtoPageResponse(
-            @RequestParam(value = "reviewed", required = false) Boolean reviewed,
-            Pageable pageable) {
-        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
-        var result = adminService.getRequestReviewDtoPageResponse(reviewed, adjustedPageable);
-        return ApiResponse.<PageResponse<CompanyRequestReviewDto>>builder()
-                .result(result)
-                .build();
+    public ApiResponse<PageResponse<CompanyRequestReviewDto>> getRequestReviewDtoPageResponse(@RequestParam(value = "reviewed", required = false) Boolean reviewed, Pageable pageable) {
+        return ApiResponse.<PageResponse<CompanyRequestReviewDto>>builder().result(adminService.getRequestReviewDtoPageResponse(reviewed, pageUtils.adjustPageable(pageable))).build();
     }
 
     @PutMapping("/company-request-reviews")
-    public ApiResponse<CompanyRequestReviewDto> adminVerifyForCompany(
-            @RequestParam("companyId") Integer companyId,
-            @RequestParam("reviewed") Boolean reviewed) {
-        var result = adminService.adminVerifyForCompany(companyId, reviewed);
-        return ApiResponse.<CompanyRequestReviewDto>builder()
-                .result(result)
-                .build();
+    public ApiResponse<CompanyRequestReviewDto> adminVerifyForCompany(@RequestParam("companyId") Integer companyId, @RequestParam("reviewed") Boolean reviewed) {
+        return ApiResponse.<CompanyRequestReviewDto>builder().result(adminService.adminVerifyForCompany(companyId, reviewed)).build();
     }
 
     @GetMapping("/companies")
-    public ApiResponse<PageResponse<CompanyDto>> getPageCompanyAndFilter(
-            @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "address", required = false) String address,
-            @RequestParam(value = "email", required = false) String email,
-            @RequestParam(value = "phone", required = false) String phone,
-            @RequestParam(value = "emailVerified", required = false) Boolean emailVerified,
-            @RequestParam(value = "verifiedByAdmin", required = false) Boolean verifiedByAdmin,
-            Pageable pageable) {
-        Pageable adjustedPageable = pageUtils.adjustPageable(pageable);
-        var result = adminService.getPageCompanyAndFilter(name, address, email, phone, emailVerified, verifiedByAdmin, adjustedPageable);
-        return ApiResponse.<PageResponse<CompanyDto>>builder()
-                .result(result)
-                .build();
+    public ApiResponse<PageResponse<CompanyDto>> getPageCompanyAndFilter(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "address", required = false) String address, @RequestParam(value = "email", required = false) String email, @RequestParam(value = "phone", required = false) String phone, @RequestParam(value = "emailVerified", required = false) Boolean emailVerified, @RequestParam(value = "verifiedByAdmin", required = false) Boolean verifiedByAdmin, Pageable pageable) {
+        return ApiResponse.<PageResponse<CompanyDto>>builder().result(adminService.getPageCompanyAndFilter(name, address, email, phone, emailVerified, verifiedByAdmin, pageUtils.adjustPageable(pageable))).build();
     }
 
     @PutMapping("/companies/{id}/update-activate-status")
-    public ApiResponse<CompanyDto> updateCompanyActivateStatus(
-            @PathVariable("id") int id,
-            @RequestParam("activateStatus") boolean activateStatus) {
+    public ApiResponse<CompanyDto> updateCompanyActivateStatus(@PathVariable("id") int id, @RequestParam("activateStatus") boolean activateStatus) {
         var result = adminService.updateCompanyActivateStatus(id, activateStatus);
-        return ApiResponse.<CompanyDto>builder()
-                .result(result)
-                .build();
+        return ApiResponse.<CompanyDto>builder().result(result).build();
     }
 
     @PostMapping("/products")
-    public ApiResponse<ProductDto> createProduct(
-            @RequestBody ProductCreateRequest request) {
-        var result = adminService.createProduct(request);
-        return ApiResponse.<ProductDto>builder()
-                .result(result)
-                .build();
+    public ApiResponse<ProductDto> createProduct(@RequestBody ProductCreateRequest request) {
+        return ApiResponse.<ProductDto>builder().result(adminService.createProduct(request)).build();
     }
 
     @PatchMapping("/products/{id}")
-    public ApiResponse<ProductDto> updateProduct(
-            @PathVariable("id") int id,
-            @RequestBody ProductUpdateRequest request) {
-        var result = adminService.updateProduct(id, request);
-        return ApiResponse.<ProductDto>builder()
-                .result(result)
-                .build();
+    public ApiResponse<ProductDto> updateProduct(@PathVariable("id") int id, @RequestBody ProductUpdateRequest request) {
+        return ApiResponse.<ProductDto>builder().result(adminService.updateProduct(id, request)).build();
     }
 
     @GetMapping("/purchase-histories")
-    public ApiResponse<PageResponse<PurchaseHistoryDto>> getPagePurchaseHistory(
-            @RequestParam(value = "companyName", required = false) String companyName,
-            @RequestParam(value = "productName", required = false) String productName, Pageable pageable){
+    public ApiResponse<PageResponse<PurchaseHistoryDto>> getPagePurchaseHistory(@RequestParam(value = "companyName", required = false) String companyName, @RequestParam(value = "productName", required = false) String productName, Pageable pageable) {
         return ApiResponse.<PageResponse<PurchaseHistoryDto>>builder().result(adminService.getPagePurchaseHistory(companyName, productName, pageUtils.adjustPageable(pageable))).build();
     }
 }

@@ -9,8 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     @Query("""
-            select product
-            from Product product
+            select product from Product product
             """)
     Page<Product> getPage(Pageable pageable);
 }

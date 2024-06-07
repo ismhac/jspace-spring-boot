@@ -36,9 +36,9 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     Page<Company> getPageAndFilter(String name, String address, String email, String phone, Boolean emailVerified, Boolean verifiedByAdmin, Pageable pageable);
 
     @Query("""
-            select 
+            select
                 (case when :candidateId is null then 'guest' else 'candidate' end) as userMode,
-               (case when :candidateId is null then null else (case when exists (select 1 from CandidateFollowCompany cfp where cfp.id.company.id = c.id and cfp.id.candidate.id.user.id = :candidateId) then true else false end) end) as followed,
+                (case when :candidateId is null then null else (case when exists (select 1 from CandidateFollowCompany cfp where cfp.id.company.id = c.id and cfp.id.candidate.id.user.id = :candidateId) then true else false end) end) as followed,
                 c as company
             from Company c
             where (:name is null or :name = '' or lower(c.name) like lower(concat('%', :name , '%')))
@@ -50,8 +50,9 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     Page<Map<String, Object>> findAllAndFilter(String name, String address, String email, String phone, String companySize, Integer candidateId, Pageable pageable);
 
     @Query("""
-            select (case when ?2 is null then 'guest' else 'candidate' end) as userMode,
-               (case when ?2 is null then null else (case when cfp.id.candidate.id.user.id is not null then true else false end) end) as followed,
+            select
+                (case when ?2 is null then 'guest' else 'candidate' end) as userMode,
+                (case when ?2 is null then null else (case when cfp.id.candidate.id.user.id is not null then true else false end) end) as followed,
                 c as company
             from Company c
             left join CandidateFollowCompany cfp on cfp.id.company.id = c.id

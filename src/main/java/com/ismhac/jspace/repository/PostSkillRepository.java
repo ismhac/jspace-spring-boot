@@ -13,8 +13,7 @@ public interface PostSkillRepository extends JpaRepository<PostSkill, PostSkillI
 
     @Query("""
             select new com.ismhac.jspace.dto.skill.response.SkillDto(ps.id.skill.id,ps.id.skill.name)
-            from PostSkill ps
-            where ps.id.post.id = ?1
+            from PostSkill ps where ps.id.post.id = ?1
             """)
     List<SkillDto> findAllSkillsByPostId(int postId);
 

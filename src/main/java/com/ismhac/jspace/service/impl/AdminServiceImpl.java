@@ -45,7 +45,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class AdminServiceImpl implements AdminService {
-
     @Value("${init.admin.username}")
     private String superAdminUsername;
     @Value("${init.admin.password}")
@@ -74,21 +73,17 @@ public class AdminServiceImpl implements AdminService {
     public void initRootAdmin() {
         Role superAdminRole = roleRepository.findRoleByCode(RoleCode.SUPER_ADMIN).orElseGet(() -> {
             Role newRole = new Role();
-
             newRole.setCode(RoleCode.SUPER_ADMIN);
             newRole.setName(RoleCode.SUPER_ADMIN.getName());
-
             return roleRepository.save(newRole);
         });
 
         User user = userRepository.findUserByUsername(superAdminUsername).orElseGet(() -> {
             User newUser = new User();
-
             newUser.setUsername(superAdminUsername);
             newUser.setPassword(passwordEncoder.encode(superAdminPassword));
             newUser.setActivated(true);
             newUser.setRole(superAdminRole);
-
             return userRepository.save(newUser);
         });
 
@@ -98,10 +93,8 @@ public class AdminServiceImpl implements AdminService {
 
         adminRepository.findAdminById(adminId).orElseGet(() -> {
             Admin newAdmin = new Admin();
-
             newAdmin.setId(adminId);
             newAdmin.setType(AdminType.ROOT);
-
             return adminRepository.save(newAdmin);
         });
     }
@@ -109,16 +102,11 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public AdminDto create(AdminCreateRequest adminCreateRequest) {
-
-        /* prepare data */
         String username = adminCreateRequest.getUsername().trim();
         String password = adminCreateRequest.getPassword().trim();
         String email = adminCreateRequest.getEmail().trim();
         AdminType adminType = AdminType.BASIC;
 
-        /* */
-
-        /* check exist */
         Optional<Admin> admin = adminRepository.findAdminByAdminTypeAndUsernameAndEmail(adminType, username, email);
         if (admin.isPresent()) {
             throw new AppException(ErrorCode.USER_EXISTED);
@@ -132,54 +120,22 @@ public class AdminServiceImpl implements AdminService {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
-
         Role role = roleRepository.findRoleByCode(RoleCode.ADMIN).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ROLE));
-
-        User user = User.builder()
-                .username(username)
-                .password(passwordEncoder.encode(password))
-                .email(email)
-                .role(role)
-                .activated(true)
-                .build();
-
+        User user = User.builder().username(username).password(passwordEncoder.encode(password)).email(email).role(role).activated(true).build();
         User savedUser = userRepository.save(user);
-
-        AdminId adminId = AdminId.builder()
-                .user(savedUser)
-                .build();
-
-        Admin newAdmin = Admin.builder()
-                .id(adminId)
-                .type(adminType)
-                .build();
-
+        AdminId adminId = AdminId.builder().user(savedUser).build();
+        Admin newAdmin = Admin.builder().id(adminId).type(adminType).build();
         Admin savedAdmin = adminRepository.save(newAdmin);
-
-        /* */
         LocalDateTime otpCreatedDateTime = LocalDateTime.now().plusMinutes(10);
         String token = jwtService.generateAdminRequestVerifyEmailToken(savedAdmin);
-
-        AdminRequestVerifyEmail adminRequestVerifyEmail = AdminRequestVerifyEmail.builder()
-                .admin(savedAdmin)
-                .otpCreatedDateTime(otpCreatedDateTime)
-                .token(token)
-                .build();
-
+        AdminRequestVerifyEmail adminRequestVerifyEmail = AdminRequestVerifyEmail.builder().admin(savedAdmin).otpCreatedDateTime(otpCreatedDateTime).token(token).build();
         adminRequestVerifyEmailRepository.save(adminRequestVerifyEmail);
-
-        /* */
         String subject = "Verify Email";
         String body = adminCreateRequest.getReturnUrl().concat(String.format("?token=%s", token));
-
         adminCreateRequest.setSubject(subject);
         adminCreateRequest.setBody(body);
-
         CreateAdminEvent createAdminEvent = new CreateAdminEvent(this, adminCreateRequest);
-
-        applicationEventPublisher
-                .publishEvent(createAdminEvent);
-
+        applicationEventPublisher.publishEvent(createAdminEvent);
         return AdminMapper.instance.toAdminDto(savedAdmin);
     }
 
@@ -192,17 +148,13 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public PageResponse<UserDto> getPageUserAndFilterByRoleIdNameAndEmailAndActivated(Integer roleId, String name, String email, Boolean activated, Pageable pageable) {
-
         User user = userUtils.getUserFromToken();
-
         Page<User> userPage;
-
         if (user.getRole().getCode().equals(RoleCode.SUPER_ADMIN)) {
             userPage = userRepository.superAdminGetPageUserAndFilterByNameAndEmailAndActivated(roleId, name, email, activated, pageable);
         } else {
             userPage = userRepository.adminGetPageUserAndFilterByNameAndEmailAndActivated(roleId, name, email, activated, pageable);
         }
-
         return pageUtils.toPageResponse(userMapper.toUserDtoPage(userPage));
     }
 
@@ -210,14 +162,10 @@ public class AdminServiceImpl implements AdminService {
     @Transactional(rollbackFor = Exception.class)
     @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
     public UserDto updateActivatedUser(UpdateActivatedUserRequest updateActivatedUserRequest) {
-
         User currentUser = userUtils.getUserFromToken();
-
         int userId = updateActivatedUserRequest.getUserId();
         Boolean activated = updateActivatedUserRequest.getActivated();
-
-        User updatedUser = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_USER));
+        User updatedUser = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_USER));
         if (currentUser.getRole().getCode().equals(RoleCode.SUPER_ADMIN)) {
             if (updatedUser.getRole().getCode().equals(RoleCode.SUPER_ADMIN)) {
                 throw new AppException(ErrorCode.UNAUTHORIZED);
@@ -235,26 +183,19 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
     public PageResponse<CompanyRequestReviewDto> getRequestReviewDtoPageResponse(Boolean reviewed, Pageable pageable) {
-        return pageUtils.toPageResponse(CompanyRequestReviewMapper
-                .instance.ePageToDtoPage(
-                       companyRequestReviewRepository.getPageFilterByReviewed(reviewed, pageable)
-                ));
+        return pageUtils.toPageResponse(CompanyRequestReviewMapper.instance.ePageToDtoPage(companyRequestReviewRepository.getPageFilterByReviewed(reviewed, pageable)));
     }
 
     @Override
     @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
     @Transactional(rollbackFor = Exception.class)
     public CompanyRequestReviewDto adminVerifyForCompany(Integer companyId, Boolean reviewed) {
-        CompanyRequestReview companyRequestReview = companyRequestReviewRepository.findByCompanyId(companyId)
-                .orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+        CompanyRequestReview companyRequestReview = companyRequestReviewRepository.findByCompanyId(companyId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
         companyRequestReview.setReviewed(true);
-
         Company company = companyRequestReview.getId().getCompany();
         company.setVerifiedByAdmin(true);
-
         companyRequestReviewRepository.save(companyRequestReview);
         companyRepository.save(company);
-
         return CompanyRequestReviewMapper.instance.eToDto(companyRequestReview);
     }
 
@@ -269,7 +210,7 @@ public class AdminServiceImpl implements AdminService {
     @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
     @Transactional(rollbackFor = Exception.class)
     public CompanyDto updateCompanyActivateStatus(int id, boolean activateStatus) {
-        Company company = companyRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+        Company company = companyRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
         company.setActivateStatus(activateStatus);
         return CompanyMapper.instance.eToDto(companyRepository.save(company));
     }
@@ -286,9 +227,7 @@ public class AdminServiceImpl implements AdminService {
     @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
     @Transactional(rollbackFor = Exception.class)
     public ProductDto updateProduct(int id, ProductUpdateRequest request) {
-
-        Product product = productRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.COMPANY_EXISTED));
-
+        Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COMPANY_EXISTED));
         BeanUtils.copyProperties(request, product, beanUtils.getNullPropertyNames(request));
         return ProductMapper.instance.eToDto(productRepository.save(product));
     }

@@ -14,26 +14,18 @@ import java.util.Optional;
 public interface CandidatePostLikedRepository extends JpaRepository<CandidatePostLiked, CandidatePostLikedId> {
 
     @Query("""
-            select cpl
-            from CandidatePostLiked cpl
-            where cpl.id.candidate.id.user.id = ?1
-                and cpl.id.post.id = ?2
+            select cpl from CandidatePostLiked cpl where cpl.id.candidate.id.user.id = ?1 and cpl.id.post.id = ?2
             """)
     Optional<CandidatePostLiked> findByCandiDateIdAndPostId(int candidateId, int postId);
 
     @Modifying
     @Query("""
-            delete
-            from CandidatePostLiked cpl
-            where cpl.id.candidate.id.user.id = ?1
-                and cpl.id.post.id = ?2
+            delete from CandidatePostLiked cpl where cpl.id.candidate.id.user.id = ?1 and cpl.id.post.id = ?2
             """)
     int deleteByCandidateIdAndPostId(int candidateId, int postId);
 
     @Query("""
-            select cpl.id.post
-            from CandidatePostLiked cpl
-            where cpl.id.candidate.id.user.id = ?1
+            select cpl.id.post from CandidatePostLiked cpl where cpl.id.candidate.id.user.id = ?1
             """)
     Page<Post> getPagePostByCandidateId(int candidateId, Pageable pageable);
 }

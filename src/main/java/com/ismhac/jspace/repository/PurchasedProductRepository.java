@@ -14,17 +14,12 @@ import java.util.Optional;
 public interface PurchasedProductRepository extends JpaRepository<PurchasedProduct, Integer> {
 
     @Query("""
-            select pd as purchasedProduct
-            from PurchasedProduct pd
-            where pd.company.id = :companyId
-                and pd.expiryDate >= :now
+            select pd as purchasedProduct from PurchasedProduct pd where pd.company.id = :companyId and pd.expiryDate >= :now
             """)
     List<PurchasedProduct> getListByCompanyId(int companyId, LocalDate now);
 
     @Query("""
-            select pp
-            from PurchasedProduct pp
-            where pp.company.id = ?1
+            select pp from PurchasedProduct pp where pp.company.id = ?1
                 and(?2 is null or ?2 = '' or lower(pp.productName) like lower(concat('%', ?2, '%')))
             order by pp.createdAt desc
             """)

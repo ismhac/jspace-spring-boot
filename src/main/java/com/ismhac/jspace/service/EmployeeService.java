@@ -64,4 +64,4 @@ public interface EmployeeService {
     PageResponse<CandidatePostDto> getPageCandidateAppliedPost(int companyId, Pageable pageable);
 
     PageResponse<CandidatePostDto> getPageCandidateAppliedByPostId(int postId, Pageable pageable);
- }
+}

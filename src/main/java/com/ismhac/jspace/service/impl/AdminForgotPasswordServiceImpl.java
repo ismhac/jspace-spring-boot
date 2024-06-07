@@ -9,5 +9,4 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AdminForgotPasswordServiceImpl implements AdminForgotPasswordService {
     private final AdminForgotPasswordTokenRepository adminForgotPasswordTokenRepository;
-
 }

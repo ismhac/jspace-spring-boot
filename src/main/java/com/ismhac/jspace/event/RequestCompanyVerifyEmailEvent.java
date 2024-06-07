@@ -8,8 +8,8 @@ import org.springframework.context.ApplicationEvent;
 @Getter
 @Setter
 public class RequestCompanyVerifyEmailEvent extends ApplicationEvent {
-
     private SendMailRequest sendMailRequest;
+
     public RequestCompanyVerifyEmailEvent(Object source, SendMailRequest sendMailRequest) {
         super(source);
         this.sendMailRequest = sendMailRequest;

@@ -23,7 +23,6 @@ import java.util.Map;
 @Tag(name = "Company")
 public class CompanyController {
     private final CompanyService companyService;
-    private final PageUtils pageUtils;
 
     @GetMapping("/verify-email")
     public void verifyEmail(@RequestParam("mac") String token, HttpServletResponse httpServletResponse) throws IOException {

@@ -9,9 +9,7 @@ import java.util.List;
 public interface SkillRepository extends JpaRepository<Skill, Integer> {
 
     @Query("""
-            select s
-            from Skill s
-            where s.id in ?1
+            select s from Skill s where s.id in ?1
             """)
     List<Skill> findAllByIdList(List<Integer> idList);
 }

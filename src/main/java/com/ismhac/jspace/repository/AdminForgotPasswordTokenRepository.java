@@ -10,11 +10,7 @@ import java.util.Optional;
 public interface AdminForgotPasswordTokenRepository extends JpaRepository<AdminForgotPasswordToken, Integer> {
 
     @Query("""
-            select t1
-            from AdminForgotPasswordToken t1
-            where t1.admin.id.user.id = :adminId
-            order by t1.id desc
-            limit 1
+            select t1 from AdminForgotPasswordToken t1 where t1.admin.id.user.id = :adminId order by t1.id desc limit 1
             """)
     Optional<AdminForgotPasswordToken> findLatestByAdminId(@Param("adminId") int adminId);
 }

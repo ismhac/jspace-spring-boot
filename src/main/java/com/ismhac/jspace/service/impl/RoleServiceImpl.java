@@ -21,8 +21,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void initRoles() {
-        Arrays.stream(RoleCode.values())
-                .filter(roleCode -> !roleRepository.existsByCode(roleCode))
+        Arrays.stream(RoleCode.values()).filter(roleCode -> !roleRepository.existsByCode(roleCode))
                 .forEach(roleCode -> {
                     Role role = new Role();
                     role.setCode(roleCode);

@@ -27,7 +27,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -170,9 +173,9 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public PageResponse<Map<String, Object>> getPageAndFilter(String name, String address, String email, String phone, String companySize, Integer candidateId,Pageable pageable) {
+    public PageResponse<Map<String, Object>> getPageAndFilter(String name, String address, String email, String phone, String companySize, Integer candidateId, Pageable pageable) {
         Page<Map<String, Object>> results = companyRepository.findAllAndFilter(name, address, email, phone, companySize, candidateId, pageUtils.adjustPageable(pageable));
-        List<Map<String, Object>> contents = results.getContent().stream().map(result->{
+        List<Map<String, Object>> contents = results.getContent().stream().map(result -> {
             Map<String, Object> map = new HashMap<>(result);
             map.put("company", CompanyMapper.instance.eToDto((Company) result.get("company")));
             return map;

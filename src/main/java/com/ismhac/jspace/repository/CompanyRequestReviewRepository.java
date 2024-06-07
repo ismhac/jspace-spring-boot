@@ -13,16 +13,12 @@ public interface CompanyRequestReviewRepository extends
         JpaRepository<CompanyRequestReview, CompanyRequestReviewId> {
 
     @Query("""
-            select crr
-            from CompanyRequestReview crr
-            where (:reviewed is null or crr.reviewed = :reviewed)
+            select crr from CompanyRequestReview crr where (:reviewed is null or crr.reviewed = :reviewed)
             """)
     Page<CompanyRequestReview> getPageFilterByReviewed(Boolean reviewed, Pageable pageable);
 
     @Query("""
-            select crr
-            from CompanyRequestReview crr
-            where crr.id.company.id = :companyId
+            select crr from CompanyRequestReview crr where crr.id.company.id = :companyId
             """)
     Optional<CompanyRequestReview> findByCompanyId(int companyId);
 }

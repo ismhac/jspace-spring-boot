@@ -48,9 +48,6 @@ public interface CandidatePostMapper {
 
     @Named("convertApplyStatusToDto")
     default ApplyStatusDto convertApplyStatusToDto(ApplyStatus applyStatus){
-        return ApplyStatusDto.builder()
-                .value(applyStatus.name())
-                .code(applyStatus.getStatus())
-                .build();
+        return ApplyStatusDto.builder().value(applyStatus.name()).code(applyStatus.getStatus()).build();
     }
 }

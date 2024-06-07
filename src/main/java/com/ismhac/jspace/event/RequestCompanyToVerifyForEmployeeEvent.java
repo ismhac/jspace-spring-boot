@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationEvent;
 @Setter
 public class RequestCompanyToVerifyForEmployeeEvent extends ApplicationEvent {
     private SendMailRequest sendMailRequest;
+
     public RequestCompanyToVerifyForEmployeeEvent(Object source, SendMailRequest sendMailRequest) {
         super(source);
         this.sendMailRequest = sendMailRequest;
