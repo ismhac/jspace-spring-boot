@@ -57,24 +57,16 @@ public class AuthServiceImpl implements AuthService {
     UserRepository userRepository;
     EmployeeRepository employeeRepository;
     CandidateRepository candidateRepository;
-
     AdminRepository adminRepository;
-
     AdminForgotPasswordTokenRepository adminForgotPasswordTokenRepository;
-
     RefreshTokenRepository refreshTokenRepository;
-
     InvalidatedTokenRepository invalidatedTokenRepository;
-
     JwtService jwtService;
-
     HashUtils hashUtils;
-
     ApplicationEventPublisher applicationEventPublisher;
-
     AdminMapper adminMapper;
-
     AdminRequestVerifyEmailRepository adminRequestVerifyEmailRepository;
+    CandidateFollowCompanyRepository candidateFollowCompanyRepository;
 
     /* */
     @Override
@@ -262,7 +254,7 @@ public class AuthServiceImpl implements AuthService {
 
         return EmployeeDto.builder()
                 .user(UserMapper.instance.toUserDto((User) employeeInFo.get("user")))
-                .company(CompanyMapper.instance.eToDto((Company) employeeInFo.get("company")))
+                .company(CompanyMapper.instance.eToDto((Company) employeeInFo.get("company"),candidateFollowCompanyRepository))
                 .verifiedByCompany((Boolean) employeeInFo.get("verifiedByCompany"))
                 .hasFullCredentialInfo((Boolean) employeeInFo.get("hasFullCredentialInfo"))
                 .hasCompany((Boolean) employeeInFo.get("hasCompany"))

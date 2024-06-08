@@ -4,6 +4,7 @@ import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.mapper.PostMapper;
 import com.ismhac.jspace.model.Post;
 import com.ismhac.jspace.model.enums.*;
+import com.ismhac.jspace.repository.CandidateFollowCompanyRepository;
 import com.ismhac.jspace.repository.PostRepository;
 import com.ismhac.jspace.repository.PostSkillRepository;
 import com.ismhac.jspace.service.PostService;
@@ -23,12 +24,13 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final PostSkillRepository postSkillRepository;
     private final PageUtils pageUtils;
+    private final CandidateFollowCompanyRepository candidateFollowCompanyRepository;
 
     @Override
     public LinkedHashMap<String, Object> getById(int id, Integer candidateId) {
         Tuple result = postRepository.findPostByIdAndCandidateId(id, candidateId);
         return new LinkedHashMap<>() {{
-            put("post", PostMapper.instance.eToDto((Post) result.get("post"), postSkillRepository));
+            put("post", PostMapper.instance.eToDto((Post) result.get("post"), postSkillRepository, candidateFollowCompanyRepository));
             put("userMode", result.get("userMode"));
             put("liked", result.get("liked"));
             put("applied", result.get("applied"));
@@ -44,7 +46,7 @@ public class PostServiceImpl implements PostService {
 
         List<Map<String, Object>> results = resultPage.getContent().stream().map(result -> {
             Map<String, Object> map = new HashMap<>(result);
-            map.put("post", PostMapper.instance.eToDto((Post) result.get("post"), postSkillRepository));
+            map.put("post", PostMapper.instance.eToDto((Post) result.get("post"), postSkillRepository, candidateFollowCompanyRepository));
             return map;
         }).toList();
 

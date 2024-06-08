@@ -6,6 +6,8 @@ import com.ismhac.jspace.dto.product.response.ProductDto;
 import com.ismhac.jspace.model.Cart;
 import com.ismhac.jspace.model.Company;
 import com.ismhac.jspace.model.Product;
+import com.ismhac.jspace.repository.CandidateFollowCompanyRepository;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -19,15 +21,15 @@ public interface CartMapper {
     @Mapping(target = "company", source = "company", qualifiedByName = "convertCompanyToDto")
     @Mapping(target ="product", source = "product", qualifiedByName = "convertProductToDto")
     @Mapping(target = "totalPrice", expression = "java(calculateTotalPrice(e.getProduct(), e.getQuantity()))")
-    CartDto eToDto(Cart e);
+    CartDto eToDto(Cart e, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository);
 
-    default Page<CartDto> ePageToDtoPage(Page<Cart> ePage){
-        return ePage.map(this::eToDto);
+    default Page<CartDto> ePageToDtoPage(Page<Cart> ePage, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository){
+        return ePage.map(item -> this.eToDto(item,candidateFollowCompanyRepository ));
     }
 
     @Named("convertCompanyToDto")
-    default CompanyDto convertCompanyToDto(Company company){
-        return CompanyMapper.instance.eToDto(company);
+    default CompanyDto convertCompanyToDto(Company company, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository){
+        return CompanyMapper.instance.eToDto(company, candidateFollowCompanyRepository);
     }
 
     @Named("convertProductToDto")

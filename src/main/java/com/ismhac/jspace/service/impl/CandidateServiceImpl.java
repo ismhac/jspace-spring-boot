@@ -299,7 +299,7 @@ public class CandidateServiceImpl implements CandidateService {
                 .id(candidatePostLikedId)
                 .build();
 
-        return CandidatePostLikedMapper.instance.eToDto(candidatePostLikedRepository.save(candidatePostLiked), postSkillRepository);
+        return CandidatePostLikedMapper.instance.eToDto(candidatePostLikedRepository.save(candidatePostLiked), postSkillRepository, candidateFollowCompanyRepository);
     }
 
     @Override
@@ -316,7 +316,7 @@ public class CandidateServiceImpl implements CandidateService {
     @Override
     public PageResponse<PostDto> getPagePostLiked(int id, Pageable pageable) {
         Page<Post> posts = candidatePostLikedRepository.getPagePostByCandidateId(id, pageable);
-        return pageUtils.toPageResponse(PostMapper.instance.ePageToDtoPage(posts, postSkillRepository));
+        return pageUtils.toPageResponse(PostMapper.instance.ePageToDtoPage(posts, postSkillRepository, candidateFollowCompanyRepository));
     }
 
     @Override
@@ -326,7 +326,7 @@ public class CandidateServiceImpl implements CandidateService {
         List<Map<String, Object>> dtoList = postPage.getContent().stream()
                 .map(item -> {
                     Map<String, Object> map = new HashMap<>(item);
-                    map.put("post", PostMapper.instance.eToDto((Post) item.get("post"), postSkillRepository));
+                    map.put("post", PostMapper.instance.eToDto((Post) item.get("post"), postSkillRepository, candidateFollowCompanyRepository));
                     return map;
                 }).toList();
 
@@ -365,21 +365,21 @@ public class CandidateServiceImpl implements CandidateService {
                 .resume(resume)
                 .applyStatus(ApplyStatus.PROGRESS)
                 .build();
-        return CandidatePostMapper.instance.eToDto(candidatePostRepository.save(candidatePost), postSkillRepository);
+        return CandidatePostMapper.instance.eToDto(candidatePostRepository.save(candidatePost), postSkillRepository, candidateFollowCompanyRepository);
     }
 
     @Override
     public Map<String, Object> getPostById(int candidateId, int postId) {
         Map<String, Object> result = postRepository.candidateFindPostById(candidateId, postId);
         Map<String, Object> map = new HashMap<>(result);
-        map.put("post", PostMapper.instance.eToDto((Post) result.get("post"), postSkillRepository));
+        map.put("post", PostMapper.instance.eToDto((Post) result.get("post"), postSkillRepository, candidateFollowCompanyRepository));
         return map;
     }
 
     @Override
     public PageResponse<PostDto> getAppliedPost(int candidateId, Pageable pageable) {
         Candidate candidate = candidateRepository.findByUserId(candidateId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_USER));
-        return pageUtils.toPageResponse(PostMapper.instance.ePageToDtoPage(candidatePostRepository.candidateGetPageAppliedPost(candidateId, pageable), postSkillRepository));
+        return pageUtils.toPageResponse(PostMapper.instance.ePageToDtoPage(candidatePostRepository.candidateGetPageAppliedPost(candidateId, pageable), postSkillRepository, candidateFollowCompanyRepository));
     }
 
     @Override
@@ -390,7 +390,7 @@ public class CandidateServiceImpl implements CandidateService {
         CandidateFollowCompanyId id = CandidateFollowCompanyId.builder().company(company).candidate(candidate).build();
         Optional<CandidateFollowCompany> candidateFollowCompanyOptional = candidateFollowCompanyRepository.findById(id);
         if (candidateFollowCompanyOptional.isPresent()) throw new AppException(ErrorCode.CANDIDATE_FOLLOW_COMPANY_EXISTED);
-        return CandidateFollowCompanyMapper.instance.eToDto(candidateFollowCompanyRepository.save(CandidateFollowCompany.builder().id(id).build()));
+        return CandidateFollowCompanyMapper.instance.eToDto(candidateFollowCompanyRepository.save(CandidateFollowCompany.builder().id(id).build()), candidateFollowCompanyRepository);
     }
 
     @Override
@@ -401,7 +401,7 @@ public class CandidateServiceImpl implements CandidateService {
 
     @Override
     public PageResponse<CompanyDto> getPageFollowedCompanies(int candidateId, Pageable pageable) {
-        return pageUtils.toPageResponse(CompanyMapper.instance.ePageToDtoPage(candidateFollowCompanyRepository.getPageFollowedCompaniesByCandidateId(candidateId, pageUtils.adjustPageable(pageable))));
+        return pageUtils.toPageResponse(CompanyMapper.instance.ePageToDtoPage(candidateFollowCompanyRepository.getPageFollowedCompaniesByCandidateId(candidateId, pageUtils.adjustPageable(pageable)), candidateFollowCompanyRepository));
     }
 
     @Transactional(rollbackFor = Exception.class)
