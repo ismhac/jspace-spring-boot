@@ -10,6 +10,7 @@ import com.ismhac.jspace.model.CandidatePost;
 import com.ismhac.jspace.model.Post;
 import com.ismhac.jspace.model.Resume;
 import com.ismhac.jspace.model.enums.ApplyStatus;
+import com.ismhac.jspace.repository.CandidateFollowCompanyRepository;
 import com.ismhac.jspace.repository.PostSkillRepository;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
@@ -23,13 +24,13 @@ public interface CandidatePostMapper {
     CandidatePostMapper instance = Mappers.getMapper(CandidatePostMapper.class);
 
     @Mapping(target = "candidate", source = "id.candidate", qualifiedByName = "convertCandidateToDto")
-    @Mapping(target = "post", expression = "java(convertPostToDto(e.getId().getPost(), postSkillRepository))")
+    @Mapping(target = "post", expression = "java(convertPostToDto(e.getId().getPost(), postSkillRepository, candidateFollowCompanyRepository))")
     @Mapping(target = "resume", source = "resume", qualifiedByName = "convertResumeToDto")
     @Mapping(target = "applyStatus", source = "applyStatus", qualifiedByName = "convertApplyStatusToDto")
-    CandidatePostDto eToDto(CandidatePost e, @Context PostSkillRepository postSkillRepository);
+    CandidatePostDto eToDto(CandidatePost e, @Context PostSkillRepository postSkillRepository, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository);
 
-    default Page<CandidatePostDto> ePageToDtoPage(Page<CandidatePost> ePage, @Context PostSkillRepository postSkillRepository){
-        return ePage.map(item-> this.eToDto(item, postSkillRepository));
+    default Page<CandidatePostDto> ePageToDtoPage(Page<CandidatePost> ePage, @Context PostSkillRepository postSkillRepository, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository){
+        return ePage.map(item-> this.eToDto(item, postSkillRepository, candidateFollowCompanyRepository));
     }
 
     @Named("convertCandidateToDto")
@@ -37,8 +38,8 @@ public interface CandidatePostMapper {
         return CandidateMapper.instance.eToDto(candidate);
     }
 
-    default PostDto convertPostToDto(Post post, PostSkillRepository postSkillRepository){
-        return PostMapper.instance.eToDto(post, postSkillRepository);
+    default PostDto convertPostToDto(Post post, @Context PostSkillRepository postSkillRepository, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository){
+        return PostMapper.instance.eToDto(post, postSkillRepository, candidateFollowCompanyRepository);
     }
 
     @Named("convertResumeToDto")

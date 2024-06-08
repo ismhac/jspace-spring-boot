@@ -7,6 +7,7 @@ import com.ismhac.jspace.dto.skill.response.SkillDto;
 import com.ismhac.jspace.model.Company;
 import com.ismhac.jspace.model.Post;
 import com.ismhac.jspace.model.enums.*;
+import com.ismhac.jspace.repository.CandidateFollowCompanyRepository;
 import com.ismhac.jspace.repository.PostSkillRepository;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
@@ -29,15 +30,15 @@ public interface PostMapper {
     @Mapping(target = "rank", source = "rank", qualifiedByName = "convertRankToDto")
     @Mapping(target = "experience", source = "experience", qualifiedByName = "convertExperienceToDto")
     @Mapping(target = "skills", expression = "java(getSkillDtoList(e.getId(), postSkillRepository))")
-    PostDto eToDto(Post e, @Context PostSkillRepository postSkillRepository);
+    PostDto eToDto(Post e, @Context PostSkillRepository postSkillRepository, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository);
 
-    default Page<PostDto> ePageToDtoPage(Page<Post> ePage, @Context PostSkillRepository postSkillRepository) {
-        return ePage.map(item -> eToDto(item, postSkillRepository));
+    default Page<PostDto> ePageToDtoPage(Page<Post> ePage, @Context PostSkillRepository postSkillRepository, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository) {
+        return ePage.map(item -> eToDto(item, postSkillRepository, candidateFollowCompanyRepository));
     }
 
     @Named("convertCompanyToDto")
-    default CompanyDto convertCompanyToDto(Company e) {
-        return CompanyMapper.instance.eToDto(e);
+    default CompanyDto convertCompanyToDto(Company e, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository) {
+        return CompanyMapper.instance.eToDto(e, candidateFollowCompanyRepository);
     }
 
     @Named("convertLocationToDto")

@@ -10,10 +10,7 @@ import com.ismhac.jspace.model.Company;
 import com.ismhac.jspace.model.CompanyVerifyEmailRequestHistory;
 import com.ismhac.jspace.model.Employee;
 import com.ismhac.jspace.model.EmployeeHistoryRequestCompanyVerify;
-import com.ismhac.jspace.repository.CompanyRepository;
-import com.ismhac.jspace.repository.CompanyVerifyEmailRequestHistoryRepository;
-import com.ismhac.jspace.repository.EmployeeHistoryRequestCompanyVerifyRepository;
-import com.ismhac.jspace.repository.EmployeeRepository;
+import com.ismhac.jspace.repository.*;
 import com.ismhac.jspace.service.CompanyService;
 import com.ismhac.jspace.util.PageUtils;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,6 +38,7 @@ public class CompanyServiceImpl implements CompanyService {
     private final EmployeeHistoryRequestCompanyVerifyRepository employeeHistoryRequestCompanyVerifyRepository;
     private final Cloudinary cloudinary;
     private final PageUtils pageUtils;
+    private final CandidateFollowCompanyRepository candidateFollowCompanyRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -107,7 +105,7 @@ public class CompanyServiceImpl implements CompanyService {
     public Map<String, Object> getCompanyById(int id, Integer candidateId) {
         Map<String, Object> result = companyRepository.findByIdAndOptionalCandidateId(id, candidateId);
         Map<String, Object> response = new HashMap<>(result);
-        response.put("company", CompanyMapper.instance.eToDto((Company) result.get("company")));
+        response.put("company", CompanyMapper.instance.eToDto((Company) result.get("company"), candidateFollowCompanyRepository));
         return response;
     }
 
@@ -139,7 +137,7 @@ public class CompanyServiceImpl implements CompanyService {
         company.setLogo(logoPath);
         company.setLogoId(logoId);
 
-        return CompanyMapper.instance.eToDto(companyRepository.save(company));
+        return CompanyMapper.instance.eToDto(companyRepository.save(company), candidateFollowCompanyRepository);
     }
 
     @Override
@@ -169,7 +167,7 @@ public class CompanyServiceImpl implements CompanyService {
         company.setBackground(backgroundPath);
         company.setBackgroundId(backgroundId);
 
-        return CompanyMapper.instance.eToDto(companyRepository.save(company));
+        return CompanyMapper.instance.eToDto(companyRepository.save(company), candidateFollowCompanyRepository);
     }
 
     @Override
@@ -177,7 +175,7 @@ public class CompanyServiceImpl implements CompanyService {
         Page<Map<String, Object>> results = companyRepository.findAllAndFilter(name, address, email, phone, companySize, candidateId, pageUtils.adjustPageable(pageable));
         List<Map<String, Object>> contents = results.getContent().stream().map(result -> {
             Map<String, Object> map = new HashMap<>(result);
-            map.put("company", CompanyMapper.instance.eToDto((Company) result.get("company")));
+            map.put("company", CompanyMapper.instance.eToDto((Company) result.get("company"), candidateFollowCompanyRepository));
             return map;
         }).toList();
         return pageUtils.toPageResponse(new PageImpl<>(contents, results.getPageable(), results.getTotalElements()));

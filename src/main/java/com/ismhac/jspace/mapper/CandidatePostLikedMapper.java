@@ -6,6 +6,7 @@ import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.model.CandidatePostLiked;
 import com.ismhac.jspace.model.Post;
 import com.ismhac.jspace.model.User;
+import com.ismhac.jspace.repository.CandidateFollowCompanyRepository;
 import com.ismhac.jspace.repository.PostSkillRepository;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
@@ -20,7 +21,7 @@ public interface CandidatePostLikedMapper {
 
     @Mapping(target = "candidate", source = "id.candidate.id.user", qualifiedByName = "convertUserToDto")
     @Mapping(target = "post", source = "id.post", qualifiedByName = "convertPostToDto")
-    CandidatePostLikedDto eToDto(CandidatePostLiked e, @Context PostSkillRepository postSkillRepository);
+    CandidatePostLikedDto eToDto(CandidatePostLiked e, @Context PostSkillRepository postSkillRepository, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository);
 
     @Named("convertUserToDto")
     default UserDto convertUserToDto(User user){
@@ -28,7 +29,7 @@ public interface CandidatePostLikedMapper {
     }
 
     @Named("convertPostToDto")
-    default PostDto convertPostToDto(Post post, @Context PostSkillRepository postSkillRepository){
-        return PostMapper.instance.eToDto(post, postSkillRepository);
+    default PostDto convertPostToDto(Post post, @Context PostSkillRepository postSkillRepository, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository){
+        return PostMapper.instance.eToDto(post, postSkillRepository, candidateFollowCompanyRepository);
     }
 }

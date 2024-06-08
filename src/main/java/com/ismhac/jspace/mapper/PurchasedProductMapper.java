@@ -4,6 +4,8 @@ import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.purchasedProduct.response.PurchasedProductDto;
 import com.ismhac.jspace.model.Company;
 import com.ismhac.jspace.model.PurchasedProduct;
+import com.ismhac.jspace.repository.CandidateFollowCompanyRepository;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -16,20 +18,20 @@ import java.util.List;
 public interface PurchasedProductMapper {
     PurchasedProductMapper instance = Mappers.getMapper(PurchasedProductMapper.class);
 
-    @Mapping(target = "company", source = "company", qualifiedByName = "convertCompanyToDto")
-    PurchasedProductDto eToDto(PurchasedProduct e );
+    @Mapping(target = "company", expression = "java(convertCompanyToDto(e.getCompany(), candidateFollowCompanyRepository))")
+    PurchasedProductDto eToDto(PurchasedProduct e , @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository);
 
-    default List<PurchasedProductDto> eListToDtoList(List<PurchasedProduct> eList){
-        return eList.stream().map(this::eToDto).toList();
+    default List<PurchasedProductDto> eListToDtoList(List<PurchasedProduct> eList, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository){
+        return eList.stream().map(item-> this.eToDto(item, candidateFollowCompanyRepository)).toList();
     }
 
-    default Page<PurchasedProductDto> ePageToDtoPage(Page<PurchasedProduct> ePage){
-        return ePage.map(this::eToDto);
+    default Page<PurchasedProductDto> ePageToDtoPage(Page<PurchasedProduct> ePage, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository){
+        return ePage.map(item -> this.eToDto(item, candidateFollowCompanyRepository));
     }
 
     @Named("convertCompanyToDto")
-    default CompanyDto convertCompanyToDto(Company company){
-        return CompanyMapper.instance.eToDto(company);
+    default CompanyDto convertCompanyToDto(Company company, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository){
+        return CompanyMapper.instance.eToDto(company, candidateFollowCompanyRepository);
     }
 
 }

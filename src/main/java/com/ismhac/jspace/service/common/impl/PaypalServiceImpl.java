@@ -23,17 +23,13 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class PaypalServiceImpl implements PaypalService {
-
     private final APIContext apiContext;
-
     private final PurchasedProductRepository purchasedProductRepository;
     private final PurchaseHistoryRepository purchaseHistoryRepository;
-
     private final CompanyRepository companyRepository;
-
     private final ProductRepository productRepository;
-
     private final CartRepository cartRepository;
+    private final CandidateFollowCompanyRepository candidateFollowCompanyRepository;
 
     @Override
     public Payment createPayment(PaymentCreateRequest paymentCreateRequest) {
@@ -130,8 +126,8 @@ public class PaypalServiceImpl implements PaypalService {
         PurchasedProduct savedPurchasedProduct = purchasedProductRepository.save(purchasedProduct);
 
         return new HashMap<>() {{
-            put("purchaseHistory", PurchaseHistoryMapper.instance.eToDto(savedPurchaseHistory));
-            put("purchasedProduct", PurchasedProductMapper.instance.eToDto(savedPurchasedProduct));
+            put("purchaseHistory", PurchaseHistoryMapper.instance.eToDto(savedPurchaseHistory, candidateFollowCompanyRepository));
+            put("purchasedProduct", PurchasedProductMapper.instance.eToDto(savedPurchasedProduct, candidateFollowCompanyRepository));
         }};
     }
 
@@ -207,8 +203,8 @@ public class PaypalServiceImpl implements PaypalService {
         }
 
         return new HashMap<>() {{
-            put("purchaseHistory", PurchaseHistoryMapper.instance.eListToDtoList(purchaseHistoryRepository.saveAll(purchaseHistories)));
-            put("purchasedProduct", PurchasedProductMapper.instance.eListToDtoList(purchasedProductRepository.saveAll(purchasedProducts)));
+            put("purchaseHistory", PurchaseHistoryMapper.instance.eListToDtoList(purchaseHistoryRepository.saveAll(purchaseHistories), candidateFollowCompanyRepository));
+            put("purchasedProduct", PurchasedProductMapper.instance.eListToDtoList(purchasedProductRepository.saveAll(purchasedProducts), candidateFollowCompanyRepository));
         }};
     }
 

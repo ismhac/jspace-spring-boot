@@ -22,4 +22,9 @@ public interface CandidateFollowCompanyRepository extends JpaRepository<Candidat
             delete from CandidateFollowCompany cfp where cfp.id.candidate.id.user.id = ?1 and cfp.id.company.id = ?2
             """)
     int deleteById(int candidateId, int companyId);
+
+    @Query("""
+            select coalesce(count(distinct (cfp.id.candidate.id.user.id)), 0) from CandidateFollowCompany cfp where cfp.id.company.id = ?1
+            """)
+    int countFollowerOfCompany(int companyId);
 }

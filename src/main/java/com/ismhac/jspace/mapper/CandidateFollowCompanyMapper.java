@@ -6,6 +6,8 @@ import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.model.CandidateFollowCompany;
 import com.ismhac.jspace.model.Company;
 import com.ismhac.jspace.model.User;
+import com.ismhac.jspace.repository.CandidateFollowCompanyRepository;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -17,7 +19,7 @@ public interface CandidateFollowCompanyMapper {
 
     @Mapping(target = "company", source = "id.company", qualifiedByName = "convertCompanyToDto")
     @Mapping(target = "candidate", source = "id.candidate.id.user", qualifiedByName = "convertUserToDto")
-    CandidateFollowCompanyDto eToDto (CandidateFollowCompany e);
+    CandidateFollowCompanyDto eToDto (CandidateFollowCompany e, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository);
 
     @Named("convertUserToDto")
     default UserDto convertUserToDto(User user){
@@ -25,7 +27,7 @@ public interface CandidateFollowCompanyMapper {
     }
 
     @Named("convertCompanyToDto")
-    default CompanyDto convertCompanyToDto(Company company){
-        return CompanyMapper.instance.eToDto(company);
+    default CompanyDto convertCompanyToDto(Company company, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository){
+        return CompanyMapper.instance.eToDto(company, candidateFollowCompanyRepository);
     }
 }

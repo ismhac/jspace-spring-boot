@@ -74,6 +74,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final ProductRepository productRepository;
     private final PurchaseHistoryRepository purchaseHistoryRepository;
     private final CandidatePostRepository candidatePostRepository;
+    private final CandidateFollowCompanyRepository candidateFollowCompanyRepository;
 
     @Autowired
     private BeanUtils beanUtils;
@@ -108,7 +109,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     @PreAuthorize("hasRole('EMPLOYEE')")
     public PageResponse<CompanyDto> getPageCompany(String name, String address, Pageable pageable) {
-        return pageUtils.toPageResponse(CompanyMapper.instance.ePageToDtoPage(companyRepository.getPage(name, address, pageable)));
+        return pageUtils.toPageResponse(CompanyMapper.instance.ePageToDtoPage(companyRepository.getPage(name, address, pageable), candidateFollowCompanyRepository));
     }
 
     @Override
@@ -154,7 +155,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             _sendMailWhenCreateCompany(savedCompany, employee);
         }
 
-        return CompanyMapper.instance.eToDto(savedCompany);
+        return CompanyMapper.instance.eToDto(savedCompany, candidateFollowCompanyRepository);
     }
 
     @Override
@@ -304,9 +305,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         return purchasedProducts.stream().map(item -> {
             Map<String, Object> map = new HashMap<>();
 
-            int remainingDate = (int) ChronoUnit.DAYS.between(now, (PurchasedProductMapper.instance.eToDto(item)).getExpiryDate());
+            int remainingDate = (int) ChronoUnit.DAYS.between(now, (PurchasedProductMapper.instance.eToDto(item, candidateFollowCompanyRepository)).getExpiryDate());
 
-            map.put("purchasedProduct", PurchasedProductMapper.instance.eToDto(item));
+            map.put("purchasedProduct", PurchasedProductMapper.instance.eToDto(item,candidateFollowCompanyRepository));
             map.put("remainingDate", remainingDate);
             return map;
         }).toList();
@@ -315,7 +316,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public PageResponse<PostDto> getPagePosted(int companyId, Pageable pageable) {
         Page<Post> posts = postRepository.getPageByCompanyId(companyId, pageable);
-        return pageUtils.toPageResponse(PostMapper.instance.ePageToDtoPage(posts, postSkillRepository));
+        return pageUtils.toPageResponse(PostMapper.instance.ePageToDtoPage(posts, postSkillRepository, candidateFollowCompanyRepository));
     }
 
     @Override
@@ -335,10 +336,10 @@ public class EmployeeServiceImpl implements EmployeeService {
                     .product(product)
                     .quantity(request.getQuantity())
                     .build();
-            return CartMapper.instance.eToDto(cartRepository.save(newCart));
+            return CartMapper.instance.eToDto(cartRepository.save(newCart), candidateFollowCompanyRepository);
         } else {
             cart.get().setQuantity(cart.get().getQuantity() + request.getQuantity());
-            return CartMapper.instance.eToDto(cartRepository.save(cart.get()));
+            return CartMapper.instance.eToDto(cartRepository.save(cart.get()), candidateFollowCompanyRepository);
         }
     }
 
@@ -348,12 +349,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_CART));
         cart.setQuantity(quantity);
-        return CartMapper.instance.eToDto(cartRepository.save(cart));
+        return CartMapper.instance.eToDto(cartRepository.save(cart), candidateFollowCompanyRepository);
     }
 
     @Override
     public PageResponse<CartDto> getCarts(int companyId, Pageable pageable) {
-        return pageUtils.toPageResponse(CartMapper.instance.ePageToDtoPage(cartRepository.getPageByCompanyId(companyId, pageable)));
+        return pageUtils.toPageResponse(CartMapper.instance.ePageToDtoPage(cartRepository.getPageByCompanyId(companyId, pageable), candidateFollowCompanyRepository));
     }
 
     @Override
@@ -367,7 +368,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public PageResponse<PurchaseHistoryDto> getPageAndFilterByProductName(int companyId, String productName, Pageable pageable) {
-        return pageUtils.toPageResponse(PurchaseHistoryMapper.instance.ePageToDtoPage(purchaseHistoryRepository.findByCompanyIdAndFilterByProductName(companyId, productName, pageable)));
+        return pageUtils.toPageResponse(PurchaseHistoryMapper.instance.ePageToDtoPage(purchaseHistoryRepository.findByCompanyIdAndFilterByProductName(companyId, productName, pageable), candidateFollowCompanyRepository));
     }
 
     @Override
@@ -421,29 +422,29 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         postSkillRepository.saveAll(postSkills);
 
-        return PostMapper.instance.eToDto(savedPost, postSkillRepository);
+        return PostMapper.instance.eToDto(savedPost, postSkillRepository, candidateFollowCompanyRepository);
     }
 
     @Override
     public PageResponse<PurchasedProductDto> getPagePurchasedProduct(int companyId, String productName, Pageable pageable) {
         Page<PurchasedProduct> purchasedProducts = purchasedProductRepository.getPageByCompanyId(companyId, productName, pageUtils.adjustPageable(pageable));
-        return pageUtils.toPageResponse(PurchasedProductMapper.instance.ePageToDtoPage(purchasedProducts));
+        return pageUtils.toPageResponse(PurchasedProductMapper.instance.ePageToDtoPage(purchasedProducts, candidateFollowCompanyRepository));
     }
 
     @Override
     public PurchasedProductDto getPurchasedProductById(int companyId, int purchasedProductId) {
         PurchasedProduct purchasedProduct = purchasedProductRepository.findByIdAndCompanyId(purchasedProductId, companyId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PURCHASED_PRODUCT));
-        return PurchasedProductMapper.instance.eToDto(purchasedProduct);
+        return PurchasedProductMapper.instance.eToDto(purchasedProduct, candidateFollowCompanyRepository);
     }
 
     @Override
     public PageResponse<CandidatePostDto> getPageCandidateAppliedPost(int companyId, Pageable pageable) {
-        return pageUtils.toPageResponse(CandidatePostMapper.instance.ePageToDtoPage(candidatePostRepository.getPageCandidateAppliedPost(companyId, pageUtils.adjustPageable(pageable)), postSkillRepository));
+        return pageUtils.toPageResponse(CandidatePostMapper.instance.ePageToDtoPage(candidatePostRepository.getPageCandidateAppliedPost(companyId, pageUtils.adjustPageable(pageable)), postSkillRepository, candidateFollowCompanyRepository));
     }
 
     @Override
     public PageResponse<CandidatePostDto> getPageCandidateAppliedByPostId(int postId, Pageable pageable) {
-        return pageUtils.toPageResponse(CandidatePostMapper.instance.ePageToDtoPage(candidatePostRepository.getPageCandidateAppliedByPostId(postId, pageable), postSkillRepository));
+        return pageUtils.toPageResponse(CandidatePostMapper.instance.ePageToDtoPage(candidatePostRepository.getPageCandidateAppliedByPostId(postId, pageable), postSkillRepository, candidateFollowCompanyRepository));
     }
 
     @Override
@@ -530,7 +531,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
                 postSkillRepository.saveAll(postSkills);
 
-                return PostMapper.instance.eToDto(savedPost, postSkillRepository);
+                return PostMapper.instance.eToDto(savedPost, postSkillRepository, candidateFollowCompanyRepository);
             }
         } else {
             PurchasedProduct purchasedProduct = purchasedProductRepository.findById(req.getPurchasedProductId())
@@ -602,7 +603,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
             postSkillRepository.saveAll(postSkills);
 
-            return PostMapper.instance.eToDto(savedPost, postSkillRepository);
+            return PostMapper.instance.eToDto(savedPost, postSkillRepository, candidateFollowCompanyRepository);
         }
     }
 

@@ -64,6 +64,7 @@ public class AdminServiceImpl implements AdminService {
     private final AdminRequestVerifyEmailRepository adminRequestVerifyEmailRepository;
     private final JwtService jwtService;
     private final PurchaseHistoryRepository purchaseHistoryRepository;
+    private final CandidateFollowCompanyRepository candidateFollowCompanyRepository;
 
     @Autowired
     private com.ismhac.jspace.util.BeanUtils beanUtils;
@@ -183,7 +184,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
     public PageResponse<CompanyRequestReviewDto> getRequestReviewDtoPageResponse(Boolean reviewed, Pageable pageable) {
-        return pageUtils.toPageResponse(CompanyRequestReviewMapper.instance.ePageToDtoPage(companyRequestReviewRepository.getPageFilterByReviewed(reviewed, pageable)));
+        return pageUtils.toPageResponse(CompanyRequestReviewMapper.instance.ePageToDtoPage(companyRequestReviewRepository.getPageFilterByReviewed(reviewed, pageable), candidateFollowCompanyRepository));
     }
 
     @Override
@@ -196,14 +197,14 @@ public class AdminServiceImpl implements AdminService {
         company.setVerifiedByAdmin(true);
         companyRequestReviewRepository.save(companyRequestReview);
         companyRepository.save(company);
-        return CompanyRequestReviewMapper.instance.eToDto(companyRequestReview);
+        return CompanyRequestReviewMapper.instance.eToDto(companyRequestReview, candidateFollowCompanyRepository);
     }
 
     @Override
     @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
     public PageResponse<CompanyDto> getPageCompanyAndFilter(String name, String address, String email, String phone, Boolean emailVerified, Boolean verifiedByAdmin, Pageable pageable) {
         Page<Company> companyPage = companyRepository.getPageAndFilter(name, address, email, phone, emailVerified, verifiedByAdmin, pageable);
-        return pageUtils.toPageResponse(CompanyMapper.instance.ePageToDtoPage(companyPage));
+        return pageUtils.toPageResponse(CompanyMapper.instance.ePageToDtoPage(companyPage, candidateFollowCompanyRepository));
     }
 
     @Override
@@ -212,7 +213,7 @@ public class AdminServiceImpl implements AdminService {
     public CompanyDto updateCompanyActivateStatus(int id, boolean activateStatus) {
         Company company = companyRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
         company.setActivateStatus(activateStatus);
-        return CompanyMapper.instance.eToDto(companyRepository.save(company));
+        return CompanyMapper.instance.eToDto(companyRepository.save(company), candidateFollowCompanyRepository);
     }
 
     @Override
@@ -234,6 +235,6 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public PageResponse<PurchaseHistoryDto> getPagePurchaseHistory(String companyName, String productName, Pageable pageable) {
-        return pageUtils.toPageResponse(PurchaseHistoryMapper.instance.ePageToDtoPage(purchaseHistoryRepository.findAndFilter(companyName, productName, pageable)));
+        return pageUtils.toPageResponse(PurchaseHistoryMapper.instance.ePageToDtoPage(purchaseHistoryRepository.findAndFilter(companyName, productName, pageable), candidateFollowCompanyRepository));
     }
 }

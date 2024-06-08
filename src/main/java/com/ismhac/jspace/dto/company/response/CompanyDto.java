@@ -23,4 +23,5 @@ public class CompanyDto {
     Boolean emailVerified;
     Boolean verifiedByAdmin;
     Boolean activateStatus;
+    int followerNumber;
 }
