@@ -24,15 +24,12 @@ public class BaseEntity {
     @CreationTimestamp
     @Column(name = "created_at",updatable = false)
     Instant createdAt;
-
     @UpdateTimestamp
     @Column(name = "updated_at")
     Instant updatedAt;
-
     @CreatedBy
     @Column(name = "created_by",updatable = false)
     Integer createdBy = 0;
-
     @LastModifiedBy
     @Column(name = "updated_by")
     Integer updatedBy = 0;

@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 public interface ResumeRepository extends JpaRepository<Resume, Integer> {
 
     @Query("""
-            select t1 from Resume t1 where t1.candidate.id.user.id = :id
+            select r from Resume r where r.candidate.id.user.id = :id and r.useYesNo = true
             """)
     Page<Resume> findAllByCandidateId(int id, Pageable pageable);
 }

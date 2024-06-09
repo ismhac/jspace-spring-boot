@@ -16,14 +16,11 @@ import lombok.experimental.FieldDefaults;
 @Table(name = "tbl_admin")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Admin extends BaseEntity {
-
     @EmbeddedId
     AdminId id;
-
     @Convert(converter = AdminTypeConverter.class)
     @Column(name = "type", nullable = false)
     AdminType type;
-
     @Column(name = "email_verified")
     @Builder.Default
     Boolean emailVerified = false;

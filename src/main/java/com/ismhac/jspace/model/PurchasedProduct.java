@@ -18,33 +18,23 @@ public class PurchasedProduct extends BaseEntity{ // sản phẩm công ty đã 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
-
     @ManyToOne
     @JoinColumn(name = "company_id", referencedColumnName = "id")
     Company company;
-
     @Column(name = "product_name")
     String productName;
-
     @Column(name = "product_price")
     double productPrice;
-
     @Column(name = "product_number_of_post")
-    int productNumberOfPost;    // số lượng bài post còn lại
-
+    int productNumberOfPost;
     @Column(name = "product_post_duration")
-    int productPostDuration;    // thời gian của mỗi bài post (date number)
-
+    int productPostDuration;
     @Column(name = "product_duration_day_number")
-    int productDurationDayNumber; // số ngày kể từ ngày mua đến lúc hết hạn
-
+    int productDurationDayNumber;
     @Column(name = "expiry_date")
-    LocalDate expiryDate;   // ngày hết hạn của gói sản phẩm này
-
+    LocalDate expiryDate ;
     String description;
-
     int quantity;
-
     @Column(name = "total_price")
     double totalPrice;
 }

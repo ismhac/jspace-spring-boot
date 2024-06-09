@@ -10,12 +10,8 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ResumeDto {
-
     int id;
-
     String name;
-
     int candidateId;
-
     FileDto file;
 }

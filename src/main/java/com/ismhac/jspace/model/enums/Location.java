@@ -70,7 +70,6 @@ public enum Location {
     VINH_LONG(270, "Vĩnh Long"),
     VINH_PHUC(211, "Vĩnh Phúc"),
     YEN_BAI(216, "Yên Bái");
-
     Integer areaCode;
     String province;
 }

@@ -31,15 +31,11 @@ public class MailServiceImpl implements MailService {
     public void sendMail(SendMailRequest sendMailRequest) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message,
-                    MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
-                    StandardCharsets.UTF_8.name());
-
+            MimeMessageHelper helper = new MimeMessageHelper(message,MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,StandardCharsets.UTF_8.name());
             helper.setTo(sendMailRequest.getEmail());
             helper.setText(sendMailRequest.getBody(), true);
             helper.setSubject(sendMailRequest.getSubject());
             helper.setFrom("JSpace");
-
             javaMailSender.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException(e);
@@ -50,20 +46,14 @@ public class MailServiceImpl implements MailService {
     public void sendMailWithTemplate(SendMailRequest sendMailRequest) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message,
-                    MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
-                    StandardCharsets.UTF_8.name());
-
+            MimeMessageHelper helper = new MimeMessageHelper(message,MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,StandardCharsets.UTF_8.name());
             Context context = new Context();
             context.setVariable("body", sendMailRequest.getBody());
-
             String html = templateEngine.process("AdminVerifyEmail", context);
-
             helper.setTo(sendMailRequest.getEmail());
             helper.setText(html, true);
             helper.setSubject(sendMailRequest.getSubject());
             helper.setFrom("JSpace");
-
             javaMailSender.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException(e);

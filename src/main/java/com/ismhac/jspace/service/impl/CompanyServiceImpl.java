@@ -43,29 +43,21 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void verifyEmail(String token, HttpServletResponse httpServletResponse) throws IOException {
-
-        Optional<CompanyVerifyEmailRequestHistory> companyVerifyEmailRequestHistory =
-                companyVerifyEmailRequestHistoryRepository.findByToken(token);
-
+        Optional<CompanyVerifyEmailRequestHistory> companyVerifyEmailRequestHistory = companyVerifyEmailRequestHistoryRepository.findByToken(token);
         if (companyVerifyEmailRequestHistory.isEmpty()) {
             httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             httpServletResponse.getWriter().write("Invalid token. Verification failed.");
             return;
         }
         LocalDateTime now = LocalDateTime.now();
-
         if (now.isAfter(companyVerifyEmailRequestHistory.get().getExpiryTime())) {
             httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             httpServletResponse.getWriter().write("Token has expired. Verification failed.");
             return;
         }
-
         Company company = companyVerifyEmailRequestHistory.get().getCompany();
-
         company.setEmailVerified(true);
-
         companyRepository.save(company);
-
         String redirectUrl = "https://jspace-fe.vercel.app/";
         httpServletResponse.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
         httpServletResponse.setHeader("Location", redirectUrl);
@@ -74,28 +66,21 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void verifyEmployee(String token, HttpServletResponse httpServletResponse) throws IOException {
-        Optional<EmployeeHistoryRequestCompanyVerify> employeeHistoryRequestCompanyVerify =
-                employeeHistoryRequestCompanyVerifyRepository.findByToken(token);
-
+        Optional<EmployeeHistoryRequestCompanyVerify> employeeHistoryRequestCompanyVerify = employeeHistoryRequestCompanyVerifyRepository.findByToken(token);
         if (employeeHistoryRequestCompanyVerify.isEmpty()) {
             httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             httpServletResponse.getWriter().write("Invalid token. Verification failed.");
             return;
         }
         LocalDateTime now = LocalDateTime.now();
-
         if (now.isAfter(employeeHistoryRequestCompanyVerify.get().getExpiryTime())) {
             httpServletResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             httpServletResponse.getWriter().write("Token has expired. Verification failed.");
             return;
         }
-
         Employee employee = employeeHistoryRequestCompanyVerify.get().getEmployee();
-
         employee.setVerifiedByCompany(true);
-
         employeeRepository.save(employee);
-
         String redirectUrl = "https://jspace-fe.vercel.app/";
         httpServletResponse.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
         httpServletResponse.setHeader("Location", redirectUrl);
@@ -112,61 +97,44 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public CompanyDto updateLogo(int id, MultipartFile logo) {
-
-        Company company = companyRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
-
+        Company company = companyRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
         if (logo == null || logo.isEmpty()) {
             throw new IllegalArgumentException("logo must not be empty");
         }
-
         Map<String, Object> options = new HashMap<>();
-
         Map uploadResult;
-
         try {
             uploadResult = cloudinary.uploader().upload(logo.getBytes(), options);
             cloudinary.uploader().upload(logo.getBytes(), options);
         } catch (Exception exception) {
             throw new RuntimeException(exception.getMessage());
         }
-
         String logoPath = (String) uploadResult.get("secure_url");
         String logoId = (String) uploadResult.get("public_id");
-
         company.setLogo(logoPath);
         company.setLogoId(logoId);
-
         return CompanyMapper.instance.eToDto(companyRepository.save(company), candidateFollowCompanyRepository);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public CompanyDto updateBackground(int id, MultipartFile background) {
-        Company company = companyRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
-
+        Company company = companyRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
         if (background == null || background.isEmpty()) {
             throw new IllegalArgumentException("logo must not be empty");
         }
-
         Map<String, Object> options = new HashMap<>();
-
         Map uploadResult;
-
         try {
             uploadResult = cloudinary.uploader().upload(background.getBytes(), options);
             cloudinary.uploader().upload(background.getBytes(), options);
         } catch (Exception exception) {
             throw new RuntimeException(exception.getMessage());
         }
-
         String backgroundPath = (String) uploadResult.get("secure_url");
         String backgroundId = (String) uploadResult.get("public_id");
-
         company.setBackground(backgroundPath);
         company.setBackgroundId(backgroundId);
-
         return CompanyMapper.instance.eToDto(companyRepository.save(company), candidateFollowCompanyRepository);
     }
 

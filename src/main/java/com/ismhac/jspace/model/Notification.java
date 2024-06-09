@@ -13,11 +13,9 @@ import lombok.experimental.FieldDefaults;
 @Table(name = "tbl_notification")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Notification extends BaseEntity{
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-
     @Column(columnDefinition = "text")
     String content;
 }

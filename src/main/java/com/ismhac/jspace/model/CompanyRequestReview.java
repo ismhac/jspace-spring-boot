@@ -20,13 +20,10 @@ import java.time.LocalDate;
 @Table(name = "tbl_company_request_review")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CompanyRequestReview extends BaseEntity{
-
     @EmbeddedId
     CompanyRequestReviewId id;
-
     @Column(name = "request_date")
     LocalDate requestDate;
-
     @Builder.Default
     Boolean reviewed = false;
 }

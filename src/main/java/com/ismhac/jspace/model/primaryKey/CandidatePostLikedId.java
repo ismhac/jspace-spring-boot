@@ -17,7 +17,6 @@ public class CandidatePostLikedId {
     @ManyToOne
     @JoinColumn(name = "candidate_id", referencedColumnName = "user_id", nullable = false)
     Candidate candidate;
-
     @ManyToOne
     @JoinColumn(name = "post_id", referencedColumnName = "id", nullable = false)
     Post post;

@@ -25,14 +25,7 @@ public class FileServiceImpl implements FileService {
     @Transactional(rollbackFor = Exception.class)
     public FileDto uploadFile(MultipartFile multipartFile) throws IOException {
         Map uploadResult = cloudinary.uploader().upload(multipartFile.getBytes(), new HashMap<>());
-
-        File file = File.builder()
-                .name(multipartFile.getOriginalFilename())
-                .type(multipartFile.getContentType())
-                .size(multipartFile.getSize())
-                .path((String) uploadResult.get("url"))
-                .build();
-
+        File file = File.builder().name(multipartFile.getOriginalFilename()).type(multipartFile.getContentType()).size(multipartFile.getSize()).path((String) uploadResult.get("url")).build();
         File savedFile = fileRepository.save(file);
         return fileMapper.toFileDto(savedFile);
     }
@@ -40,12 +33,6 @@ public class FileServiceImpl implements FileService {
     @Override
     public FileInfo uploadFileInfo(MultipartFile file) throws IOException {
         Map uploadResult = cloudinary.uploader().upload(file.getBytes(), new HashMap<>());
-
-        FileInfo fileInfo = FileInfo.builder()
-                .filePath((String) uploadResult.get("secure_url"))
-                .fileId((String) uploadResult.get("public_id"))
-                .build();
-
-        return fileInfo;
+        return FileInfo.builder().filePath((String) uploadResult.get("secure_url")).fileId((String) uploadResult.get("public_id")).build();
     }
 }

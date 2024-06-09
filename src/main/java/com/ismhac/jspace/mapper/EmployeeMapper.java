@@ -12,7 +12,6 @@ import org.springframework.data.domain.Page;
 
 @Mapper(componentModel = "spring")
 public interface EmployeeMapper {
-
     EmployeeMapper instance = Mappers.getMapper(EmployeeMapper.class);
 
     @Mapping(target = "user", source = "id.user", qualifiedByName = "convertToUserDto")

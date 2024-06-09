@@ -16,7 +16,6 @@ import lombok.experimental.FieldDefaults;
 @Table(name = "tbl_candidate_follow_company")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CandidateFollowCompany extends BaseEntity{
-
     @EmbeddedId
     CandidateFollowCompanyId id;
 }

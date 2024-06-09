@@ -18,11 +18,9 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CandidateFollowCompanyId implements Serializable {
-
     @ManyToOne
     @JoinColumn(name = "candidate_id", referencedColumnName = "user_id")
     Candidate candidate;
-
     @ManyToOne
     @JoinColumn(name = "company_id", referencedColumnName = "id")
     Company company;

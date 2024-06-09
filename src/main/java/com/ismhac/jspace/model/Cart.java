@@ -17,14 +17,11 @@ public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
-
     @ManyToOne
     @JoinColumn(name = "company_id", referencedColumnName = "id")
     Company company;
-
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     Product product;
-
     int quantity;
 }

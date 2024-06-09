@@ -12,7 +12,6 @@ import org.springframework.data.domain.Page;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-
     UserMapper instance = Mappers.getMapper(UserMapper.class);
 
     @Mapping(target = "role", source = "role", qualifiedByName = "convertRoleToRoleDto")

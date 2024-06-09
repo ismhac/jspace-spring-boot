@@ -26,4 +26,7 @@ public class Resume {
     @OneToOne
     @JoinColumn(name = "file_id", referencedColumnName = "id", nullable = false)
     File file;
+
+    @Builder.Default
+    boolean useYesNo = true;
 }

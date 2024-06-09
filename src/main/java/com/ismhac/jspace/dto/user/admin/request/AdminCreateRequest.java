@@ -13,23 +13,17 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AdminCreateRequest {
-
     @NotBlank
     String username;
-
     @NotBlank
     String password;
-
     @NotBlank
     @Email
     String email;
-
     @JsonIgnore
     String subject;
-
     @JsonIgnore
     String body;
-
     @NotBlank
     String returnUrl;
 }

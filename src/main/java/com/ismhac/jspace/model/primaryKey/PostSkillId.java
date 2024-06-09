@@ -14,11 +14,9 @@ import lombok.*;
 @EqualsAndHashCode
 @Embeddable
 public class PostSkillId {
-
     @ManyToOne
     @JoinColumn(name = "post_id", referencedColumnName = "id", nullable = false)
     private Post post;
-
     @ManyToOne
     @JoinColumn(name = "skill_id", referencedColumnName = "id", nullable = false)
     private Skill skill;

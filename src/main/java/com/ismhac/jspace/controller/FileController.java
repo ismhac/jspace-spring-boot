@@ -19,7 +19,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @Tag(name = "File")
 public class FileController {
-
     private final FileService fileService;
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

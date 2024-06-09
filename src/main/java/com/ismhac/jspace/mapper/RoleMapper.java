@@ -9,8 +9,8 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
-
     RoleMapper instance = Mappers.getMapper(RoleMapper.class);
+
     RoleDto toRoleDto(Role role);
 
     List<RoleDto> toRoleDtoList(List<Role> roleList);

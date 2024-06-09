@@ -9,11 +9,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum ApplyStatus {
-
     PROGRESS("Progress"),
     APPROVE("Approve"),
-    REJECT("Reject")
-    ;
-
+    REJECT("Reject");
     String status;
 }

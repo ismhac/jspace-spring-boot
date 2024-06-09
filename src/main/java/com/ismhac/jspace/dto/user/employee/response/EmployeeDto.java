@@ -13,16 +13,10 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EmployeeDto {
     UserDto user;
-
     CompanyDto company;
-
     Boolean verifiedByCompany;
-
     Boolean hasFullCredentialInfo;
-
     Boolean hasCompany;
-
     Boolean companyEmailVerified;
-
     Boolean companyVerified;
 }
