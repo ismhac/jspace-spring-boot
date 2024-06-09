@@ -16,17 +16,13 @@ public class Resume {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
-
     String name;
-
     @ManyToOne
     @JoinColumn(name = "candidate_id", referencedColumnName = "user_id", nullable = false)
     Candidate candidate;
-
     @OneToOne
     @JoinColumn(name = "file_id", referencedColumnName = "id", nullable = false)
     File file;
-
     @Builder.Default
-    boolean useYesNo = true;
+    Boolean useYesNo = true;
 }
