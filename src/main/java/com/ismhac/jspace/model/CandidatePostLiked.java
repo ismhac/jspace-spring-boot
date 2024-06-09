@@ -16,7 +16,6 @@ import lombok.experimental.FieldDefaults;
 @Table(name = "tbl_candidate_post_liked")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CandidatePostLiked {
-
     @EmbeddedId
     CandidatePostLikedId id;
 }

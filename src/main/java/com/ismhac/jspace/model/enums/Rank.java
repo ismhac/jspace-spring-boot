@@ -16,7 +16,6 @@ public enum Rank {
     SENIOR("Senior"),
     TEAM_LEADER("Team leader"),
     DEPARTMENT_HEAD("Department head"),
-    ALL_LEVELS("All levels")
-    ;
+    ALL_LEVELS("All levels");
     String code;
 }

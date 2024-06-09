@@ -18,21 +18,16 @@ import java.util.Set;
 @Table(name = "tbl_role")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Role extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
-
     @Column(name = "code", unique = true, nullable = false)
     @Convert(converter = RoleCodeConverter.class)
     RoleCode code;
-
     @Column(name = "name")
     String name;
-
     @Column(name = "description")
     String description;
-
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     Set<User> users = new HashSet<>();

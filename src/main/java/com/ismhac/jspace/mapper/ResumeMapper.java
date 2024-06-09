@@ -14,7 +14,6 @@ import org.springframework.data.domain.Page;
 public interface ResumeMapper {
     ResumeMapper instance = Mappers.getMapper(ResumeMapper.class);
 
-
     @Mapping(target = "candidateId", source = "candidate.id.user.id")
     @Mapping(target = "file", source = "file", qualifiedByName = "convertFileToFileDto")
     ResumeDto toResumeDto(Resume resume);

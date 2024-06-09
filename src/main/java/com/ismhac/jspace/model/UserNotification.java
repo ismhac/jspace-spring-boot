@@ -16,9 +16,7 @@ import lombok.experimental.FieldDefaults;
 @Table(name = "tbl_user_notification")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserNotification extends BaseEntity{
-
     @EmbeddedId
     UserNotificationId id;
-
     boolean read;
 }

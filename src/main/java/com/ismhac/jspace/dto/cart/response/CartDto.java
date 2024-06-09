@@ -9,14 +9,9 @@ import lombok.experimental.FieldDefaults;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CartDto {
-
     int id;
-
     CompanyDto company;
-
     ProductDto product;
-
     int quantity;
-
     Double totalPrice;
 }

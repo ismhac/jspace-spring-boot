@@ -39,17 +39,12 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PageResponse<Map<String, Object>> getAllAndFilter(Integer candidateId, Experience experience, Gender gender, JobType jobType, Location location, Rank rank, Integer quantity, String title, String companyName, Integer maxPay, Integer minPay, Pageable pageable) {
-        Page<Map<String, Object>> resultPage = postRepository.getPageAndFilter(
-                candidateId, Objects.isNull(experience) ? null : experience.getCode(), Objects.isNull(gender) ? null : gender.getCode(),
-                Objects.isNull(jobType) ? null : jobType.getCode(), Objects.isNull(location) ? null : location,
-                Objects.isNull(rank) ? null : rank.getCode(), quantity, title, companyName, maxPay, minPay, pageable);
-
+        Page<Map<String, Object>> resultPage = postRepository.getPageAndFilter(candidateId, Objects.isNull(experience) ? null : experience.getCode(), Objects.isNull(gender) ? null : gender.getCode(),Objects.isNull(jobType) ? null : jobType.getCode(), Objects.isNull(location) ? null : location,Objects.isNull(rank) ? null : rank.getCode(), quantity, title, companyName, maxPay, minPay, pageable);
         List<Map<String, Object>> results = resultPage.getContent().stream().map(result -> {
             Map<String, Object> map = new HashMap<>(result);
             map.put("post", PostMapper.instance.eToDto((Post) result.get("post"), postSkillRepository, candidateFollowCompanyRepository));
             return map;
         }).toList();
-
         return pageUtils.toPageResponse(new PageImpl<>(results, resultPage.getPageable(), resultPage.getTotalPages()));
     }
 }

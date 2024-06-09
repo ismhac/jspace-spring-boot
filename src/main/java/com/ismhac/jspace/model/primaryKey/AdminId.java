@@ -17,7 +17,6 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AdminId implements Serializable {
-
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     User user;

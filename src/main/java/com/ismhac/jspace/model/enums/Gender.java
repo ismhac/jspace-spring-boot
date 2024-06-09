@@ -11,7 +11,6 @@ import lombok.experimental.FieldDefaults;
 public enum Gender {
     MALE("Male"),
     FEMALE("Female"),
-    OTHER("Other")
-    ;
+    OTHER("Other");
     String code;
 }

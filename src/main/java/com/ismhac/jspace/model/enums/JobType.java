@@ -10,7 +10,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum JobType {
-
     FULL_TIME("Full time"),
     PART_TIME("Part time"),
     TEMPORARY("Temporary"),

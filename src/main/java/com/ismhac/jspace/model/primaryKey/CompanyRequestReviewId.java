@@ -15,7 +15,6 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CompanyRequestReviewId implements Serializable {
-
     @OneToOne
     @JoinColumn(name = "company_id", referencedColumnName = "id")
     Company company;

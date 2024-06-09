@@ -15,18 +15,16 @@ import java.util.Optional;
 
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, EmployeeId> {
-
-    /* Get page employee by company id and filter by email, name */
     @Query("""
-            select t1 from Employee t1 where t1.company.id = :company_id
-                and (:email is null or :email = '' or lower(t1.id.user.email) like lower(concat('%', :email, '%')))
-                and (:name is null or :name = '' or lower(t1.id.user.name) like lower(concat('%', :name, '%')))
+            select e from Employee e where e.company.id = :company_id
+                and (:email is null or :email = '' or lower(e.id.user.email) like lower(concat('%', :email, '%')))
+                and (:name is null or :name = '' or lower(e.id.user.name) like lower(concat('%', :name, '%')))
             """)
     Page<Employee> getPageByCompanyIdFilterByEmailAndName(@Param("company_id") Integer companyId, @Param("email") String email, @Param("name") String name,Pageable pageable);
 
 
     @Query("""
-            select t1 from Employee t1 where t1.id.user.id = :id
+            select e from Employee e where e.id.user.id = :id
             """)
     Optional<Employee> findByUserId(int id);
 

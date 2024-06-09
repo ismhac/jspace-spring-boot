@@ -18,11 +18,9 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserNotificationId implements Serializable {
-
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     User user;
-
     @ManyToOne
     @JoinColumn(name = "nofication_id", referencedColumnName = "id")
     Notification notification;

@@ -13,16 +13,12 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AdminForgotPasswordRequest {
-
     @NotBlank
     @Email
     String email;
-
     String subject;
-
     @JsonIgnore
     String body;
-
     @NotBlank
     String returnUrl;
 }

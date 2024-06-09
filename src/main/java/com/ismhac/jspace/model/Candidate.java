@@ -14,7 +14,6 @@ import lombok.experimental.FieldDefaults;
 @Table(name = "tbl_candidate")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Candidate extends BaseEntity{
-
     @EmbeddedId
     CandidateId id;
 }

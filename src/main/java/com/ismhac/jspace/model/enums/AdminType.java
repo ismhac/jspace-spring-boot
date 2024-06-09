@@ -14,6 +14,5 @@ import java.util.Map;
 public enum AdminType {
     ROOT("RO"),
     BASIC("BA");
-
     String code;
 }

@@ -20,7 +20,6 @@ import java.util.Date;
 public class InvalidatedToken {
     @Id
     String id;
-
     @Column(name = "expiry_time", nullable = false)
     Date expiryTime;
 }

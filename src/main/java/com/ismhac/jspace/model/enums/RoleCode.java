@@ -13,7 +13,6 @@ public enum RoleCode {
     ADMIN("AD", "admin"),
     EMPLOYEE("EM", "employee"),
     CANDIDATE("CA", "candidate");
-
     String code;
     String name;
 }

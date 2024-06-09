@@ -15,7 +15,6 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 @Slf4j
 public class RoleServiceImpl implements RoleService {
-
     private final RoleRepository roleRepository;
 
     @Override
@@ -27,7 +26,6 @@ public class RoleServiceImpl implements RoleService {
                     role.setCode(roleCode);
                     role.setName(roleCode.getName());
                     roleRepository.save(role);
-//                    log.info(String.format("Created the %s role",roleCode.getName()));
                 });
     }
 }

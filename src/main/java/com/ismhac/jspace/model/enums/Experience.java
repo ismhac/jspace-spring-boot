@@ -13,7 +13,6 @@ public enum Experience {
     LESS_THAN_ONE_YEAR("Less than one year"),
     ONE_TO_THREE_YEARS("One to Thee year"),
     THREE_TO_FIVE_YEARS("Thee to five year"),
-    MORE_THAN_FIVE_YEARS("More than five year")
-    ;
+    MORE_THAN_FIVE_YEARS("More than five year");
     String code;
 }

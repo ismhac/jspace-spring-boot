@@ -16,14 +16,11 @@ import lombok.experimental.FieldDefaults;
 @Table(name = "tbl_candidate_post")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CandidatePost extends BaseEntity {
-
     @EmbeddedId
     CandidatePostId id;
-
     @ManyToOne
     @JoinColumn(name = "resume_id", referencedColumnName = "id")
     Resume resume;
-
     @Column(name = "apply_status")
     @Convert(converter = ApplyStatusConverter.class)
     ApplyStatus applyStatus;

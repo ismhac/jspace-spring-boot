@@ -10,8 +10,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum PostStatus {
     OPEN("open"),
-    CLOSE("close")
-    ;
-
+    CLOSE("close");
     String status;
 }

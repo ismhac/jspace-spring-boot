@@ -8,7 +8,6 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = "spring")
 public interface FileMapper {
     FileMapper instance  = Mappers.getMapper(FileMapper.class);
-    FileDto toFileDto(File file);
 
-    File toEntity(FileDto fileDto);
+    FileDto toFileDto(File file);
 }

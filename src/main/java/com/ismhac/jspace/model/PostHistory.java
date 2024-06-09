@@ -16,11 +16,9 @@ public class PostHistory extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
-
     @OneToOne
     @JoinColumn(name = "post_id", referencedColumnName = "id")
     Post post;
-
     @ManyToOne
     @JoinColumn(name = "company_id", referencedColumnName = "id")
     Company company;
