@@ -45,6 +45,6 @@ public class PostServiceImpl implements PostService {
             map.put("post", PostMapper.instance.eToDto((Post) result.get("post"), postSkillRepository, candidateFollowCompanyRepository));
             return map;
         }).toList();
-        return pageUtils.toPageResponse(new PageImpl<>(results, resultPage.getPageable(), resultPage.getTotalPages()));
+        return pageUtils.toPageResponse(new PageImpl<>(results, resultPage.getPageable(), resultPage.getTotalElements()));
     }
 }

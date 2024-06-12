@@ -52,10 +52,9 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     @Query("""
             select
                 (case when ?2 is null then 'guest' else 'candidate' end) as userMode,
-                (case when ?2 is null then null else (case when cfp.id.candidate.id.user.id is not null then true else false end) end) as followed,
+                (case when ?2 is null then null else (case when exists (select 1 from CandidateFollowCompany cfp where cfp.id.company.id = c.id and cfp.id.candidate.id.user.id = ?2) then true else false end) end) as followed,
                 c as company
             from Company c
-            left join CandidateFollowCompany cfp on cfp.id.company.id = c.id
             where c.id = ?1
             """)
     Map<String, Object> findByIdAndOptionalCandidateId(int companyId, Integer candidateId);
