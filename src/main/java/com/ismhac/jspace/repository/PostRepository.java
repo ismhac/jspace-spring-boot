@@ -25,7 +25,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             select p as post,(case when exists (
             select 1 from CandidatePostLiked cpl where cpl.id.post.id=p.id and cpl.id.candidate.id.user.id= :candidateId) then true else false end) as liked,(case when exists (
             select 1 from CandidatePost cp where cp.id.post.id=p.id and cp.id.candidate.id.user.id= :candidateId) then true else false end) as applied
-            from Post p where p.id= : postId
+            from Post p where p.id= :postId
             """)
     Map<String, Object> candidateFindPostById(int candidateId, int postId);
 
