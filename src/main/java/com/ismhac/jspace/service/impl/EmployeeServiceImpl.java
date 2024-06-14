@@ -677,7 +677,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                                 <p>If this information pertains to your company, we kindly ask you to verify your email by clicking the link below:</p>
                                 <p>The confirmation will expire at %s</p>
                                 <button>
-                                    <a href="https://jspace-804e64747ec6.herokuapp.com/jspace-service/api/v1/companies/verify-email?mac=%s"
+                                    <a href="http://35.197.133.113:8081/jspace-service/api/v1/companies/verify-email?mac=%s"
                                         style="text-decoration: none; color: #000000;"
                                     >
                                         <span> Verify Company Information </span>
@@ -753,7 +753,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                             <p>Please confirm the accuracy of the details provided by clicking the link below:</p>
                             <p>The confirmation will expire at %s</p>
                             <button>
-                                <a href="https://jspace-804e64747ec6.herokuapp.com/jspace-service/api/v1/companies/verify-employee?mac=%s" 
+                                <a href="http://35.197.133.113:8081/jspace-service/api/v1/companies/verify-employee?mac=%s" 
                                     style="text-decoration: none; color: #000000;"
                                 >
                                 <span> Verify Employee Information </span>
@@ -858,7 +858,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                             <p>Please confirm the accuracy of the details provided by clicking the link below:</p>
                             <p>The confirmation will expire at %s</p>
                             <button>
-                                <a href="https://jspace-804e64747ec6.herokuapp.com/jspace-service/api/v1/companies/verify-employee?mac=%s" 
+                                <a href="http://35.197.133.113:8081/jspace-service/api/v1/companies/verify-employee?mac=%s"
                                     style="text-decoration: none; color: #000000;"
                                 >
                                 <span> Verify Employee Information </span>
@@ -868,7 +868,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                             <p>Best regards!</p>
                         </body>
                         </html>
-                         """,
+                        """,
                 company.getName(),
                 StringUtils.isBlank(employee.getId().getUser().getName()) ? "" : employee.getId().getUser().getName(),
                 StringUtils.isBlank(employee.getId().getUser().getEmail()) ? "" : employee.getId().getUser().getEmail(),
