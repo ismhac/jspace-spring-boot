@@ -25,7 +25,7 @@ public class ApplicationInitConfig {
             roleService.initRoles();
             adminService.initRootAdmin();
             try {
-//                paypalUtils.deleteAllWebhooks();
+                paypalUtils.deleteAllWebhooks();
                 paypalUtils.registerWebhook();
             } catch (IOException e) {
                 log.error(e.getLocalizedMessage());
