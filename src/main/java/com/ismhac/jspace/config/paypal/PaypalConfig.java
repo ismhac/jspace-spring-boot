@@ -1,5 +1,6 @@
 package com.ismhac.jspace.config.paypal;
 
+import com.ismhac.jspace.another.PayPalAuthService;
 import com.paypal.base.rest.APIContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,5 +21,10 @@ public class PaypalConfig {
     @Bean
     public APIContext apiContext() {
         return new APIContext(clientId, secret, mode);
+    }
+
+    @Bean
+    public PayPalAuthService payPalAuthService() {
+        return new PayPalAuthService(clientId, secret, mode);
     }
 }

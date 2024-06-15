@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class PaymentCreateRequestV2 {
+public class PaymentRequest {
     private String intent; // Purpose of payment, usually "sale"
     private String paymentMethod; // Payment method, usually "paypal"
     private String currency; // Currency, example: "USD"
@@ -14,4 +14,3 @@ public class PaymentCreateRequestV2 {
     private String successUrl; // Redirect URL when payment is successful
     private List<Integer> cartIds;
 }
-

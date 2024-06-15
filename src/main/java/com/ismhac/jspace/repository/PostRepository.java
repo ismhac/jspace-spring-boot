@@ -7,9 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Map;
-import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Integer> {
 
@@ -37,7 +37,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     @Query("""
             select p as post,
                 (case when :candidateId is null then 'guest' else 'candidate' end) as userMode,
-                (case when :candidateId is null then null else (case when exists (select 1 from CandidatePostLiked cpl where cpl.id.post.id=p.id and cpl.id.candidate.id.user.id= :candidateId) then true else false end) end)as liked,
+                (case when :candidateId is null then null else (case when exists (select 1 from CandidatePostLiked cpl where cpl.id.post.id=p.id and cpl.id.candidate.id.user.id= :candidateId) then true else false end) end) as liked,
                 (case when :candidateId is null then null else (case when exists (select 1 from CandidatePost cp where cp.id.post.id=p.id and cp.id.candidate.id.user.id= :candidateId) then true else false end) end) as applied
             from Post p
             where p.id = :postId
@@ -63,5 +63,17 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                     or (:minPay is null and :maxPay is not null and p.maxPay <= :maxPay)
                     or (:minPay is not null and :maxPay is not null and p.maxPay between :minPay and :maxPay and p.minPay between :minPay and :maxPay))
             """)
-    Page<Map<String, Object>> getPageAndFilter(Integer candidateId, String experience, String gender, String jobType, Location location, String rank, Integer quantity, String title, String companyName, Integer maxPay, Integer minPay, Pageable pageable);
+    Page<Map<String, Object>> getPageAndFilter(
+            @Param("candidateId") Integer candidateId,
+            @Param("experience") String experience,
+            @Param("gender") String gender,
+            @Param("jobType") String jobType,
+            @Param("location") Location location,
+            @Param("rank") String rank,
+            @Param("quantity") Integer quantity,
+            @Param("title") String title,
+            @Param("companyName") String companyName,
+            @Param("maxPay") Integer maxPay,
+            @Param("minPay") Integer minPay,
+            Pageable pageable);
 }
