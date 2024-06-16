@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.cloudinary.json.JSONArray;
 import org.cloudinary.json.JSONObject;
 import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -24,12 +23,12 @@ public class PaypalUtils {
     }
 
     public void registerWebhook() throws IOException {
-        log.info("REGISTER WEBHOOK");
+//        log.info("REGISTER WEBHOOK");
         String token = authService.getAccessToken();
         HttpURLConnection httpConn = createHttpConnection(PAYPAL_URL, "POST", token);
         sendRequest(httpConn, "{ \"url\": \"https://jspace.space/jspace-service/api/v1/payment/paypal-webhooks\", \"event_types\": [{ \"name\": \"*\" }] }");
         handleResponse(httpConn);
-        log.info("REGISTER WEBHOOK");
+//        log.info("REGISTER WEBHOOK");
     }
 
     private HttpURLConnection createHttpConnection(String url, String method, String token) throws IOException {
@@ -55,12 +54,12 @@ public class PaypalUtils {
                 : httpConn.getErrorStream()) {
             Scanner s = new Scanner(responseStream).useDelimiter("\\A");
             String response = s.hasNext() ? s.next() : "";
-            log.info(response);
+//            log.info(response);
         }
     }
 
     public void deleteAllWebhooks() throws IOException {
-        log.info("DELETE WEBHOOK");
+//        log.info("DELETE WEBHOOK");
         String token = authService.getAccessToken();
         HttpURLConnection httpConn = createHttpConnection(PAYPAL_URL, "GET", token);
 
@@ -72,7 +71,7 @@ public class PaypalUtils {
             String webhookId = webhooks.getJSONObject(i).getString("id");
             deleteWebhook(webhookId, token);
         }
-        log.info("DELETE WEBHOOK");
+//        log.info("DELETE WEBHOOK");
     }
 
     private String handleGetResponse(HttpURLConnection httpConn) throws IOException {
