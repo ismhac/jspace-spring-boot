@@ -4,6 +4,9 @@ package com.ismhac.jspace.another;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.paypal.base.rest.APIContext;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,17 +16,11 @@ import java.net.URL;
 import java.util.Base64;
 import java.util.Scanner;
 
+@Service
+@RequiredArgsConstructor
 public class PayPalAuthService {
     private static final String PAYPAL_TOKEN_URL = "https://api-m.sandbox.paypal.com/v1/oauth2/token";
-    private final String clientId;
-    private final String clientSecret;
-    private final String mode;
-
-    public PayPalAuthService(String clientId, String clientSecret, String mode) {
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
-        this.mode = mode;
-    }
+    private final APIContext apiContext;
 
     public String getAccessToken() throws IOException {
         URL url = new URL(PAYPAL_TOKEN_URL);
@@ -31,7 +28,7 @@ public class PayPalAuthService {
         httpConn.setRequestMethod("POST");
 
         // Set the Authorization header
-        String auth = clientId + ":" + clientSecret;
+        String auth = apiContext.getClientID() + ":" + apiContext.getClientSecret();
         String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
         httpConn.setRequestProperty("Authorization", "Basic " + encodedAuth);
         httpConn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");

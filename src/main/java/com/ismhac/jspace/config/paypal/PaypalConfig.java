@@ -23,8 +23,8 @@ public class PaypalConfig {
         return new APIContext(clientId, secret, mode);
     }
 
-    @Bean
-    public PayPalAuthService payPalAuthService() {
-        return new PayPalAuthService(clientId, secret, mode);
-    }
+//    @Bean
+//    public PayPalAuthService payPalAuthService() {
+//        return new PayPalAuthService(clientId, secret, mode);
+//    }
 }
