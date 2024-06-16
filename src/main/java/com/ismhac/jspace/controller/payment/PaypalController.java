@@ -2,6 +2,7 @@ package com.ismhac.jspace.controller.payment;
 
 import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.payment.request.PaymentRequest;
+import com.ismhac.jspace.service.common.PaypalUtils;
 import com.ismhac.jspace.service.common.thirtParty.PaypalServiceV2;
 import com.ismhac.jspace.service.common.thirtParty.response.PayPalAccessTokenResponse;
 import com.ismhac.jspace.service.common.thirtParty.response.PayPalWebhookListResponse;
@@ -9,9 +10,14 @@ import com.ismhac.jspace.service.common.thirtParty.response.PayPalWebhookRespons
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.cloudinary.json.JSONArray;
+import org.cloudinary.json.JSONObject;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 
 @Hidden
 @RestController
@@ -20,6 +26,7 @@ import java.io.IOException;
 @Tag(name = "Paypal")
 public class PaypalController {
     private final PaypalServiceV2 paypalServiceV2;
+    private final PaypalUtils paypalUtils;
 
     @GetMapping("/authentication")
     public ApiResponse<PayPalAccessTokenResponse> authenticate() throws IOException {
@@ -47,4 +54,11 @@ public class PaypalController {
         var result = paypalServiceV2.requestPayment(request);
         return result.toJSON();
     }
+
+    @GetMapping("/delete-all-webhooks")
+    public ResponseEntity<Void> deleteAllWebhooks() throws IOException {
+        paypalUtils.deleteAllWebhooks();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }

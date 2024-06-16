@@ -24,12 +24,12 @@ public class ApplicationInitConfig {
         return args -> {
             roleService.initRoles();
             adminService.initRootAdmin();
-            try {
-                paypalUtils.deleteAllWebhooks();
-                paypalUtils.registerWebhook();
-            } catch (IOException e) {
-                log.error(e.getLocalizedMessage());
-            }
+//            try {
+//                paypalUtils.deleteAllWebhooks();
+//                paypalUtils.registerWebhook();
+//            } catch (IOException e) {
+//                log.error(e.getLocalizedMessage());
+//            }
         };
     }
 }

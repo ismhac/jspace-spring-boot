@@ -88,6 +88,12 @@ public class PaypalServiceV2 {
         eventTypesArray.put(allEventTypes);
         requestBody.put("event_types", eventTypesArray);
 
+        JSONObject resendConfig = new JSONObject();
+        resendConfig.put("url", webhookUrl);
+
+        JSONArray webhookEventTypesArray = new JSONArray();
+        webhookEventTypesArray.put(resendConfig);
+        requestBody.put("webhook_event_types", webhookEventTypesArray);
 
         StringEntity params = new StringEntity(requestBody.toString());
         httpPost.setEntity(params);

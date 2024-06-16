@@ -48,7 +48,7 @@ public class PayPalAuthService {
         String response = s.hasNext() ? s.next() : "";
         responseStream.close();
 
-        System.out.println("Response from PayPal: " + response); // Debugging line
+//        System.out.println("Response from PayPal: " + response); // Debugging line
 
         // Parse the response to extract the access token
         ObjectMapper mapper = new ObjectMapper();
