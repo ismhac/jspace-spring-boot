@@ -2,7 +2,6 @@ package com.ismhac.jspace.service.common.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.ismhac.jspace.dto.payment.request.PaymentRequest;
 import com.ismhac.jspace.mapper.PurchaseHistoryMapper;
 import com.ismhac.jspace.mapper.PurchasedProductMapper;
 import com.ismhac.jspace.model.*;
@@ -11,72 +10,22 @@ import com.ismhac.jspace.repository.CartRepository;
 import com.ismhac.jspace.repository.PurchaseHistoryRepository;
 import com.ismhac.jspace.repository.PurchasedProductRepository;
 import com.ismhac.jspace.service.common.PaymentService;
-import com.paypal.api.payments.*;
-import com.paypal.base.rest.APIContext;
-import com.paypal.base.rest.PayPalRESTException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.cloudinary.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentServiceImpl implements PaymentService {
-    private final APIContext apiContext;
     private final CartRepository cartRepository;
     private final PurchasedProductRepository purchasedProductRepository;
     private final PurchaseHistoryRepository purchaseHistoryRepository;
     private final CandidateFollowCompanyRepository candidateFollowCompanyRepository;
-
-    @Override
-    public Payment requestPayment(PaymentRequest request) {
-        Payment createdPayment;
-        try {
-            Transaction transaction = createTransaction(request);
-            Payment payment = getPayment(request, transaction);
-            createdPayment = payment.create(apiContext);
-        } catch (PayPalRESTException e) {
-            throw new RuntimeException(String.valueOf(e.getDetails()));
-        }
-        return createdPayment;
-    }
-
-    private Transaction createTransaction(PaymentRequest request) {
-        Amount amount = new Amount(request.getCurrency(), request.getTotal());
-        Transaction transaction = new Transaction();
-        transaction.setAmount(amount);
-
-        JSONObject customParams = new JSONObject();
-        customParams.put("cartIds", request.getCartIds());
-        transaction.setCustom(customParams.toString());
-
-        return transaction;
-    }
-
-    public static Payment getPayment(PaymentRequest request, Transaction transaction) {
-        List<Transaction> transactions = Collections.singletonList(transaction);
-
-        Payer payer = new Payer();
-        payer.setPaymentMethod(request.getPaymentMethod());
-
-        Payment payment = new Payment();
-        payment.setIntent(request.getIntent());
-        payment.setPayer(payer);
-        payment.setTransactions(transactions);
-
-        RedirectUrls redirectUrls = new RedirectUrls();
-        redirectUrls.setCancelUrl(request.getCancelUrl());
-        redirectUrls.setReturnUrl(request.getSuccessUrl());
-        payment.setRedirectUrls(redirectUrls);
-
-        return payment;
-    }
 
     /* */
     @Override
@@ -84,25 +33,22 @@ public class PaymentServiceImpl implements PaymentService {
     public Object handleResponse(String body) {
         Gson gson = new Gson();
         try {
-            Map<String, Object> bodyObj = gson.fromJson(body, new TypeToken<Map<String, Object>>() {}.getType());
+            Map<String, Object> bodyObj = gson.fromJson(body, new TypeToken<Map<String, Object>>() {
+            }.getType());
             Map<String, Object> resource = (Map<String, Object>) bodyObj.get("resource");
             List<Map<String, Object>> transactions = (List<Map<String, Object>>) resource.get("transactions");
             Map<String, Object> payer = (Map<String, Object>) resource.get("payer");
             String paymentMethod = (String) payer.get("payment_method");
             String status = (String) payer.get("status");
-            Map<String, Object> amount = (Map<String, Object>) transactions.get(0).get("amount");
-            String total = (String) amount.get("total");
             String custom = (String) transactions.get(0).get("custom");
-            Map<String, List<Double>> customObj = gson.fromJson(custom, new TypeToken<Map<String, Object>>() {}.getType());
-            List<Integer> cartIds = customObj.get("cartIds").stream().map(Double::intValue).collect(Collectors.toList());
-
+            List<Integer> cartIds = gson.fromJson(custom, new TypeToken<List<Integer>>() {
+            }.getType());
             return processPurchasedProducts(cartIds, paymentMethod, status);
         } catch (Exception e) {
             log.error("Error processing PayPal webhook response: {}", e.getMessage(), e);
             throw new RuntimeException("Error processing PayPal webhook response", e);
         }
     }
-
 
     private Object processPurchasedProducts(List<Integer> cartIds, String paymentMethod, String status) {
         List<PurchasedProduct> purchasedProducts = new ArrayList<>();

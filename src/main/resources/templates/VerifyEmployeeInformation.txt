@@ -1,0 +1,54 @@
+<html lang="en">
+<head>
+    <title>Employee Information Verification</title>
+    <style>
+        table, tr {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 5px 5px;
+            text-align: center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <p>Dear #{companyName},</p>
+    <p>We trust this message finds you well.</p>
+    <p>We have received the following employee information associated with your company, registered for recruitment access on our platform:</p>
+    <table>
+        <tr>
+            <td>Name:</td>
+            <td>#{employeeName}</td>
+        </tr>
+        <tr>
+            <td>Email:</td>
+            <td>#{employeeEmail}</td>
+        </tr>
+        <tr>
+            <td>Phone:</td>
+            <td>#{employeePhone}</td>
+        </tr>
+    </table>
+    <p>If this information corresponds to an employee of your company authorized to recruit on our platform, we kindly request verification.</p>
+    <p>Please confirm the accuracy of the details provided by clicking the link below:</p>
+    <p>The confirmation will expire at #{expiryTime}</p>
+    <button>
+        <a href="https://jspace.space/jspace-service/api/v1/companies/verify-employee?mac=#{token}"
+            style="text-decoration: none; color: #000000;">
+            <span>Verify Employee Information</span>
+        </a>
+    </button>
+    <p>Should this information not align with your records, please disregard this message.</p>
+    <p>Thank you for your cooperation in ensuring the accuracy of our records.</p>
+    <p>Best regards!</p>
+</body>
+</html>

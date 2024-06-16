@@ -1,0 +1,60 @@
+<html>
+<head>
+    <title>Verification of Company Information</title>
+    <style>
+        table, tr {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 5px 5px;
+            text-align: center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <p>Dear #{companyName},</p>
+    <p>We hope this email finds you well. We recently received the following information associated with your company:</p>
+    <table>
+        <tr>
+            <td>Company Name:</td>
+            <td>#{companyName}</td>
+        </tr>
+        <tr>
+            <td>Address:</td>
+            <td>#{address}</td>
+        </tr>
+        <tr>
+            <td>Email:</td>
+            <td>#{email}</td>
+        </tr>
+        <tr>
+            <td>Phone:</td>
+            <td>#{phone}</td>
+        </tr>
+        <tr>
+            <td>Company Size:</td>
+            <td>#{companySize}</td>
+        </tr>
+    </table>
+    <p>If this information pertains to your company, we kindly ask you to verify your email by clicking the link below:</p>
+    <p>The confirmation will expire at #{expiryTime}</p>
+    <button>
+        <a href="http://35.197.133.113:8081/jspace-service/api/v1/companies/verify-email?mac=#{token}"
+            style="text-decoration: none; color: #000000;">
+            <span> Verify Company Information </span>
+        </a>
+    </button>
+    <p>If this information does not correspond to your company, please disregard this email.</p>
+    <p>Thank you for your attention to this matter.</p>
+    <p>Best regards!</p>
+</body>
+</html>

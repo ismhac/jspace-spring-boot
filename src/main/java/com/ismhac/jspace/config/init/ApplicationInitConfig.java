@@ -29,7 +29,6 @@ public class ApplicationInitConfig {
                 paypalUtils.registerWebhook();
             } catch (IOException e) {
                 log.error(e.getLocalizedMessage());
-                e.printStackTrace();
             }
         };
     }

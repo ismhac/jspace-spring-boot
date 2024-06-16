@@ -35,6 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,10 +46,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -78,6 +85,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Autowired
     private BeanUtils beanUtils;
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     @Override
     public PageResponse<EmployeeDto> getPageByCompanyIdFilterByEmailAndName(int companyId, String email, String name, Pageable pageable) {
@@ -304,10 +313,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         List<PurchasedProduct> purchasedProducts = purchasedProductRepository.getListByCompanyId(companyId, now);
         return purchasedProducts.stream().map(item -> {
             Map<String, Object> map = new HashMap<>();
-
             int remainingDate = (int) ChronoUnit.DAYS.between(now, (PurchasedProductMapper.instance.eToDto(item, candidateFollowCompanyRepository)).getExpiryDate());
-
-            map.put("purchasedProduct", PurchasedProductMapper.instance.eToDto(item,candidateFollowCompanyRepository));
+            map.put("purchasedProduct", PurchasedProductMapper.instance.eToDto(item, candidateFollowCompanyRepository));
             map.put("remainingDate", remainingDate);
             return map;
         }).toList();
@@ -328,7 +335,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PRODUCT));
 
-
         Optional<Cart> cart = cartRepository.findByCompanyIdAndProductId(request.getCompanyId(), request.getProductId());
         if (cart.isEmpty()) {
             Cart newCart = Cart.builder()
@@ -346,8 +352,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public CartDto updateCart(int cartId, int quantity) {
-        Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_CART));
+        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_CART));
         cart.setQuantity(quantity);
         return CartMapper.instance.eToDto(cartRepository.save(cart), candidateFollowCompanyRepository);
     }
@@ -450,162 +455,113 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public PostDto createPost(PostCreateRequest req) {
+        Company company = companyRepository.findById(req.getCompanyId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
 
-        Company company = _findCompanyById(req.getCompanyId());
-
-        if (req.isUseTrialPost()) { // using trial
-            if (company.getTrialPost() < 1) {
-                throw new AppException(ErrorCode.TRIAL_POST_EXPIRED);
-            } else {
-                company.setTrialPost(company.getTrialPost() - 1);
-
-                // validate skills
-                List<Skill> skillList = skillRepository.findAllByIdList(req.getSkillIdList());
-
-                if (skillList.size() != req.getSkillIdList().size()) {
-                    throw new AppException(ErrorCode.NOT_FOUND_SKILL);
-                }
-
-                List<Skill> newSkills = new ArrayList<>();
-
-                for (String newSkillName : req.getNewSkills()) {
-                    Skill newSkill = Skill.builder()
-                            .name(newSkillName)
-                            .build();
-                    newSkills.add(newSkill);
-                }
-
-                List<Skill> savedNewSkills = skillRepository.saveAll(newSkills);
-
-                Post post = Post.builder()
-                        .company(company)
-                        .title(req.getTitle())
-                        .jobType(req.getJobType())
-                        .location(req.getLocation())
-                        .rank(req.getRank())
-                        .description(req.getDescription())
-                        .minPay(req.getMinPay())
-                        .maxPay(req.getMaxPay())
-                        .experience(req.getExperience())
-                        .quantity(req.getQuantity())
-                        .gender(req.getGender())
-                        .openDate(LocalDate.now())
-                        .closeDate(LocalDate.now().plusDays(30))
-                        .build();
-
-                Post savedPost = postRepository.save(post);
-
-                PostHistory postHistory = PostHistory.builder()
-                        .post(savedPost)
-                        .company(company)
-                        .build();
-
-                postHistoryRepository.save(postHistory);
-
-                List<PostSkill> postSkills = new ArrayList<>();
-
-                for (Skill skill : skillList) {
-                    PostSkillId id = PostSkillId.builder()
-                            .post(savedPost)
-                            .skill(skill)
-                            .build();
-
-                    PostSkill newPostSkill = PostSkill.builder()
-                            .id(id)
-                            .build();
-
-                    postSkills.add(newPostSkill);
-                }
-                for (Skill skill : savedNewSkills) {
-                    PostSkillId id = PostSkillId.builder()
-                            .post(savedPost)
-                            .skill(skill)
-                            .build();
-
-                    PostSkill newPostSkill = PostSkill.builder()
-                            .id(id)
-                            .build();
-
-                    postSkills.add(newPostSkill);
-                }
-
-                postSkillRepository.saveAll(postSkills);
-
-                return PostMapper.instance.eToDto(savedPost, postSkillRepository, candidateFollowCompanyRepository);
-            }
+        if (req.isUseTrialPost()) {
+            handleTrialPost(company);
         } else {
-            PurchasedProduct purchasedProduct = purchasedProductRepository.findById(req.getPurchasedProductId())
-                    .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PRODUCT));
-            if (purchasedProduct.getCompany().getId() != req.getCompanyId() ||
-                    purchasedProduct.getProductNumberOfPost() < 1) {
-                throw new AppException(ErrorCode.INVALID_PURCHASED_PRODUCT);
-            }
-            if (LocalDate.now().isAfter(purchasedProduct.getExpiryDate())) {
-                throw new AppException(ErrorCode.PURCHASED_PRODUCT_EXPIRE);
-            }
-
-            purchasedProduct.setProductNumberOfPost(purchasedProduct.getProductNumberOfPost() - 1);
-            purchasedProductRepository.save(purchasedProduct);
-
-            // validate skills
-            List<Skill> skillList = skillRepository.findAllByIdList(req.getSkillIdList());
-
-            if (skillList.size() != req.getSkillIdList().size()) {
-                throw new AppException(ErrorCode.NOT_FOUND_SKILL);
-            }
-
-            List<Skill> newSkills = new ArrayList<>();
-
-            for (String newSkillName : req.getNewSkills()) {
-                Skill newSkill = Skill.builder().name(newSkillName).build();
-                newSkills.add(newSkill);
-            }
-
-            List<Skill> savedNewSkills = skillRepository.saveAll(newSkills);
-
-            Post post = Post.builder()
-                    .company(company)
-                    .title(req.getTitle())
-                    .jobType(req.getJobType())
-                    .location(req.getLocation())
-                    .rank(req.getRank())
-                    .description(req.getDescription())
-                    .minPay(req.getMinPay())
-                    .maxPay(req.getMaxPay())
-                    .experience(req.getExperience())
-                    .quantity(req.getQuantity())
-                    .gender(req.getGender())
-                    .openDate(LocalDate.now())
-                    .closeDate(LocalDate.now().plusDays(purchasedProduct.getProductPostDuration()))
-                    .build();
-
-            Post savedPost = postRepository.save(post);
-
-            PostHistory postHistory = PostHistory.builder()
-                    .post(savedPost)
-                    .company(company)
-                    .build();
-
-            postHistoryRepository.save(postHistory);
-
-            List<PostSkill> postSkills = new ArrayList<>();
-
-            for (Skill skill : skillList) {
-                PostSkillId id = PostSkillId.builder().post(savedPost).skill(skill).build();
-                PostSkill newPostSkill = PostSkill.builder().id(id).build();
-                postSkills.add(newPostSkill);
-            }
-            for (Skill skill : savedNewSkills) {
-                PostSkillId id = PostSkillId.builder().post(savedPost).skill(skill).build();
-                PostSkill newPostSkill = PostSkill.builder().id(id).build();
-                postSkills.add(newPostSkill);
-            }
-
-            postSkillRepository.saveAll(postSkills);
-
-            return PostMapper.instance.eToDto(savedPost, postSkillRepository, candidateFollowCompanyRepository);
+            handlePurchasedProduct(req);
         }
+
+        List<Skill> skillList = validateAndFetchSkills(req.getSkillIdList());
+        List<Skill> newSkills = createNewSkills(req.getNewSkills());
+        Post post = createPostEntity(req, company);
+        Post savedPost = postRepository.save(post);
+
+        createAndSavePostHistory(savedPost, company);
+        createAndSavePostSkills(savedPost, skillList, newSkills);
+
+        return PostMapper.instance.eToDto(savedPost, postSkillRepository, candidateFollowCompanyRepository);
     }
+
+    private void handleTrialPost(Company company) {
+        if (company.getTrialPost() < 1) {
+            throw new AppException(ErrorCode.TRIAL_POST_EXPIRED);
+        }
+        company.setTrialPost(company.getTrialPost() - 1);
+    }
+
+    private PurchasedProduct handlePurchasedProduct(PostCreateRequest req) {
+        PurchasedProduct purchasedProduct = purchasedProductRepository.findById(req.getPurchasedProductId())
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PRODUCT));
+
+        if (purchasedProduct.getCompany().getId() != req.getCompanyId() ||
+                purchasedProduct.getProductNumberOfPost() < 1) {
+            throw new AppException(ErrorCode.INVALID_PURCHASED_PRODUCT);
+        }
+        if (LocalDate.now().isAfter(purchasedProduct.getExpiryDate())) {
+            throw new AppException(ErrorCode.PURCHASED_PRODUCT_EXPIRE);
+        }
+
+        purchasedProduct.setProductNumberOfPost(purchasedProduct.getProductNumberOfPost() - 1);
+        purchasedProductRepository.save(purchasedProduct);
+
+        return purchasedProduct;
+    }
+
+    private List<Skill> validateAndFetchSkills(List<Integer> skillIdList) {
+        List<Skill> skillList = skillRepository.findAllByIdList(skillIdList);
+        if (skillList.size() != skillIdList.size()) {
+            throw new AppException(ErrorCode.NOT_FOUND_SKILL);
+        }
+        return skillList;
+    }
+
+    private List<Skill> createNewSkills(List<String> newSkillNames) {
+        List<Skill> newSkills = new ArrayList<>();
+        for (String newSkillName : newSkillNames) {
+            Skill newSkill = Skill.builder().name(newSkillName).build();
+            newSkills.add(newSkill);
+        }
+        return skillRepository.saveAll(newSkills);
+    }
+
+    private Post createPostEntity(PostCreateRequest req, Company company) {
+        LocalDate closeDate;
+        if (req.isUseTrialPost()) {
+            closeDate = LocalDate.now().plusDays(30);
+        } else {
+            PurchasedProduct purchasedProduct = handlePurchasedProduct(req);
+            closeDate = LocalDate.now().plusDays(purchasedProduct.getProductPostDuration());
+        }
+
+        return Post.builder()
+                .company(company)
+                .title(req.getTitle())
+                .jobType(req.getJobType())
+                .location(req.getLocation())
+                .rank(req.getRank())
+                .description(req.getDescription())
+                .minPay(req.getMinPay())
+                .maxPay(req.getMaxPay())
+                .experience(req.getExperience())
+                .quantity(req.getQuantity())
+                .gender(req.getGender())
+                .openDate(LocalDate.now())
+                .closeDate(closeDate)
+                .build();
+    }
+
+    private void createAndSavePostHistory(Post savedPost, Company company) {
+        PostHistory postHistory = PostHistory.builder()
+                .post(savedPost)
+                .company(company)
+                .build();
+        postHistoryRepository.save(postHistory);
+    }
+
+    private void createAndSavePostSkills(Post savedPost, List<Skill> skillList, List<Skill> newSkills) {
+        List<PostSkill> postSkills = new ArrayList<>();
+        skillList.forEach(skill -> postSkills.add(createPostSkill(savedPost, skill)));
+        newSkills.forEach(skill -> postSkills.add(createPostSkill(savedPost, skill)));
+        postSkillRepository.saveAll(postSkills);
+    }
+
+    private PostSkill createPostSkill(Post post, Skill skill) {
+        PostSkillId id = PostSkillId.builder().post(post).skill(skill).build();
+        return PostSkill.builder().id(id).build();
+    }
+
 
     @Transactional(rollbackFor = Exception.class)
     protected CompanyRequestReview _createCompanyRequestAdminReview(Company company) {
@@ -627,76 +583,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         String token = String.valueOf(UUID.randomUUID());
         LocalDateTime expiryTime = LocalDateTime.now().plusHours(24);
 
-        String bodyMailRequestCompanyVerifyEmail = String.format("""
-                        <html>
-                            <head>
-                                <title>Verification of Company Information</title>
-                                <style>
-                                    table, tr {
-                                        border: 1px solid #ccc;
-                                        border-collapse: collapse;
-                                    }
-                                    th, td {
-                                        padding: 8px;
-                                        text-align: left;
-                                    }
-                                    th {
-                                        background-color: #f2f2f2;
-                                    }
-                                    button {
-                                        padding: 5px 5px;
-                                        text-align: center;
-                                        cursor: pointer;
-                                    }
-                                </style>
-                            </head>
-                            <body>
-                                <p>Dear %s,</p>
-                                <p>We hope this email finds you well. We recently received the following information associated with your company:</p>
-                                <table>
-                                    <tr>
-                                        <td>Company Name:</td>
-                                        <td>%s</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Address:</td>
-                                        <td>%s</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Email:</td>
-                                        <td>%s</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Phone:</td>
-                                        <td>%s</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Company Size:</td>
-                                    <td>%s</td>
-                                </table>
-                                <p>If this information pertains to your company, we kindly ask you to verify your email by clicking the link below:</p>
-                                <p>The confirmation will expire at %s</p>
-                                <button>
-                                    <a href="http://35.197.133.113:8081/jspace-service/api/v1/companies/verify-email?mac=%s"
-                                        style="text-decoration: none; color: #000000;"
-                                    >
-                                        <span> Verify Company Information </span>
-                                    </a>
-                                </button>
-                                <p>If this information does not correspond to your company, please disregard this email.</p>
-                                <p>Thank you for your attention to this matter.</p>
-                                <p>Best regards!</p>
-                            </body>
-                        </html>
-                        """,
-                company.getName(),
-                StringUtils.isBlank(company.getName()) ? "" : company.getName(),
-                StringUtils.isBlank(company.getAddress()) ? "" : company.getAddress(),
-                StringUtils.isBlank(company.getEmail()) ? "" : company.getEmail(),
-                StringUtils.isBlank(company.getPhone()) ? "" : company.getPhone(),
-                StringUtils.isBlank(company.getCompanySize()) ? "" : company.getCompanySize(),
-                expiryTime,
-                token);
+        String template = readEmailTemplate("classpath:templates/VerifyCompanyInformation.txt");
+        String bodyMailRequestCompanyVerifyEmail = template
+                .replace("#{companyName}", company.getName())
+                .replace("#{address}", StringUtils.isBlank(company.getAddress()) ? "" : company.getAddress())
+                .replace("#{email}", StringUtils.isBlank(company.getEmail()) ? "" : company.getEmail())
+                .replace("#{phone}", StringUtils.isBlank(company.getPhone()) ? "" : company.getPhone())
+                .replace("#{companySize}", StringUtils.isBlank(company.getCompanySize()) ? "" : company.getCompanySize())
+                .replace("#{expiryTime}", expiryTime.toString())
+                .replace("#{token}", token);
 
         SendMailRequest sendMailRequestCompanyVerifyEmail = SendMailRequest.builder()
                 .email(company.getEmail())
@@ -707,69 +602,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         RequestCompanyVerifyEmailEvent requestCompanyVerifyEmailEvent = new RequestCompanyVerifyEmailEvent(
                 this, sendMailRequestCompanyVerifyEmail);
 
-
-        String bodyMailRequestCompanyToVerifyForEmployee = String.format("""
-                        <html lang="en">
-                        <head>
-                            <title>Employee Information Verification</title>
-                            <style>
-                                table, tr {
-                                    border: 1px solid #ccc;
-                                    border-collapse: collapse;
-                                }
-                                th, td {
-                                    padding: 8px;
-                                    text-align: left;
-                                }
-                                th {
-                                    background-color: #f2f2f2;
-                                }
-                                button {
-                                    padding: 5px 5px;
-                                    text-align: center;
-                                    cursor: pointer;
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            <p>Dear %s,</p>
-                            <p>We trust this message finds you well.</p>
-                            <p>We have received the following employee information associated with your company, registered for recruitment access on our platform:</p>
-                            <table>
-                                <tr>
-                                    <td>Name:</td>
-                                    <td>%s</td>
-                                </tr>
-                                <tr>
-                                    <td>Email:</td>
-                                    <td>%s</td>
-                                </tr>
-                                <tr>
-                                    <td>Phone:</td>
-                                    <td>%s</td>
-                                </tr>
-                            </table>
-                            <p>If this information corresponds to an employee of your company authorized to recruit on our platform, we kindly request verification.</p>
-                            <p>Please confirm the accuracy of the details provided by clicking the link below:</p>
-                            <p>The confirmation will expire at %s</p>
-                            <button>
-                                <a href="http://35.197.133.113:8081/jspace-service/api/v1/companies/verify-employee?mac=%s" 
-                                    style="text-decoration: none; color: #000000;"
-                                >
-                                <span> Verify Employee Information </span>
-                                </a></button>
-                            <p>Should this information not align with your records, please disregard this message.</p>
-                            <p>Thank you for your cooperation in ensuring the accuracy of our records.</p>
-                            <p>Best regards!</p>
-                        </body>
-                        </html>
-                         """,
-                company.getName(),
-                StringUtils.isBlank(employee.getId().getUser().getName()) ? "" : employee.getId().getUser().getName(),
-                StringUtils.isBlank(employee.getId().getUser().getEmail()) ? "" : employee.getId().getUser().getEmail(),
-                StringUtils.isBlank(employee.getId().getUser().getPhone()) ? "" : employee.getId().getUser().getPhone(),
-                expiryTime,
-                token);
+        String templateV2 = readEmailTemplate("classpath:templates/VerifyEmployeeInformation.txt");
+        String bodyMailRequestCompanyToVerifyForEmployee = templateV2
+                .replace("#{companyName}", company.getName())
+                .replace("#{employeeName}", StringUtils.isBlank(employee.getId().getUser().getName()) ? "" : employee.getId().getUser().getName())
+                .replace("#{employeeEmail}", StringUtils.isBlank(employee.getId().getUser().getEmail()) ? "" : employee.getId().getUser().getEmail())
+                .replace("#{employeePhone}", StringUtils.isBlank(employee.getId().getUser().getPhone()) ? "" : employee.getId().getUser().getPhone())
+                .replace("#{expiryTime}", expiryTime.toString())
+                .replace("#{token}", token);
 
         SendMailRequest sendMailRequestCompanyToVerifyForEmployee = SendMailRequest.builder()
                 .email(company.getEmail())
@@ -787,8 +627,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .expiryTime(expiryTime)
                 .build();
 
-        CompanyVerifyEmailRequestHistory savedCompanyVerifyEmailRequestHistory =
-                companyVerifyEmailRequestHistoryRepository.save(companyVerifyEmailRequestHistory);
 
         EmployeeHistoryRequestCompanyVerify employeeHistoryRequestCompanyVerify = EmployeeHistoryRequestCompanyVerify.builder()
                 .employee(employee)
@@ -796,15 +634,12 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .expiryTime(expiryTime)
                 .build();
 
-        EmployeeHistoryRequestCompanyVerify savedEmployeeHistoryRequestCompanyVerify =
-                employeeHistoryRequestCompanyVerifyRepository.save(employeeHistoryRequestCompanyVerify);
+        companyVerifyEmailRequestHistoryRepository.save(companyVerifyEmailRequestHistory);
+        employeeHistoryRequestCompanyVerifyRepository.save(employeeHistoryRequestCompanyVerify);
 
 
-        if (Objects.nonNull(savedCompanyVerifyEmailRequestHistory)
-                && Objects.nonNull(savedEmployeeHistoryRequestCompanyVerify)) {
-            applicationEventPublisher.publishEvent(requestCompanyVerifyEmailEvent);
-            applicationEventPublisher.publishEvent(requestCompanyToVerifyForEmployeeEvent);
-        }
+        applicationEventPublisher.publishEvent(requestCompanyVerifyEmailEvent);
+        applicationEventPublisher.publishEvent(requestCompanyToVerifyForEmployeeEvent);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -813,68 +648,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         String token = String.valueOf(UUID.randomUUID());
         LocalDateTime expiryTime = LocalDateTime.now().plusHours(24);
 
-        String bodyMailRequestCompanyToVerifyForEmployee = String.format("""
-                        <html lang="en">
-                        <head>
-                            <title>Employee Information Verification</title>
-                            <style>
-                                table, tr {
-                                    border: 1px solid #ccc;
-                                    border-collapse: collapse;
-                                }
-                                th, td {
-                                    padding: 8px;
-                                    text-align: left;
-                                }
-                                th {
-                                    background-color: #f2f2f2;
-                                }
-                                button {
-                                    padding: 5px 5px;
-                                    text-align: center;
-                                    cursor: pointer;
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            <p>Dear %s,</p>
-                            <p>We trust this message finds you well.</p>
-                            <p>We have received the following employee information associated with your company, registered for recruitment access on our platform:</p>
-                            <table>
-                                <tr>
-                                    <td>Name:</td>
-                                    <td>%s</td>
-                                </tr>
-                                <tr>
-                                    <td>Email:</td>
-                                    <td>%s</td>
-                                </tr>
-                                <tr>
-                                    <td>Phone:</td>
-                                    <td>%s</td>
-                                </tr>
-                            </table>
-                            <p>If this information corresponds to an employee of your company authorized to recruit on our platform, we kindly request verification.</p>
-                            <p>Please confirm the accuracy of the details provided by clicking the link below:</p>
-                            <p>The confirmation will expire at %s</p>
-                            <button>
-                                <a href="http://35.197.133.113:8081/jspace-service/api/v1/companies/verify-employee?mac=%s"
-                                    style="text-decoration: none; color: #000000;"
-                                >
-                                <span> Verify Employee Information </span>
-                                </a></button>
-                            <p>Should this information not align with your records, please disregard this message.</p>
-                            <p>Thank you for your cooperation in ensuring the accuracy of our records.</p>
-                            <p>Best regards!</p>
-                        </body>
-                        </html>
-                        """,
-                company.getName(),
-                StringUtils.isBlank(employee.getId().getUser().getName()) ? "" : employee.getId().getUser().getName(),
-                StringUtils.isBlank(employee.getId().getUser().getEmail()) ? "" : employee.getId().getUser().getEmail(),
-                StringUtils.isBlank(employee.getId().getUser().getPhone()) ? "" : employee.getId().getUser().getPhone(),
-                expiryTime,
-                token);
+        String templateV2 = readEmailTemplate("classpath:templates/VerifyEmployeeInformation.txt");
+        String bodyMailRequestCompanyToVerifyForEmployee = templateV2
+                .replace("#{companyName}", company.getName())
+                .replace("#{employeeName}", StringUtils.isBlank(employee.getId().getUser().getName()) ? "" : employee.getId().getUser().getName())
+                .replace("#{employeeEmail}", StringUtils.isBlank(employee.getId().getUser().getEmail()) ? "" : employee.getId().getUser().getEmail())
+                .replace("#{employeePhone}", StringUtils.isBlank(employee.getId().getUser().getPhone()) ? "" : employee.getId().getUser().getPhone())
+                .replace("#{expiryTime}", expiryTime.toString())
+                .replace("#{token}", token);
 
         SendMailRequest sendMailRequestCompanyToVerifyForEmployee = SendMailRequest.builder()
                 .email(company.getEmail())
@@ -896,7 +677,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         applicationEventPublisher.publishEvent(requestCompanyToVerifyForEmployeeEvent);
     }
 
-    private Company _findCompanyById(int id) {
-        return companyRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+    private String readEmailTemplate(String filePath) {
+        Resource resource = resourceLoader.getResource(filePath);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
+            return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }
     }
 }
