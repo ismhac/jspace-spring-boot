@@ -23,7 +23,7 @@ public class PaymentController {
     public ResponseEntity<Void> listenActionPaymentCompleted(@RequestBody String body) {
 //        log.info(String.format("------Body input: %s", body));
         var result = paymentService.handleResponse(body);
-//        log.info("result: {}", result.toString());
+        log.info("--- Check webhook process: {}", result.toString());
         return ResponseEntity.ok().build();
     }
 }
