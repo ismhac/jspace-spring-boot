@@ -9,6 +9,7 @@ import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.candidatePostLiked.response.CandidatePostLikedDto;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
+import com.ismhac.jspace.dto.other.ApplyStatusDto;
 import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
@@ -31,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -300,9 +302,23 @@ public class CandidateServiceImpl implements CandidateService {
     }
 
     @Override
-    public PageResponse<PostDto> getAppliedPost(int candidateId, Pageable pageable) {
+    public PageResponse<HashMap<String, Object>> getAppliedPost(int candidateId, Pageable pageable) {
         candidateRepository.findByUserId(candidateId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_USER));
-        return pageUtils.toPageResponse(PostMapper.instance.ePageToDtoPage(candidatePostRepository.candidateGetPageAppliedPost(candidateId, pageable), postSkillRepository, candidateFollowCompanyRepository));
+        Page<Map<String, Object>> results = candidatePostRepository.candidateGetPageAppliedPost(candidateId, pageable);
+
+        List<HashMap<String, Object>> customResults = results.getContent().stream().map(result -> {
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("post", PostMapper.instance.eToDto((Post) result.get("post"), postSkillRepository, candidateFollowCompanyRepository));
+            map.put("applyStatus", ApplyStatusDto.builder()
+                            .code(((ApplyStatus) result.get("applyStatus")).name())
+                            .value(((ApplyStatus) result.get("applyStatus")).getStatus())
+                    .build());
+            return map;
+        }).toList();
+
+        Page<HashMap<String, Object>> customPage = new PageImpl<>(customResults, pageable, results.getTotalElements());
+
+        return pageUtils.toPageResponse(customPage);
     }
 
     @Override

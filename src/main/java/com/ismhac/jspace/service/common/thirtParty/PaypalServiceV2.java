@@ -112,6 +112,29 @@ public class PaypalServiceV2 {
         }
     }
 
+    public PayPalWebhookResponse getWebhookDetails(String webhookId) throws IOException {
+        String webhookDetailsUrl = PAYPAL_API_BASE_URL + "/v1/notifications/webhooks/" + webhookId;
+
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet(webhookDetailsUrl);
+
+        httpGet.setHeader("Content-Type", "application/json");
+        httpGet.setHeader("Authorization", "Bearer " + this.authenticate().getAccess_token());
+
+        CloseableHttpResponse response = httpClient.execute(httpGet);
+
+        try {
+            String responseBody = EntityUtils.toString(response.getEntity());
+            Gson gson = new Gson();
+            PayPalWebhookResponse webhookResponse = gson.fromJson(responseBody, PayPalWebhookResponse.class);
+
+            return webhookResponse;
+        } finally {
+            response.close();
+            httpClient.close();
+        }
+    }
+
     public PayPalWebhookListResponse getListOfWebhooks() throws IOException {
         String webhooksUrl = PAYPAL_API_BASE_URL + "/v1/notifications/webhooks";
 

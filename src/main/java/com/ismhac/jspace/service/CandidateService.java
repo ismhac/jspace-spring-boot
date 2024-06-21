@@ -14,6 +14,7 @@ import com.ismhac.jspace.dto.user.response.UserDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public interface CandidateService {
@@ -45,7 +46,7 @@ public interface CandidateService {
 
     Map<String, Object> getPostById(int candidateId, int postId);
 
-    PageResponse<PostDto> getAppliedPost(int candidateId, Pageable pageable);
+    PageResponse<HashMap<String, Object>> getAppliedPost(int candidateId, Pageable pageable);
 
     CandidateFollowCompanyDto followCompany(CandidateFollowCompanyCreateRequest request);
 

@@ -4,9 +4,7 @@ package com.ismhac.jspace.controller.auth;
 import com.ismhac.jspace.config.security.oauth2.OAuth2Service;
 import com.ismhac.jspace.dto.auth.reponse.AuthenticationResponse;
 import com.ismhac.jspace.dto.auth.reponse.IntrospectResponse;
-import com.ismhac.jspace.dto.auth.request.IntrospectRequest;
-import com.ismhac.jspace.dto.auth.request.LoginRequest;
-import com.ismhac.jspace.dto.auth.request.LogoutRequest;
+import com.ismhac.jspace.dto.auth.request.*;
 import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.request.SendMailResponse;
 import com.ismhac.jspace.dto.role.response.RoleDto;
@@ -163,6 +161,25 @@ public class AuthController {
         var result = authService.handleVerifyEmail(adminVerifyEmailRequest);
         return ApiResponse.<AdminDto>builder()
                 .result(result)
+                .build();
+    }
+
+    @PostMapping("/users/register-v2")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ApiResponse<AuthenticationResponse<Object>> userRegisterEmailPassword(
+            @RequestBody @Valid RegisterEmailPasswordRequest request) {
+        return ApiResponse.<AuthenticationResponse<Object>>builder()
+                .result(authService.registerWithEmailAndPassword(request))
+                .build();
+    }
+
+
+    @PostMapping("/users/login-v2")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ApiResponse<AuthenticationResponse<Object>> userLoginEmailPassword(
+            @RequestBody @Valid LoginEmailPasswordRequest loginRequest) {
+        return ApiResponse.<AuthenticationResponse<Object>>builder()
+                .result(authService.loginWithEmailPassword(loginRequest))
                 .build();
     }
 }
