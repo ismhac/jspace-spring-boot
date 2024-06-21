@@ -10,14 +10,12 @@ import com.ismhac.jspace.service.common.thirtParty.response.PayPalWebhookRespons
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.cloudinary.json.JSONArray;
-import org.cloudinary.json.JSONObject;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 
 @Hidden
 @RestController
@@ -39,6 +37,13 @@ public class PaypalController {
     public ApiResponse<PayPalWebhookResponse> registerWebhook() throws IOException {
         return ApiResponse.<PayPalWebhookResponse>builder()
                 .result(paypalServiceV2.registerWebhook("https://jspace.space/api/v1/payment/paypal-webhooks"))
+                .build();
+    }
+
+    @GetMapping("/details-webhooks")
+    public ApiResponse<PayPalWebhookResponse> getWebhookDetails(@RequestParam("webhookId") String webhookId) throws IOException{
+        return ApiResponse.<PayPalWebhookResponse>builder()
+                .result(paypalServiceV2.getWebhookDetails(webhookId))
                 .build();
     }
 

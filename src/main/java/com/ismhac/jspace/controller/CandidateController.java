@@ -115,8 +115,8 @@ public class CandidateController {
     }
 
     @GetMapping("/{id}/posts/applied")
-    public ApiResponse<PageResponse<PostDto>> getAppliedPost(@PathVariable("id") int candidateId, Pageable pageable) {
-        return ApiResponse.<PageResponse<PostDto>>builder().result(candidateService.getAppliedPost(candidateId, pageUtils.adjustPageable(pageable))).build();
+    public ApiResponse<PageResponse<?>> getAppliedPost(@PathVariable("id") int candidateId, Pageable pageable) {
+        return ApiResponse.<PageResponse<?>>builder().result(candidateService.getAppliedPost(candidateId, pageUtils.adjustPageable(pageable))).build();
     }
 
     @PostMapping("/companies/follows")

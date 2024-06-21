@@ -2,9 +2,7 @@ package com.ismhac.jspace.service.common;
 
 import com.ismhac.jspace.dto.auth.reponse.AuthenticationResponse;
 import com.ismhac.jspace.dto.auth.reponse.IntrospectResponse;
-import com.ismhac.jspace.dto.auth.request.IntrospectRequest;
-import com.ismhac.jspace.dto.auth.request.LoginRequest;
-import com.ismhac.jspace.dto.auth.request.LogoutRequest;
+import com.ismhac.jspace.dto.auth.request.*;
 import com.ismhac.jspace.dto.common.request.SendMailResponse;
 import com.ismhac.jspace.dto.role.response.RoleDto;
 import com.ismhac.jspace.dto.user.admin.adminForgotPassword.request.AdminForgotPasswordRequest;
@@ -40,4 +38,8 @@ public interface AuthService {
     SendMailResponse sendMailAdminForgotPassword(AdminForgotPasswordRequest adminForgotPasswordRequest);
 
     AdminDto handleVerifyEmail(AdminVerifyEmailRequest adminVerifyEmailRequest);
+
+    AuthenticationResponse<Object> registerWithEmailAndPassword(RegisterEmailPasswordRequest request);
+
+    AuthenticationResponse<Object> loginWithEmailPassword(LoginEmailPasswordRequest request);
 }

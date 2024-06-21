@@ -19,7 +19,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             (case when exists (select 1 from CandidatePost cp where cp.id.post.id=p.id and cp.id.candidate.id.user.id= :candidateId) then true else false end) as applied
             from Post p
             """)
-    Page<Map<String, Object>> candidateGetPagePost(int candidateId, Pageable pageable);
+    Page<Map<String, Object>> candidateGetPagePost(@Param("candidateId") int candidateId, Pageable pageable);
 
     @Query("""
             select p as post,(case when exists (
@@ -27,12 +27,12 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             select 1 from CandidatePost cp where cp.id.post.id=p.id and cp.id.candidate.id.user.id= :candidateId) then true else false end) as applied
             from Post p where p.id= :postId
             """)
-    Map<String, Object> candidateFindPostById(int candidateId, int postId);
+    Map<String, Object> candidateFindPostById(@Param("candidateId") int candidateId, @Param("postId") int postId);
 
     @Query("""
             select p from Post p where p.company.id = :companyId
             """)
-    Page<Post> getPageByCompanyId(int companyId, Pageable pageable);
+    Page<Post> getPageByCompanyId(@Param("companyId") int companyId, Pageable pageable);
 
     @Query("""
             select p as post,
@@ -42,7 +42,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             from Post p
             where p.id = :postId
             """)
-    Tuple findPostByIdAndCandidateId(int postId, Integer candidateId);
+    Tuple findPostByIdAndCandidateId(@Param("postId")int postId, @Param("candidateId") Integer candidateId);
 
     @Query("""
             select p as post,

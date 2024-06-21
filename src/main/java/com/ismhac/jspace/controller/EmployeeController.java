@@ -1,5 +1,6 @@
 package com.ismhac.jspace.controller;
 
+import com.ismhac.jspace.dto.candidatePost.request.ApplyStatusUpdateRequest;
 import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.cart.request.CartCreateRequest;
 import com.ismhac.jspace.dto.cart.response.CartDto;
@@ -135,6 +136,11 @@ public class EmployeeController {
     @PutMapping("/posts/{postId}")
     public ApiResponse<PostDto> updatePost(@PathVariable("postId") int postId, @RequestBody PostUpdateRequest request) {
         return ApiResponse.<PostDto>builder().result(employeeService.updatePost(postId, request)).build();
+    }
+
+    @PutMapping("/posts/update-apply-status")
+    public ApiResponse<Object> updateAppliedStatus(@RequestBody ApplyStatusUpdateRequest request){
+        return ApiResponse.builder().result(employeeService.updateAppliedStatus(request)).build();
     }
 
     @GetMapping("/purchased-products/{purchasedProductId}")

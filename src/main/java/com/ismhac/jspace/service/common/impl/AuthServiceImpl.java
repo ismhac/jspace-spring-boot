@@ -3,9 +3,7 @@ package com.ismhac.jspace.service.common.impl;
 import com.ismhac.jspace.config.security.jwt.JwtService;
 import com.ismhac.jspace.dto.auth.reponse.AuthenticationResponse;
 import com.ismhac.jspace.dto.auth.reponse.IntrospectResponse;
-import com.ismhac.jspace.dto.auth.request.IntrospectRequest;
-import com.ismhac.jspace.dto.auth.request.LoginRequest;
-import com.ismhac.jspace.dto.auth.request.LogoutRequest;
+import com.ismhac.jspace.dto.auth.request.*;
 import com.ismhac.jspace.dto.common.request.SendMailResponse;
 import com.ismhac.jspace.dto.role.response.RoleDto;
 import com.ismhac.jspace.dto.user.admin.adminForgotPassword.request.AdminForgotPasswordRequest;
@@ -21,6 +19,8 @@ import com.ismhac.jspace.mapper.*;
 import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.enums.AdminType;
 import com.ismhac.jspace.model.enums.RoleCode;
+import com.ismhac.jspace.model.primaryKey.CandidateId;
+import com.ismhac.jspace.model.primaryKey.EmployeeId;
 import com.ismhac.jspace.repository.*;
 import com.ismhac.jspace.service.common.AuthService;
 import com.ismhac.jspace.util.HashUtils;
@@ -306,5 +306,70 @@ public class AuthServiceImpl implements AuthService {
 
             return adminMapper.toAdminDto(adminRepository.save(admin));
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public AuthenticationResponse<Object> registerWithEmailAndPassword(RegisterEmailPasswordRequest request) {
+        var user = userRepository.findUserByEmail(request.getEmail());
+        if(user.isPresent()) throw new AppException(ErrorCode.USER_EXISTED);
+
+        var role = roleRepository.findRoleByCode(request.getRoleCode());
+        if(role.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_ROLE);
+
+        User newUser = User.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(role.get())
+                .build();
+
+        User savedUser = userRepository.save(newUser);
+
+        if(request.getRoleCode().equals(RoleCode.CANDIDATE)){
+            Candidate candidate = Candidate.builder()
+                    .id(CandidateId.builder()
+                            .user(savedUser)
+                            .build())
+                    .build();
+
+            candidateRepository.save(candidate);
+        } else if(request.getRoleCode().equals(RoleCode.EMPLOYEE)){
+            Employee employee = Employee.builder()
+                    .id(EmployeeId.builder()
+                            .user(savedUser)
+                            .build())
+                    .build();
+            employeeRepository.save(employee);
+        } else {
+            throw new AppException(ErrorCode.INVALID_ROLE_REGISTER);
+        }
+
+        var accessToken = jwtService.generateAdminToken(savedUser);
+        var refreshToken = jwtService.generateRefreshToken(savedUser);
+
+        return AuthenticationResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    @Override
+    public AuthenticationResponse<Object> loginWithEmailPassword(LoginEmailPasswordRequest request) {
+        var user = userRepository.findUserByEmail(request.getEmail());
+             if(user.isEmpty()) throw new AppException(ErrorCode.USER_NOT_EXISTED);
+
+        boolean authenticated = passwordEncoder.matches(request.getPassword(), user.get().getPassword());
+
+        if (!authenticated) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        var accessToken = jwtService.generateAdminToken(user.get());
+        var refreshToken = jwtService.generateRefreshToken(user.get());
+
+        return AuthenticationResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 }

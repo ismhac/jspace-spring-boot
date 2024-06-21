@@ -2,6 +2,7 @@ package com.ismhac.jspace.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.ismhac.jspace.dto.candidatePost.request.ApplyStatusUpdateRequest;
 import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.cart.request.CartCreateRequest;
 import com.ismhac.jspace.dto.cart.response.CartDto;
@@ -9,6 +10,7 @@ import com.ismhac.jspace.dto.common.request.SendMailRequest;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
+import com.ismhac.jspace.dto.other.ApplyStatusDto;
 import com.ismhac.jspace.dto.post.request.PostCreateRequest;
 import com.ismhac.jspace.dto.post.request.PostUpdateRequest;
 import com.ismhac.jspace.dto.post.response.PostDto;
@@ -25,6 +27,7 @@ import com.ismhac.jspace.mapper.*;
 import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.primaryKey.CompanyRequestReviewId;
 import com.ismhac.jspace.model.primaryKey.PostSkillId;
+import com.ismhac.jspace.model.primaryKey.UserNotificationId;
 import com.ismhac.jspace.repository.*;
 import com.ismhac.jspace.service.EmployeeService;
 import com.ismhac.jspace.util.BeanUtils;
@@ -82,6 +85,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final PurchaseHistoryRepository purchaseHistoryRepository;
     private final CandidatePostRepository candidatePostRepository;
     private final CandidateFollowCompanyRepository candidateFollowCompanyRepository;
+    private final UserNotificationRepository userNotificationRepository;
+    private final NotificationRepository notificationRepository;
 
     @Autowired
     private BeanUtils beanUtils;
@@ -428,6 +433,38 @@ public class EmployeeServiceImpl implements EmployeeService {
         postSkillRepository.saveAll(postSkills);
 
         return PostMapper.instance.eToDto(savedPost, postSkillRepository, candidateFollowCompanyRepository);
+    }
+
+    @Override
+    public Object updateAppliedStatus(ApplyStatusUpdateRequest request) {
+        var candidatePost = candidatePostRepository.findByCandidateIdAndPostId(request.getCandidateId(), request.getPostId());
+        if(candidatePost.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_CANDIDATE_POST_APPLIED);
+
+        candidatePost.get().setApplyStatus(request.getApplyStatus());
+
+        Notification notification = Notification.builder()
+                .content(request.getNotification())
+                .build();
+
+        Notification savedNotification = notificationRepository.save(notification);
+
+        UserNotification userNotification = UserNotification.builder()
+                .id(UserNotificationId.builder()
+                        .notification(savedNotification)
+                        .user(candidatePost.get().getId().getCandidate().getId().getUser())
+                        .build())
+                .read(false)
+                .build();
+
+        userNotificationRepository.save(userNotification);
+
+        return new HashMap<>(){{
+           put("notification", request.getNotification());
+           put("applyStatus", ApplyStatusDto.builder()
+                   .code(request.getApplyStatus().name())
+                   .value(request.getApplyStatus().getStatus())
+                   .build());
+        }};
     }
 
     @Override

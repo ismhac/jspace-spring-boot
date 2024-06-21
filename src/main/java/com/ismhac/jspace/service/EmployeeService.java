@@ -1,5 +1,6 @@
 package com.ismhac.jspace.service;
 
+import com.ismhac.jspace.dto.candidatePost.request.ApplyStatusUpdateRequest;
 import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.cart.request.CartCreateRequest;
 import com.ismhac.jspace.dto.cart.response.CartDto;
@@ -56,6 +57,8 @@ public interface EmployeeService {
     PageResponse<PurchaseHistoryDto> getPageAndFilterByProductName(int companyId, String productName, Pageable pageable);
 
     PostDto updatePost(int postId, PostUpdateRequest request);
+
+    Object updateAppliedStatus(ApplyStatusUpdateRequest request);
 
     PageResponse<PurchasedProductDto> getPagePurchasedProduct(int companyId, String productName, Pageable pageable);
 

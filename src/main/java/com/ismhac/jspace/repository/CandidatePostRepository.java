@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Map;
 import java.util.Optional;
 
 public interface CandidatePostRepository extends JpaRepository<CandidatePost, CandidatePostId> {
@@ -18,9 +19,9 @@ public interface CandidatePostRepository extends JpaRepository<CandidatePost, Ca
     Optional<CandidatePost> findByCandidateIdAndPostId(int candidateId, int PostId);
 
     @Query("""
-            select cp.id.post from CandidatePost cp where cp.id.candidate.id.user.id = ?1
+            select cp.id.post as post,cp.applyStatus as applyStatus from CandidatePost cp where cp.id.candidate.id.user.id = ?1
             """)
-    Page<Post> candidateGetPageAppliedPost(int candidateId, Pageable pageable);
+    Page<Map<String, Object>> candidateGetPageAppliedPost(int candidateId, Pageable pageable);
 
     @Query("""
             select cp from CandidatePost cp where cp.id.post.company.id = ?1

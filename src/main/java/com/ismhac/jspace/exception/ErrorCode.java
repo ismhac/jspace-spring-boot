@@ -48,7 +48,10 @@ public enum ErrorCode {
     NOT_FOUND_POST_LIKED(HttpStatus.NOT_FOUND.value(), "Not found post liked", HttpStatus.NOT_FOUND),
     NOT_FOUND_CART(HttpStatus.NOT_FOUND.value(), "Not found cart", HttpStatus.NOT_FOUND),
     HAS_APPLIED(HttpStatus.BAD_REQUEST.value(), "Has applied", HttpStatus.BAD_REQUEST),
-    CANDIDATE_FOLLOW_COMPANY_EXISTED(HttpStatus.BAD_REQUEST.value(), "Candidate has been followed this company", HttpStatus.BAD_REQUEST);
+    CANDIDATE_FOLLOW_COMPANY_EXISTED(HttpStatus.BAD_REQUEST.value(), "Candidate has been followed this company", HttpStatus.BAD_REQUEST),
+    NOT_FOUND_CANDIDATE_POST_APPLIED(HttpStatus.NOT_FOUND.value(), "Not found candidate post applied", HttpStatus.NOT_FOUND),
+    NOT_FOUND_USER_NOTIFICATION(HttpStatus.NOT_FOUND.value(), "Not found user notification", HttpStatus.NOT_FOUND)
+    ;
     private final int code;
     private final String message;
     private final HttpStatusCode httpStatusCode;
