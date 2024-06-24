@@ -441,6 +441,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         if(candidatePost.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_CANDIDATE_POST_APPLIED);
 
         candidatePost.get().setApplyStatus(request.getApplyStatus());
+        candidatePostRepository.save(candidatePost.get());
 
         Notification notification = Notification.builder()
                 .content(request.getNotification())

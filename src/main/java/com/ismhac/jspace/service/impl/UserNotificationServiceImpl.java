@@ -7,7 +7,6 @@ import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.mapper.UserNotificationMapper;
 import com.ismhac.jspace.model.UserNotification;
 import com.ismhac.jspace.repository.UserNotificationRepository;
-import com.ismhac.jspace.repository.UserRepository;
 import com.ismhac.jspace.service.UserNotificationService;
 import com.ismhac.jspace.util.PageUtils;
 import lombok.RequiredArgsConstructor;
