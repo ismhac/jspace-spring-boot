@@ -7,8 +7,8 @@ jwt:
         expiration: 86400000
 paypal:
     client:
-        id: 'ENC(Y6t+8lIR2KfComhwVen8Zt7lbMG7QGnamq3wnlpqvCVwXA1TWy0/Dikdm7nXRYrckaj1v8BYbnb7u7N+5TH1R+a7JaCUWC40pq2QKngYbqcuSEoTxlcIW8j6C3fLOsLO4jFDJVm16f2OtpHEafmMVq5xsNrJXcukMyt1efmG/E4=) '
-        secret: ENC(fEfsfzlswi1SKqkO6wuom9IWOlOXj5OMkFt/jaOhubYqZsTELV7GAHhPaWliKpBtOFpWFVp2Fkxda+Ab39RyEKgX4xR2IfE4KCPgi5Ic3G8PTwN21B/XAIIXInMrpuoU2/XsikbR8ShFuy6w7nxk1QC6hdfCrWi36zQye8ivAA0=)
+        id: AbTQsSjyfc8z-qi0JqOTl1h9qxfLKEct66abiSXIFvKLR7hWBQaXwG3zkMwekSrKL0jeH6KH-HKjzh8n
+        secret: EBMPO4Y5lfNmXrG4UBdMhpq29YXOXq4pdK9l991CuIoBQxobrtgXUXP0yQuQzp2JnoS_WNRaqAKXGI9w
     mode: sandbox
 server:
     port: 8081
