@@ -320,6 +320,7 @@ public class AuthServiceImpl implements AuthService {
         User newUser = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .name(request.getName())
                 .role(role.get())
                 .build();
 

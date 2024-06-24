@@ -16,4 +16,6 @@ public class RegisterEmailPasswordRequest {
     @Size(min = 8, max = 20)
     String password;
     RoleCode roleCode;
+    @NotBlank
+    String name;
 }
