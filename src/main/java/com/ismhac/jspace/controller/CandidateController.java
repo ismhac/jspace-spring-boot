@@ -145,4 +145,10 @@ public class CandidateController {
     public ApiResponse<CandidateDto> setDefaultResume(@PathVariable("id") int candidateId, @RequestParam("resumeId") int resumeId){
         return ApiResponse.<CandidateDto>builder().result(candidateService.setDefaultResume(candidateId, resumeId)).build();
     }
+
+    @PutMapping("/{id}/profiles")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public ApiResponse<CandidateDto> updatePublicProfile(@PathVariable("id") int candidateId, @RequestParam("publicProfile") boolean publicProfile){
+        return ApiResponse.<CandidateDto>builder().result(candidateService.updatePublicProfile(candidateId, publicProfile)).build();
+    }
 }

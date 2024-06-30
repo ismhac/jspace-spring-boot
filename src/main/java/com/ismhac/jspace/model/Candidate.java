@@ -13,11 +13,13 @@ import lombok.experimental.FieldDefaults;
 @Entity
 @Table(name = "tbl_candidate")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Candidate extends BaseEntity{
+public class Candidate extends BaseEntity {
     @EmbeddedId
     CandidateId id;
-
     @OneToOne
     @JoinColumn(name = "default_resume_id", referencedColumnName = "id")
-    private Resume defaultResume;
+    Resume defaultResume;
+    @Column(name = "public_profile")
+    @Builder.Default
+    Boolean publicProfile = false;
 }

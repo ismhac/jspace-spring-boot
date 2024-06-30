@@ -41,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -272,7 +273,7 @@ public class CandidateServiceImpl implements CandidateService {
 
     @Override
     public PageResponse<Map<String, Object>> getPagePost(int id, Pageable pageable) {
-        Page<Map<String, Object>> postPage = postRepository.candidateGetPagePost(id, pageable);
+        Page<Map<String, Object>> postPage = postRepository.candidateGetPagePost(id, LocalDate.now(),pageable);
         List<Map<String, Object>> dtoList = postPage.getContent().stream()
                 .map(item -> {
                     Map<String, Object> map = new HashMap<>(item);
@@ -357,6 +358,15 @@ public class CandidateServiceImpl implements CandidateService {
         var resume = resumeRepository.findById(resumeId);
         if(resume.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_RESUME);
         candidate.get().setDefaultResume(resume.get());
+        return CandidateMapper.instance.eToDto(candidateRepository.save(candidate.get()));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CandidateDto updatePublicProfile(int candidateId, boolean publicProfile) {
+        var candidate = candidateRepository.findByUserId(candidateId);
+        if(candidate.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_USER);
+        candidate.get().setPublicProfile(publicProfile);
         return CandidateMapper.instance.eToDto(candidateRepository.save(candidate.get()));
     }
 
