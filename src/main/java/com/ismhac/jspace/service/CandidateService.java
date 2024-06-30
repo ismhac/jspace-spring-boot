@@ -56,4 +56,6 @@ public interface CandidateService {
     PageResponse<CompanyDto> getPageFollowedCompanies(int candidateId, Pageable pageable);
 
     CandidateDto setDefaultResume(int candidateId, int resumeId);
+
+    CandidateDto updatePublicProfile(int candidateId, boolean publicProfile);
 }

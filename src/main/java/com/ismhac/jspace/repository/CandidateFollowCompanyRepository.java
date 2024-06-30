@@ -3,6 +3,7 @@ package com.ismhac.jspace.repository;
 import com.ismhac.jspace.model.Candidate;
 import com.ismhac.jspace.model.CandidateFollowCompany;
 import com.ismhac.jspace.model.Company;
+import com.ismhac.jspace.model.User;
 import com.ismhac.jspace.model.primaryKey.CandidateFollowCompanyId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,4 +28,11 @@ public interface CandidateFollowCompanyRepository extends JpaRepository<Candidat
             select coalesce(count(distinct (cfp.id.candidate.id.user.id)), 0) from CandidateFollowCompany cfp where cfp.id.company.id = ?1
             """)
     int countFollowerOfCompany(int companyId);
+
+    @Query("""
+            select cfp.id.candidate.id.user
+            from CandidateFollowCompany cfp
+            where cfp.id.company.id = ?1
+            """)
+    Page<User> getPageUserFollowedCompanyByCompanyId(int companyId, Pageable pageable);
 }

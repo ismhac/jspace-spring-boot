@@ -27,6 +27,7 @@ import com.ismhac.jspace.mapper.*;
 import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.enums.NotificationTitle;
 import com.ismhac.jspace.model.enums.NotificationType;
+import com.ismhac.jspace.model.enums.PostStatus;
 import com.ismhac.jspace.model.primaryKey.CompanyRequestReviewId;
 import com.ismhac.jspace.model.primaryKey.PostSkillId;
 import com.ismhac.jspace.model.primaryKey.UserNotificationId;
@@ -315,22 +316,40 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<Map<String, Object>> getListPurchasedByCompanyId(int companyId) {
+    public List<Map<String, Object>> getListPurchasedByCompanyId(int companyId, String durationFilter) {
         LocalDate now = LocalDate.now();
         List<PurchasedProduct> purchasedProducts = purchasedProductRepository.getListByCompanyId(companyId, now);
-        return purchasedProducts.stream().map(item -> {
+        List<Map<String, Object>> results = purchasedProducts.stream().map(item -> {
             Map<String, Object> map = new HashMap<>();
             int remainingDate = (int) ChronoUnit.DAYS.between(now, (PurchasedProductMapper.instance.eToDto(item, candidateFollowCompanyRepository)).getExpiryDate());
             map.put("purchasedProduct", PurchasedProductMapper.instance.eToDto(item, candidateFollowCompanyRepository));
             map.put("remainingDate", remainingDate);
             return map;
         }).toList();
+
+        if (durationFilter.equalsIgnoreCase("expired")) {
+            return results.stream().filter(item -> ((int) item.get("remainingDate") == 0)).toList();
+        } else if (durationFilter.equalsIgnoreCase("unexpired")) {
+            return results.stream().filter(item -> ((int) item.get("remainingDate") > 0)).toList();
+        } else {
+            return results;
+        }
     }
 
     @Override
-    public PageResponse<PostDto> getPagePosted(int companyId, Pageable pageable) {
-        Page<Post> posts = postRepository.getPageByCompanyId(companyId, pageable);
-        return pageUtils.toPageResponse(PostMapper.instance.ePageToDtoPage(posts, postSkillRepository, candidateFollowCompanyRepository));
+    public PageResponse<Map<String, Object>> getPagePosted(int companyId, String title, PostStatus postStatus, String duration, Pageable pageable) {
+        Page<Post> posts = postRepository.getPageByCompanyId(companyId, title, postStatus, duration, LocalDate.now(), pageable);
+
+        List<Map<String, Object>> customContent = new ArrayList<>();
+        for(Post post:posts.getContent()){
+            Map<String, Object> map = new HashMap<>();
+            map.put("post", PostMapper.instance.eToDto(post, postSkillRepository, candidateFollowCompanyRepository));
+            map.put("appliedCandidate", candidatePostRepository.getListCandidateByPostId(post.getId()).size());
+            customContent.add(map);
+        }
+
+        return new PageResponse<>(posts.getNumber(), posts.getSize(), posts.getTotalElements(), posts.getTotalPages(), posts.getNumberOfElements(), customContent);
+//        return pageUtils.toPageResponse(PostMapper.instance.ePageToDtoPage(posts, postSkillRepository, candidateFollowCompanyRepository));
     }
 
     @Override
@@ -438,9 +457,18 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public PostDto updatePostStatus(int postId, PostStatus postStatus) {
+        var post = postRepository.findById(postId);
+        if(post.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_POST);
+        post.get().setPostStatus(postStatus);
+        return PostMapper.instance.eToDto(postRepository.save(post.get()), postSkillRepository, candidateFollowCompanyRepository);
+    }
+
+    @Override
     public Object updateAppliedStatus(ApplyStatusUpdateRequest request) {
         var candidatePost = candidatePostRepository.findByCandidateIdAndPostId(request.getCandidateId(), request.getPostId());
-        if(candidatePost.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_CANDIDATE_POST_APPLIED);
+        if (candidatePost.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_CANDIDATE_POST_APPLIED);
 
         candidatePost.get().setApplyStatus(request.getApplyStatus());
         candidatePostRepository.save(candidatePost.get());
@@ -463,12 +491,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         userNotificationRepository.save(userNotification);
 
-        return new HashMap<>(){{
-           put("notification", request.getNotification());
-           put("applyStatus", ApplyStatusDto.builder()
-                   .code(request.getApplyStatus().name())
-                   .value(request.getApplyStatus().getStatus())
-                   .build());
+        return new HashMap<>() {{
+            put("notification", request.getNotification());
+            put("applyStatus", ApplyStatusDto.builder()
+                    .code(request.getApplyStatus().name())
+                    .value(request.getApplyStatus().getStatus())
+                    .build());
         }};
     }
 
@@ -492,6 +520,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public PageResponse<CandidatePostDto> getPageCandidateAppliedByPostId(int postId, Pageable pageable) {
         return pageUtils.toPageResponse(CandidatePostMapper.instance.ePageToDtoPage(candidatePostRepository.getPageCandidateAppliedByPostId(postId, pageable), postSkillRepository, candidateFollowCompanyRepository));
+    }
+
+    @Override
+    public PageResponse<UserDto> getPageFollowedCandidate(int companyId, Pageable pageable) {
+        var company = companyRepository.findById(companyId);
+        if (company.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_COMPANY);
+        Page<User> users = candidateFollowCompanyRepository.getPageUserFollowedCompanyByCompanyId(companyId, pageUtils.adjustPageable(pageable));
+        return pageUtils.toPageResponse(UserMapper.instance.toUserDtoPage(users));
     }
 
     @Override
@@ -528,7 +564,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PRODUCT));
 
         if (purchasedProduct.getCompany().getId() != req.getCompanyId() ||
-                purchasedProduct.getProductNumberOfPost() < 1) {
+            purchasedProduct.getProductNumberOfPost() < 1) {
             throw new AppException(ErrorCode.INVALID_PURCHASED_PRODUCT);
         }
         if (LocalDate.now().isAfter(purchasedProduct.getExpiryDate())) {

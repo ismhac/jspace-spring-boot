@@ -16,8 +16,10 @@ import com.ismhac.jspace.dto.purchasedProduct.response.PurchasedProductDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
+import com.ismhac.jspace.model.enums.PostStatus;
 import com.ismhac.jspace.service.EmployeeService;
 import com.ismhac.jspace.util.PageUtils;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -94,14 +96,24 @@ public class EmployeeController {
 
     @GetMapping("/purchased-products")
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ApiResponse<List<Map<String, Object>>> getListByCompanyId(@RequestParam("companyId") int companyId) {
-        return ApiResponse.<List<Map<String, Object>>>builder().result(employeeService.getListPurchasedByCompanyId(companyId)).build();
+    public ApiResponse<List<Map<String, Object>>> getListByCompanyId(
+            @RequestParam("companyId") int companyId,
+
+            @Schema(name = "durationFilter", allowableValues = {"expired", "unexpired"})
+            @RequestParam("durationFilter") String durationFilter) {
+        return ApiResponse.<List<Map<String, Object>>>builder().result(employeeService.getListPurchasedByCompanyId(companyId, durationFilter)).build();
     }
 
     @GetMapping("/posts")
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ApiResponse<PageResponse<PostDto>> getPagePosted(@RequestParam("companyId") int companyId, Pageable pageable) {
-        return ApiResponse.<PageResponse<PostDto>>builder().result(employeeService.getPagePosted(companyId, pageUtils.adjustPageable(pageable))).build();
+    public ApiResponse<PageResponse<Map<String, Object>>> getPagePosted(
+            @RequestParam("companyId") int companyId,
+            @RequestParam("title") String title,
+            @RequestParam("postStatus") PostStatus postStatus,
+            @Schema(name = "duration", allowableValues = {"expired", "unexpired"})
+            @RequestParam("duration") String duration,
+            Pageable pageable) {
+        return ApiResponse.<PageResponse<Map<String, Object>>>builder().result(employeeService.getPagePosted(companyId, title, postStatus, duration, pageUtils.adjustPageable(pageable))).build();
     }
 
     @PostMapping("/carts")
@@ -138,8 +150,13 @@ public class EmployeeController {
         return ApiResponse.<PostDto>builder().result(employeeService.updatePost(postId, request)).build();
     }
 
+    @PutMapping("/posts/{postId}/status")
+    public ApiResponse<PostDto> updatePostStatus(@PathVariable("postId")int postId, @RequestParam("postStatus") PostStatus postStatus){
+        return ApiResponse.<PostDto>builder().result(employeeService.updatePostStatus(postId, postStatus)).build();
+    }
+
     @PutMapping("/posts/update-apply-status")
-    public ApiResponse<Object> updateAppliedStatus(@RequestBody ApplyStatusUpdateRequest request){
+    public ApiResponse<Object> updateAppliedStatus(@RequestBody ApplyStatusUpdateRequest request) {
         return ApiResponse.builder().result(employeeService.updateAppliedStatus(request)).build();
     }
 
@@ -149,12 +166,17 @@ public class EmployeeController {
     }
 
     @GetMapping("/posts/applied-candidates")
-    public ApiResponse<PageResponse<CandidatePostDto>> getPageCandidateAppliedPost(@RequestParam("companyId") int companyId, Pageable pageable){
-        return ApiResponse.<PageResponse<CandidatePostDto>>builder().result(employeeService.getPageCandidateAppliedPost(companyId,pageable)).build();
+    public ApiResponse<PageResponse<CandidatePostDto>> getPageCandidateAppliedPost(@RequestParam("companyId") int companyId, Pageable pageable) {
+        return ApiResponse.<PageResponse<CandidatePostDto>>builder().result(employeeService.getPageCandidateAppliedPost(companyId, pageable)).build();
     }
 
     @GetMapping("/posts/{postId}/applied-candidates")
-    public ApiResponse<PageResponse<CandidatePostDto>> getPageCandidateAppliedByPostId(@PathVariable("postId") int postId, Pageable pageable){
-        return ApiResponse.<PageResponse<CandidatePostDto>>builder().result(employeeService.getPageCandidateAppliedByPostId(postId,pageable)).build();
+    public ApiResponse<PageResponse<CandidatePostDto>> getPageCandidateAppliedByPostId(@PathVariable("postId") int postId, Pageable pageable) {
+        return ApiResponse.<PageResponse<CandidatePostDto>>builder().result(employeeService.getPageCandidateAppliedByPostId(postId, pageable)).build();
+    }
+
+    @GetMapping("/companies/{companyId}/candidates/followed")
+    public ApiResponse<PageResponse<UserDto>> getPageFollowedCandidate(@PathVariable("companyId") int companyId, Pageable pageable) {
+        return ApiResponse.<PageResponse<UserDto>>builder().result(employeeService.getPageFollowedCandidate(companyId, pageable)).build();
     }
 }

@@ -2,6 +2,7 @@ package com.ismhac.jspace.repository;
 
 import com.ismhac.jspace.model.Post;
 import com.ismhac.jspace.model.enums.Location;
+import com.ismhac.jspace.model.enums.PostStatus;
 import jakarta.persistence.Tuple;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 public interface PostRepository extends JpaRepository<Post, Integer> {
@@ -18,8 +20,9 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             select 1 from CandidatePostLiked cpl where cpl.id.post.id=p.id and cpl.id.candidate.id.user.id= :candidateId) then true else false end) as liked,
             (case when exists (select 1 from CandidatePost cp where cp.id.post.id=p.id and cp.id.candidate.id.user.id= :candidateId) then true else false end) as applied
             from Post p
+            where p.closeDate >= :now
             """)
-    Page<Map<String, Object>> candidateGetPagePost(@Param("candidateId") int candidateId, Pageable pageable);
+    Page<Map<String, Object>> candidateGetPagePost(@Param("candidateId") int candidateId, @Param("now") LocalDate now, Pageable pageable);
 
     @Query("""
             select p as post,(case when exists (
@@ -30,9 +33,16 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     Map<String, Object> candidateFindPostById(@Param("candidateId") int candidateId, @Param("postId") int postId);
 
     @Query("""
-            select p from Post p where p.company.id = :companyId
+            select p from Post p
+            where p.company.id = :companyId
+                and (:title is null or :title = '' or lower(p.title) like lower(concat('%', :title,  '%') ) )
+                and p.postStatus = :postStatus
+                and (
+                        (:duration = 'expired' and (p.closeDate < :now))
+                        or (:duration = 'unexprired' and (p.closeDate >= :now))
+                    )
             """)
-    Page<Post> getPageByCompanyId(@Param("companyId") int companyId, Pageable pageable);
+    Page<Post> getPageByCompanyId(@Param("companyId") int companyId, String title, PostStatus postStatus, String duration, LocalDate now, Pageable pageable);
 
     @Query("""
             select p as post,
@@ -42,7 +52,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             from Post p
             where p.id = :postId
             """)
-    Tuple findPostByIdAndCandidateId(@Param("postId")int postId, @Param("candidateId") Integer candidateId);
+    Tuple findPostByIdAndCandidateId(@Param("postId") int postId, @Param("candidateId") Integer candidateId);
 
     @Query("""
             select p as post,
@@ -62,6 +72,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                     or (:minPay is not null and :maxPay is null and p.minPay >= :minPay)
                     or (:minPay is null and :maxPay is not null and p.maxPay <= :maxPay)
                     or (:minPay is not null and :maxPay is not null and p.maxPay between :minPay and :maxPay and p.minPay between :minPay and :maxPay))
+                and p.closeDate >= :now
             """)
     Page<Map<String, Object>> getPageAndFilter(
             @Param("candidateId") Integer candidateId,
@@ -75,5 +86,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             @Param("companyName") String companyName,
             @Param("maxPay") Integer maxPay,
             @Param("minPay") Integer minPay,
+            @Param("now") LocalDate now,
             Pageable pageable);
 }

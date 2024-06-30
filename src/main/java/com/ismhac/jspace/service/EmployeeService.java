@@ -12,9 +12,11 @@ import com.ismhac.jspace.dto.post.request.PostUpdateRequest;
 import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.purchaseHistory.response.PurchaseHistoryDto;
 import com.ismhac.jspace.dto.purchasedProduct.response.PurchasedProductDto;
+import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
+import com.ismhac.jspace.model.enums.PostStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,9 +44,9 @@ public interface EmployeeService {
 
     Map<String, Object> deleteAvatar(int id, String avatarId);
 
-    List<Map<String, Object>> getListPurchasedByCompanyId(int companyId);
+     List<Map<String, Object>> getListPurchasedByCompanyId(int companyId, String durationFilter);
 
-    PageResponse<PostDto> getPagePosted(int companyId, Pageable pageable);
+    PageResponse<Map<String, Object>> getPagePosted(int companyId, String title, PostStatus postStatus, String duration, Pageable pageable);
 
     CartDto addProductToCart(CartCreateRequest request);
 
@@ -58,6 +60,8 @@ public interface EmployeeService {
 
     PostDto updatePost(int postId, PostUpdateRequest request);
 
+    PostDto updatePostStatus(int postId, PostStatus postStatus);
+
     Object updateAppliedStatus(ApplyStatusUpdateRequest request);
 
     PageResponse<PurchasedProductDto> getPagePurchasedProduct(int companyId, String productName, Pageable pageable);
@@ -67,4 +71,6 @@ public interface EmployeeService {
     PageResponse<CandidatePostDto> getPageCandidateAppliedPost(int companyId, Pageable pageable);
 
     PageResponse<CandidatePostDto> getPageCandidateAppliedByPostId(int postId, Pageable pageable);
+
+    PageResponse<UserDto> getPageFollowedCandidate(int companyId, Pageable pageable);
 }
