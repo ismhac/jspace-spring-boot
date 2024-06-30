@@ -108,6 +108,8 @@ public class PaymentServiceImpl implements PaymentService {
                 cartRepository.delete(cart);
             });
         }
+        purchasedProductRepository.saveAll(purchasedProducts);
+        purchaseHistoryRepository.saveAll(purchaseHistories);
     }
 
     private PurchaseHistory createPurchaseHistory(Company company, Product product, int quantity, String paymentMethod, String status) {
