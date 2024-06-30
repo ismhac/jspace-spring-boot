@@ -35,7 +35,7 @@ public interface CandidatePostRepository extends JpaRepository<CandidatePost, Ca
     Page<CandidatePost> getPageCandidateAppliedByPostId(int postId, Pageable pageable);
 
     @Query("""
-            select cp from CandidatePost cp where cp.id.post.id = ?1
+            select cp.id.candidate from CandidatePost cp where cp.id.post.id = ?1
             """)
     List<Candidate> getListCandidateByPostId(int postId);
 }
