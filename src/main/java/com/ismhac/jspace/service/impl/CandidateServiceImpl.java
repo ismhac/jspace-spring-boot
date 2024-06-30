@@ -221,27 +221,15 @@ public class CandidateServiceImpl implements CandidateService {
     public Map<String, Object> deleteResume(int id, int resumeId) {
         try {
             Candidate candidate = candidateRepository.findByUserId(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+            if(candidate.getDefaultResume().getId() == resumeId){
+                candidate.setDefaultResume(null);
+            }
             Resume resume = resumeRepository.findById(resumeId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_RESUME));
             resume.setUseYesNo(false);
             resumeRepository.save(resume);
             return new HashMap<>() {{
                 put("status", true);
             }};
-//            Map deleteResult = cloudinary.uploader().destroy(resume.getFile().getPublicId(), ObjectUtils.emptyMap());
-//
-//            if (deleteResult.get("result").toString().equals("ok")) {
-//
-//                resumeRepository.deleteById(resumeId);
-//                fileRepository.deleteById(resume.getFile().getId());
-//
-//                return new HashMap<>() {{
-//                    put("status", deleteResult);
-//                }};
-//            } else {
-//                return new HashMap<>() {{
-//                    put("status", deleteResult);
-//                }};
-//            }
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new AppException(ErrorCode.DELETE_FILE_FAIL);

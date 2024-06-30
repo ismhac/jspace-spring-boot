@@ -9,7 +9,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum NotificationType {
-    EMPLOYEE_UPDATE_STATUS_APPLIED(1)
+    EMPLOYEE_UPDATE_STATUS_APPLIED(1),
+    NEW_COMPANY(2)
     ;
     Integer code;
 }

@@ -1,5 +1,6 @@
 package com.ismhac.jspace.dto.common.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import java.time.Instant;
@@ -12,6 +13,8 @@ import java.time.Instant;
 public class BaseEntityDto {
     Instant createdAt;
     Instant updatedAt;
+    @JsonIgnore
     Integer createdBy;
+    @JsonIgnore
     Integer updatedBy;
 }

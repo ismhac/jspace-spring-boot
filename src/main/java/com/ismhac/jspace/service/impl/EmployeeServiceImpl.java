@@ -28,6 +28,7 @@ import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.enums.NotificationTitle;
 import com.ismhac.jspace.model.enums.NotificationType;
 import com.ismhac.jspace.model.enums.PostStatus;
+import com.ismhac.jspace.model.enums.RoleCode;
 import com.ismhac.jspace.model.primaryKey.CompanyRequestReviewId;
 import com.ismhac.jspace.model.primaryKey.PostSkillId;
 import com.ismhac.jspace.model.primaryKey.UserNotificationId;
@@ -56,6 +57,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -167,6 +169,24 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeRepository.save(employee);
 
         CompanyRequestReview companyRequestReview = _createCompanyRequestAdminReview(savedCompany);
+
+        List<User> users = userRepository.findUserInListRole(List.of(RoleCode.SUPER_ADMIN, RoleCode.ADMIN));
+        Notification notification = Notification.builder()
+                .title(NotificationTitle.NOTIFICATION_ADMIN_NEW_COMPANY.getTitle())
+                .type(NotificationType.NEW_COMPANY)
+                .content(String.format("Công ty %s được đăng ký trên hệ thống lúc %s", savedCompany.getName(), Instant.now().toString()))
+                .build();
+
+        Notification savedNotification = notificationRepository.save(notification);
+        List<UserNotification> userNotifications = users.stream().map(user -> UserNotification.builder()
+                .read(false)
+                .id(UserNotificationId.builder()
+                        .user(user)
+                        .notification(savedNotification)
+                        .build())
+                .build()).toList();
+
+        userNotificationRepository.saveAll(userNotifications);
 
         if (Objects.nonNull(companyRequestReview)) {
             _sendMailWhenCreateCompany(savedCompany, employee);

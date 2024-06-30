@@ -1,5 +1,6 @@
 package com.ismhac.jspace.dto.purchasedProduct.response;
 
+import com.ismhac.jspace.dto.common.response.BaseEntityDto;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -9,7 +10,7 @@ import java.time.LocalDate;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PurchasedProductDto {
+public class PurchasedProductDto extends BaseEntityDto {
     int id;
     CompanyDto company;
     String productName;

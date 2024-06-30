@@ -1,6 +1,7 @@
 package com.ismhac.jspace.repository;
 
 import com.ismhac.jspace.model.User;
+import com.ismhac.jspace.model.enums.RoleCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -199,4 +200,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             ORDER BY months.month
             """, nativeQuery = true)
     List<Object[]> postStatisticByYearOfCompany(@Param("year") int year, @Param("companyId") int companyId);
+
+    @Query("""
+            select u
+            from User u where u.role.code in :roleCodes
+            """)
+    List<User> findUserInListRole(List<RoleCode> roleCodes);
 }

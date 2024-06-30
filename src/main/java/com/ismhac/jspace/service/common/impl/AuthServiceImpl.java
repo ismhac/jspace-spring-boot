@@ -322,6 +322,7 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
                 .role(role.get())
+                .activated(true)
                 .build();
 
         User savedUser = userRepository.save(newUser);
