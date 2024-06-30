@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CandidateDto {
-    private UserDto user;
-    private ResumeDto defaultResume;
+    UserDto user;
+    ResumeDto defaultResume;
     Boolean publicProfile;
 }
