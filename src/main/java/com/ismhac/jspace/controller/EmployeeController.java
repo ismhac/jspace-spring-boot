@@ -108,7 +108,7 @@ public class EmployeeController {
     @PreAuthorize("hasRole('EMPLOYEE')")
     public ApiResponse<PageResponse<Map<String, Object>>> getPagePosted(
             @RequestParam("companyId") int companyId,
-            @RequestParam("title") String title,
+            @RequestParam(value = "title", required = false) String title,
             @RequestParam("postStatus") PostStatus postStatus,
             @Schema(name = "duration", allowableValues = {"expired", "unexpired"})
             @RequestParam("duration") String duration,
