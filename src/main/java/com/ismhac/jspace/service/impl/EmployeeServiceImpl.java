@@ -361,7 +361,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         Page<Post> posts = postRepository.getPageByCompanyId(companyId, title, postStatus, duration, LocalDate.now(), pageable);
 
         List<Map<String, Object>> customContent = new ArrayList<>();
-        for(Post post:posts.getContent()){
+        for (Post post : posts.getContent()) {
             Map<String, Object> map = new HashMap<>();
             map.put("post", PostMapper.instance.eToDto(post, postSkillRepository, candidateFollowCompanyRepository));
             map.put("appliedCandidate", candidatePostRepository.getListCandidateByPostId(post.getId()).size());
@@ -480,7 +480,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Transactional(rollbackFor = Exception.class)
     public PostDto updatePostStatus(int postId, PostStatus postStatus) {
         var post = postRepository.findById(postId);
-        if(post.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_POST);
+        if (post.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_POST);
         post.get().setPostStatus(postStatus);
         return PostMapper.instance.eToDto(postRepository.save(post.get()), postSkillRepository, candidateFollowCompanyRepository);
     }
