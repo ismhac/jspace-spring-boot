@@ -16,4 +16,8 @@ import lombok.experimental.FieldDefaults;
 public class Candidate extends BaseEntity{
     @EmbeddedId
     CandidateId id;
+
+    @OneToOne
+    @JoinColumn(name = "default_resume_id", referencedColumnName = "id")
+    private Resume defaultResume;
 }

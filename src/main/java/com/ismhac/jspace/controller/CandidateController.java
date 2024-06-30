@@ -11,6 +11,7 @@ import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
+import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.service.CandidateService;
 import com.ismhac.jspace.util.PageUtils;
@@ -105,6 +106,7 @@ public class CandidateController {
     }
 
     @PostMapping("/posts/apply")
+    @PreAuthorize("hasRole('CANDIDATE')")
     public ApiResponse<CandidatePostDto> applyPost(@RequestBody CandidatePostCreateRequest request) {
         return ApiResponse.<CandidatePostDto>builder().result(candidateService.applyPost(request)).build();
     }
@@ -115,22 +117,32 @@ public class CandidateController {
     }
 
     @GetMapping("/{id}/posts/applied")
+    @PreAuthorize("hasRole('CANDIDATE')")
     public ApiResponse<PageResponse<?>> getAppliedPost(@PathVariable("id") int candidateId, Pageable pageable) {
         return ApiResponse.<PageResponse<?>>builder().result(candidateService.getAppliedPost(candidateId, pageUtils.adjustPageable(pageable))).build();
     }
 
     @PostMapping("/companies/follows")
+    @PreAuthorize("hasRole('CANDIDATE')")
     public ApiResponse<CandidateFollowCompanyDto> followCompany(@RequestBody CandidateFollowCompanyCreateRequest request) {
         return ApiResponse.<CandidateFollowCompanyDto>builder().result(candidateService.followCompany(request)).build();
     }
 
     @DeleteMapping("/{id}/companies/unfollow")
+    @PreAuthorize("hasRole('CANDIDATE')")
     public ApiResponse<Boolean> unFollowCompany(@PathVariable("id") int candidateId, @RequestParam("companyId") int companyId){
         return ApiResponse.<Boolean>builder().result(candidateService.unFollowCompany(candidateId, companyId)).build();
     }
 
     @GetMapping("/{id}/companies/follows")
+    @PreAuthorize("hasRole('CANDIDATE')")
     public ApiResponse<PageResponse<CompanyDto>> getPageFollowedCompanies(@PathVariable("id") int candidateId, Pageable pageable) {
         return ApiResponse.<PageResponse<CompanyDto>>builder().result(candidateService.getPageFollowedCompanies(candidateId, pageable)).build();
+    }
+
+    @PutMapping("/{id}/resumes/default-resume")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public ApiResponse<CandidateDto> setDefaultResume(@PathVariable("id") int candidateId, @RequestParam("resumeId") int resumeId){
+        return ApiResponse.<CandidateDto>builder().result(candidateService.setDefaultResume(candidateId, resumeId)).build();
     }
 }

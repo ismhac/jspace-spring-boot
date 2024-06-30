@@ -52,6 +52,8 @@ public enum ErrorCode {
     NOT_FOUND_CANDIDATE_POST_APPLIED(HttpStatus.NOT_FOUND.value(), "Not found candidate post applied", HttpStatus.NOT_FOUND),
     NOT_FOUND_USER_NOTIFICATION(HttpStatus.NOT_FOUND.value(), "Not found user notification", HttpStatus.NOT_FOUND),
     NOT_FOUND_COMPANY_NOTIFICATION(HttpStatus.NOT_FOUND.value(), "Not found company notification", HttpStatus.NOT_FOUND),
+    INVALID_CART(HttpStatus.BAD_REQUEST.value(), "Invalid shopping cart, please check your shopping cart again", HttpStatus.BAD_REQUEST),
+    NOT_FOUND_PAYMENT_TRANSACTION(HttpStatus.NOT_FOUND.value(),"Not found payment transaction" ,HttpStatus.NOT_FOUND)
     ;
     private final int code;
     private final String message;

@@ -10,6 +10,7 @@ import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
+import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,4 +54,6 @@ public interface CandidateService {
     Boolean unFollowCompany(int candidateId, int companyId);
 
     PageResponse<CompanyDto> getPageFollowedCompanies(int candidateId, Pageable pageable);
+
+    CandidateDto setDefaultResume(int candidateId, int resumeId);
 }

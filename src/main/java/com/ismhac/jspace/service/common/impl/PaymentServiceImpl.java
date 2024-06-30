@@ -2,14 +2,18 @@ package com.ismhac.jspace.service.common.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.ismhac.jspace.exception.AppException;
+import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.mapper.PurchaseHistoryMapper;
 import com.ismhac.jspace.mapper.PurchasedProductMapper;
 import com.ismhac.jspace.model.*;
-import com.ismhac.jspace.repository.CandidateFollowCompanyRepository;
-import com.ismhac.jspace.repository.CartRepository;
-import com.ismhac.jspace.repository.PurchaseHistoryRepository;
-import com.ismhac.jspace.repository.PurchasedProductRepository;
+import com.ismhac.jspace.model.primaryKey.PaymentTransactionId;
+import com.ismhac.jspace.repository.*;
 import com.ismhac.jspace.service.common.PaymentService;
+import com.paypal.api.payments.Payment;
+import com.paypal.api.payments.PaymentExecution;
+import com.paypal.base.rest.APIContext;
+import com.paypal.base.rest.PayPalRESTException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,10 +26,12 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentServiceImpl implements PaymentService {
+    private final APIContext apiContext;
     private final CartRepository cartRepository;
     private final PurchasedProductRepository purchasedProductRepository;
     private final PurchaseHistoryRepository purchaseHistoryRepository;
     private final CandidateFollowCompanyRepository candidateFollowCompanyRepository;
+    private final PaymentTransactionRepository paymentTransactionRepository;
 
     /* */
     @Override
@@ -43,14 +49,46 @@ public class PaymentServiceImpl implements PaymentService {
             String custom = (String) transactions.get(0).get("custom");
             List<Integer> cartIds = gson.fromJson(custom, new TypeToken<List<Integer>>() {
             }.getType());
-            return processPurchasedProducts(cartIds, paymentMethod, status);
+//            return processPurchasedProducts(cartIds, paymentMethod, status);
+            return null;
         } catch (Exception e) {
             log.error("Error processing PayPal webhook response: {}", e.getMessage(), e);
             throw new RuntimeException("Error processing PayPal webhook response", e);
         }
     }
 
-    private Object processPurchasedProducts(List<Integer> cartIds, String paymentMethod, String status) {
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Object checkPayment(String mac, String paymentId, String payerId) throws PayPalRESTException {
+        Gson gson = new Gson();
+        var paymentTransaction = paymentTransactionRepository.findById(PaymentTransactionId.builder()
+                .mac(mac)
+                .paymentId(paymentId)
+                .build());
+
+        if(paymentTransaction.isEmpty()){
+            throw new AppException(ErrorCode.NOT_FOUND_PAYMENT_TRANSACTION);
+        }
+
+        Payment payment = new Payment();
+        payment.setId(paymentId);
+
+        PaymentExecution paymentExecute = new PaymentExecution();
+        paymentExecute.setPayerId(payerId);
+        Payment executedPayment = payment.execute(apiContext, paymentExecute);
+        if (executedPayment.getState().equals("approved")) {
+            List<Integer> cartsId = gson.fromJson(paymentTransaction.get().getCartValue(), new TypeToken<List<Integer>>(){}.getType());
+            processPurchasedProducts(cartsId, executedPayment.getPayer().getPaymentMethod(), executedPayment.getState());
+            return new HashMap<>(){{
+               put("status", true);
+            }};
+        }
+        return new HashMap<>(){{
+            put("status", false);
+        }};
+    }
+
+    private void processPurchasedProducts(List<Integer> cartIds, String paymentMethod, String status) {
         List<PurchasedProduct> purchasedProducts = new ArrayList<>();
         List<PurchaseHistory> purchaseHistories = new ArrayList<>();
 
@@ -70,11 +108,6 @@ public class PaymentServiceImpl implements PaymentService {
                 cartRepository.delete(cart);
             });
         }
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("purchaseHistory", PurchaseHistoryMapper.instance.eListToDtoList(purchaseHistoryRepository.saveAll(purchaseHistories), candidateFollowCompanyRepository));
-        response.put("purchasedProduct", PurchasedProductMapper.instance.eListToDtoList(purchasedProductRepository.saveAll(purchasedProducts), candidateFollowCompanyRepository));
-        return response;
     }
 
     private PurchaseHistory createPurchaseHistory(Company company, Product product, int quantity, String paymentMethod, String status) {

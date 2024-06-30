@@ -25,6 +25,8 @@ import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.mapper.*;
 import com.ismhac.jspace.model.*;
+import com.ismhac.jspace.model.enums.NotificationTitle;
+import com.ismhac.jspace.model.enums.NotificationType;
 import com.ismhac.jspace.model.primaryKey.CompanyRequestReviewId;
 import com.ismhac.jspace.model.primaryKey.PostSkillId;
 import com.ismhac.jspace.model.primaryKey.UserNotificationId;
@@ -444,6 +446,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         candidatePostRepository.save(candidatePost.get());
 
         Notification notification = Notification.builder()
+                .title(NotificationTitle.NOTIFICATION_CANDIDATE_UPDATE_APPLY_STATUS.getTitle())
+                .type(NotificationType.EMPLOYEE_UPDATE_STATUS_APPLIED)
                 .content(request.getNotification())
                 .build();
 
