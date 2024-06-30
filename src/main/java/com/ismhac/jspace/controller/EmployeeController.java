@@ -100,7 +100,7 @@ public class EmployeeController {
             @RequestParam("companyId") int companyId,
 
             @Schema(name = "durationFilter", allowableValues = {"expired", "unexpired"})
-            @RequestParam("durationFilter") String durationFilter) {
+            @RequestParam(value = "durationFilter", required = false) String durationFilter) {
         return ApiResponse.<List<Map<String, Object>>>builder().result(employeeService.getListPurchasedByCompanyId(companyId, durationFilter)).build();
     }
 
@@ -109,9 +109,9 @@ public class EmployeeController {
     public ApiResponse<PageResponse<Map<String, Object>>> getPagePosted(
             @RequestParam("companyId") int companyId,
             @RequestParam(value = "title", required = false) String title,
-            @RequestParam("postStatus") PostStatus postStatus,
+            @RequestParam(value = "postStatus", required = false) PostStatus postStatus,
             @Schema(name = "duration", allowableValues = {"expired", "unexpired"})
-            @RequestParam("duration") String duration,
+            @RequestParam(value = "duration", required = false) String duration,
             Pageable pageable) {
         return ApiResponse.<PageResponse<Map<String, Object>>>builder().result(employeeService.getPagePosted(companyId, title, postStatus, duration, pageUtils.adjustPageable(pageable))).build();
     }

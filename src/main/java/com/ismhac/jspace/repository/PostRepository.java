@@ -36,9 +36,10 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             select p from Post p
             where p.company.id = :companyId
                 and (:title is null or :title = '' or lower(p.title) like lower(concat('%', :title,  '%') ) )
-                and p.postStatus = :postStatus
+                and (:postStatus is null or p.postStatus = :postStatus)
                 and (
-                        (:duration = 'expired' and (p.closeDate < :now))
+                        (:durations is null)
+                        or (:duration = 'expired' and (p.closeDate < :now))
                         or (:duration = 'unexprired' and (p.closeDate >= :now))
                     )
             """)
