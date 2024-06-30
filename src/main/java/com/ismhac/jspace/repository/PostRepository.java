@@ -38,7 +38,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                 and (:title is null or :title = '' or lower(p.title) like lower(concat('%', :title,  '%') ) )
                 and (:postStatus is null or p.postStatus = :postStatus)
                 and (
-                        (:durations is null)
+                        (:duration is null)
                         or (:duration = 'expired' and (p.closeDate < :now))
                         or (:duration = 'unexprired' and (p.closeDate >= :now))
                     )
