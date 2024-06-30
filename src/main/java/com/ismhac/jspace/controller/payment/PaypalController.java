@@ -65,5 +65,4 @@ public class PaypalController {
         paypalUtils.deleteAllWebhooks();
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
 }

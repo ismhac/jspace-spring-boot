@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CartRepository extends JpaRepository<Cart, Integer> {
@@ -26,4 +27,6 @@ public interface CartRepository extends JpaRepository<Cart, Integer> {
             select c from Cart c where c.company.id = ?1
             """)
     Page<Cart> getPageByCompanyId(int companyId, Pageable pageable);
+
+    List<Cart> findAllByIdIsIn(List<Integer> ids);
 }

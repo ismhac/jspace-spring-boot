@@ -2,13 +2,23 @@ package com.ismhac.jspace.service.common.thirtParty;
 
 import com.google.gson.Gson;
 import com.ismhac.jspace.dto.payment.request.PaymentRequest;
+
+import com.ismhac.jspace.exception.AppException;
+import com.ismhac.jspace.exception.ErrorCode;
+import com.ismhac.jspace.model.Cart;
+import com.ismhac.jspace.model.PaymentTransaction;
+import com.ismhac.jspace.model.primaryKey.PaymentTransactionId;
+import com.ismhac.jspace.repository.CartRepository;
+import com.ismhac.jspace.repository.PaymentTransactionRepository;
 import com.ismhac.jspace.service.common.thirtParty.response.PayPalAccessTokenResponse;
 import com.ismhac.jspace.service.common.thirtParty.response.PayPalWebhookListResponse;
 import com.ismhac.jspace.service.common.thirtParty.response.PayPalWebhookResponse;
+import com.ismhac.jspace.util.HashUtils;
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -19,6 +29,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -31,6 +42,10 @@ import java.util.List;
 public class PaypalServiceV2 {
     private static final String PAYPAL_API_BASE_URL = "https://api-m.sandbox.paypal.com";
     private final APIContext apiContext;
+
+    private final CartRepository cartRepository;
+    private final HashUtils hashUtils;
+    private final PaymentTransactionRepository paymentTransactionRepository;
 
     public PayPalAccessTokenResponse authenticate() throws IOException {
         String authUrl = PAYPAL_API_BASE_URL + "/v1/oauth2/token";
@@ -158,15 +173,39 @@ public class PaypalServiceV2 {
         }
     }
 
+
+    @Transactional(rollbackFor = Exception.class)
     public Payment requestPayment(PaymentRequest request) {
         Payment createdPayment;
+        String mac = RandomStringUtils.randomAlphabetic(20);
         try {
             Transaction transaction = createTransaction(request);
-            Payment payment = getPayment(request, transaction);
+            Payment payment = getPayment(request, transaction, mac);
             createdPayment = payment.create(apiContext);
         } catch (PayPalRESTException e) {
             throw new RuntimeException(String.valueOf(e.getDetails()));
         }
+
+        // custom
+        List<Cart> carts = cartRepository.findAllByIdIsIn(request.getCart_ids());
+        if(carts.size() != request.getCart_ids().size()){
+            throw new AppException(ErrorCode.INVALID_CART);
+        }
+
+        String cartValue = request.getCart_ids().toString();
+
+        String paymentId = createdPayment.getId();
+
+        PaymentTransaction paymentTransaction = PaymentTransaction.builder()
+                .id(PaymentTransactionId.builder()
+                        .paymentId(paymentId)
+                        .mac(mac)
+                        .build())
+                .cartValue(cartValue)
+                .build();
+
+        paymentTransactionRepository.save(paymentTransaction);
+
         return createdPayment;
     }
 
@@ -174,11 +213,11 @@ public class PaypalServiceV2 {
         Amount amount = new Amount(request.getCurrency(), request.getTotal());
         Transaction transaction = new Transaction();
         transaction.setAmount(amount);
-        transaction.setCustom(request.getCart_ids().toString());
         return transaction;
     }
 
-    public static Payment getPayment(PaymentRequest request, Transaction transaction) {
+
+    private Payment getPayment(PaymentRequest request, Transaction transaction, String mac) {
         List<Transaction> transactions = Collections.singletonList(transaction);
 
         Payer payer = new Payer();
@@ -190,8 +229,8 @@ public class PaypalServiceV2 {
         payment.setTransactions(transactions);
 
         RedirectUrls redirectUrls = new RedirectUrls();
-        redirectUrls.setCancelUrl(request.getCancelUrl());
-        redirectUrls.setReturnUrl(request.getSuccessUrl());
+        redirectUrls.setCancelUrl(request.getCancelUrl().concat("?mac=").concat(mac));
+        redirectUrls.setReturnUrl(request.getSuccessUrl().concat("?mac=").concat(mac));
         payment.setRedirectUrls(redirectUrls);
 
         return payment;

@@ -1,5 +1,6 @@
 package com.ismhac.jspace.dto.user.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ismhac.jspace.dto.common.response.BaseEntityDto;
 import com.ismhac.jspace.dto.role.response.RoleDto;
@@ -14,6 +15,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDto {
     int id;
+    @JsonIgnore
     String username;
     String email;
     String name;

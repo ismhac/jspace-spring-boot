@@ -1,5 +1,7 @@
 package com.ismhac.jspace.model;
 
+import com.ismhac.jspace.model.converter.NotificationTypeConverter;
+import com.ismhac.jspace.model.enums.NotificationType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -18,4 +20,7 @@ public class Notification extends BaseEntity{
     long id;
     @Column(columnDefinition = "text")
     String content;
+    @Convert(converter = NotificationTypeConverter.class)
+    NotificationType type;
+    String title;
 }

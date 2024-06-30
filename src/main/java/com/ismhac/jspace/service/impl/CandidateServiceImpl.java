@@ -13,6 +13,7 @@ import com.ismhac.jspace.dto.other.ApplyStatusDto;
 import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
+import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
@@ -346,6 +347,17 @@ public class CandidateServiceImpl implements CandidateService {
     @Override
     public PageResponse<CompanyDto> getPageFollowedCompanies(int candidateId, Pageable pageable) {
         return pageUtils.toPageResponse(CompanyMapper.instance.ePageToDtoPage(candidateFollowCompanyRepository.getPageFollowedCompaniesByCandidateId(candidateId, pageUtils.adjustPageable(pageable)), candidateFollowCompanyRepository));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CandidateDto setDefaultResume(int candidateId, int resumeId) {
+        var candidate = candidateRepository.findByUserId(candidateId);
+        if(candidate.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_USER);
+        var resume = resumeRepository.findById(resumeId);
+        if(resume.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_RESUME);
+        candidate.get().setDefaultResume(resume.get());
+        return CandidateMapper.instance.eToDto(candidateRepository.save(candidate.get()));
     }
 
     @Transactional(rollbackFor = Exception.class)

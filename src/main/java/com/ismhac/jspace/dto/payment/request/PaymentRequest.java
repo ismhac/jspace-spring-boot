@@ -25,5 +25,6 @@ public class PaymentRequest {
     private String total; // Total amount to be paid
     private String cancelUrl; // Redirect URL when payment fails
     private String successUrl; // Redirect URL when payment is successful
-    private List<Integer> cart_ids;
+
+    private List<Integer> cart_ids; // custom;
 }
