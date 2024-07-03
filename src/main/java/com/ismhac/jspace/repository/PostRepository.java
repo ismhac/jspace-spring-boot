@@ -68,6 +68,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             """)
     Tuple findPostByIdAndCandidateId(@Param("postId") int postId, @Param("candidateId") Integer candidateId);
 
+
     @Query("""
             select p as post,
                 (case when :candidateId is null then 'guest' else 'candidate' end) as userMode,
