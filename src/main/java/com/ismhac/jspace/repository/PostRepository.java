@@ -34,7 +34,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     Map<String, Object> candidateFindPostById(@Param("candidateId") int candidateId, @Param("postId") int postId);
 
     @Query(value = """
-            select p
+            select p.*
             from tbl_post p
             where p.company_id = :companyId
                 and (:title is null or :title = '' or lower(p.title) like lower(concat('%', :title,  '%') ) )
@@ -42,9 +42,20 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                 and (
                         (:duration is null)
                         or (:duration = 'expired' and (p.close_date < :now))
-                        or (:duration = 'unexprired' and (p.close_date >= :now))
+                        or (:duration = 'unexpired' and (p.close_date >= :now))
                     )
-            """, nativeQuery = true)
+            """, nativeQuery = true, countQuery = """
+            select p.*
+            from tbl_post p
+            where p.company_id = :companyId
+                and (:title is null or :title = '' or lower(p.title) like lower(concat('%', :title,  '%') ) )
+                and (:postStatus is null or :postStatus = '' or p.post_status = :postStatus)
+                and (
+                        (:duration is null)
+                        or (:duration = 'expired' and (p.close_date < :now))
+                        or (:duration = 'unexpired' and (p.close_date >= :now))
+                    )
+            """)
     Page<Post> getPageByCompanyId(@Param("companyId") int companyId, String title, String postStatus, String duration, LocalDate now, Pageable pageable);
 
     @Query("""
