@@ -358,7 +358,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public PageResponse<Map<String, Object>> getPagePosted(int companyId, String title, PostStatus postStatus, String duration, Pageable pageable) {
-        Page<Post> posts = postRepository.getPageByCompanyId(companyId, title, postStatus, duration, LocalDate.now(), pageable);
+        Page<Post> posts = postRepository.getPageByCompanyId(companyId, title, postStatus == null ? null :postStatus.getStatus(), duration, LocalDate.now(), pageable);
 
         List<Map<String, Object>> customContent = new ArrayList<>();
         for (Post post : posts.getContent()) {

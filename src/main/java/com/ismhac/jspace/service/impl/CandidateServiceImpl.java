@@ -20,6 +20,7 @@ import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.mapper.*;
 import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.enums.ApplyStatus;
+import com.ismhac.jspace.model.enums.PostStatus;
 import com.ismhac.jspace.model.primaryKey.CandidateFollowCompanyId;
 import com.ismhac.jspace.model.primaryKey.CandidateId;
 import com.ismhac.jspace.model.primaryKey.CandidatePostId;
@@ -261,7 +262,7 @@ public class CandidateServiceImpl implements CandidateService {
 
     @Override
     public PageResponse<Map<String, Object>> getPagePost(int id, Pageable pageable) {
-        Page<Map<String, Object>> postPage = postRepository.candidateGetPagePost(id, LocalDate.now(),pageable);
+        Page<Map<String, Object>> postPage = postRepository.candidateGetPagePost(id, LocalDate.now(), PostStatus.OPEN,pageable);
         List<Map<String, Object>> dtoList = postPage.getContent().stream()
                 .map(item -> {
                     Map<String, Object> map = new HashMap<>(item);

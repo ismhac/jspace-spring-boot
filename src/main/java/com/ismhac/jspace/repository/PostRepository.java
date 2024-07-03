@@ -21,8 +21,9 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             (case when exists (select 1 from CandidatePost cp where cp.id.post.id=p.id and cp.id.candidate.id.user.id= :candidateId) then true else false end) as applied
             from Post p
             where p.closeDate >= :now
+            and p.postStatus = :postStatus
             """)
-    Page<Map<String, Object>> candidateGetPagePost(@Param("candidateId") int candidateId, @Param("now") LocalDate now, Pageable pageable);
+    Page<Map<String, Object>> candidateGetPagePost(@Param("candidateId") int candidateId, @Param("now") LocalDate now, PostStatus postStatus,Pageable pageable);
 
     @Query("""
             select p as post,(case when exists (
@@ -32,18 +33,30 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             """)
     Map<String, Object> candidateFindPostById(@Param("candidateId") int candidateId, @Param("postId") int postId);
 
-    @Query("""
-            select p from Post p
-            where p.company.id = :companyId
+    @Query(value = """
+            select p.*
+            from tbl_post p
+            where p.company_id = :companyId
                 and (:title is null or :title = '' or lower(p.title) like lower(concat('%', :title,  '%') ) )
-                and (:postStatus is null or p.postStatus = :postStatus)
+                and (:postStatus is null or p.post_status = :postStatus)
                 and (
                         (:duration is null)
-                        or (:duration = 'expired' and (p.closeDate < :now))
-                        or (:duration = 'unexprired' and (p.closeDate >= :now))
+                        or (:duration = 'expired' and (p.close_date < :now))
+                        or (:duration = 'unexpired' and (p.close_date >= :now))
+                    )
+            """, nativeQuery = true, countQuery = """
+            select p.*
+            from tbl_post p
+            where p.company_id = :companyId
+                and (:title is null or :title = '' or lower(p.title) like lower(concat('%', :title,  '%') ) )
+                and (:postStatus is null or :postStatus = '' or p.post_status = :postStatus)
+                and (
+                        (:duration is null)
+                        or (:duration = 'expired' and (p.close_date < :now))
+                        or (:duration = 'unexpired' and (p.close_date >= :now))
                     )
             """)
-    Page<Post> getPageByCompanyId(@Param("companyId") int companyId, String title, PostStatus postStatus, String duration, LocalDate now, Pageable pageable);
+    Page<Post> getPageByCompanyId(@Param("companyId") int companyId, String title, String postStatus, String duration, LocalDate now, Pageable pageable);
 
     @Query("""
             select p as post,
@@ -54,6 +67,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             where p.id = :postId
             """)
     Tuple findPostByIdAndCandidateId(@Param("postId") int postId, @Param("candidateId") Integer candidateId);
+
 
     @Query("""
             select p as post,

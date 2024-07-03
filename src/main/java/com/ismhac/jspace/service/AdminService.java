@@ -38,4 +38,6 @@ public interface AdminService {
     ProductDto updateProduct(int id, ProductUpdateRequest request);
 
     PageResponse<PurchaseHistoryDto> getPagePurchaseHistory(String companyName, String productName, Pageable pageable);
+
+
 }
