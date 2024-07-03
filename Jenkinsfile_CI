@@ -58,6 +58,7 @@ pipeline {
             steps {
                 echo "Clean up local Docker images"
                 sh "docker rmi ${IMAGE_NAME} ${DOCKER_HUB_REPO}:${env.GIT_COMMIT}"
+                sh "sudo find /var/lib/jenkins/workspace -name "*.tar" -type f -delete"
             }
         }
 
