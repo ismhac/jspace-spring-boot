@@ -117,14 +117,14 @@ public class PaymentServiceImpl implements PaymentService {
         double totalAmount = 0;
         String tableContent = " ";
         for(PurchaseHistory item :purchaseHistories){
-            String itemText = readEmailTemplate("classpath:templates/payments/BillItems.txt");
+            String itemText = readEmailTemplate("classpath:templates/payments/Bill_Items.txt");
             itemText = itemText.replace("#{product_name}", item.getProductName());
             itemText = itemText.replace("#{quantity}", String.valueOf(item.getQuantity()));
             itemText = itemText.replace("#{price}", String.valueOf(item.getProductPrice()));
             itemText = itemText.replace("#{total_price}", String.valueOf(item.getTotalPrice()));
 
             totalAmount += item.getTotalPrice();
-            tableContent.concat(itemText).concat(" ");
+            tableContent = tableContent.concat(itemText).concat(" ");
         }
 
         billContent = billContent.replace("#{total_amount}", String.valueOf(totalAmount));
