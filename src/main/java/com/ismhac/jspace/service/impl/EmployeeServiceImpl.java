@@ -25,10 +25,7 @@ import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.mapper.*;
 import com.ismhac.jspace.model.*;
-import com.ismhac.jspace.model.enums.NotificationTitle;
-import com.ismhac.jspace.model.enums.NotificationType;
-import com.ismhac.jspace.model.enums.PostStatus;
-import com.ismhac.jspace.model.enums.RoleCode;
+import com.ismhac.jspace.model.enums.*;
 import com.ismhac.jspace.model.primaryKey.CompanyRequestReviewId;
 import com.ismhac.jspace.model.primaryKey.PostSkillId;
 import com.ismhac.jspace.model.primaryKey.UserNotificationId;
@@ -539,10 +536,13 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public PageResponse<CandidatePostDto> getPageCandidateAppliedByPostId(int postId, String candidateName, String candidateEmail, String candidatePhoneNumber, String postStatus, Pageable pageable) {
+    public PageResponse<CandidatePostDto> getPageCandidateAppliedByPostId(int postId, String candidateName, String candidateEmail, String candidatePhoneNumber, String postStatus, String applyStatus,Pageable pageable) {
         PostStatus postStatusFilter = null;
         if (StringUtils.isNotBlank(postStatus)) postStatusFilter = PostStatus.resolve(postStatus);
-        return pageUtils.toPageResponse(CandidatePostMapper.instance.ePageToDtoPage(candidatePostRepository.getPageCandidateAppliedByPostId(postId, candidateName, candidateEmail, candidatePhoneNumber, postStatusFilter, pageUtils.adjustPageable(pageable)), postSkillRepository, candidateFollowCompanyRepository));
+        ApplyStatus applyStatusFilter = null;
+        if(StringUtils.isNotBlank(applyStatus)) applyStatusFilter = ApplyStatus.resolve(applyStatus);
+
+        return pageUtils.toPageResponse(CandidatePostMapper.instance.ePageToDtoPage(candidatePostRepository.getPageCandidateAppliedByPostId(postId, candidateName, candidateEmail, candidatePhoneNumber, postStatusFilter, applyStatusFilter,pageUtils.adjustPageable(pageable)), postSkillRepository, candidateFollowCompanyRepository));
     }
 
     @Override

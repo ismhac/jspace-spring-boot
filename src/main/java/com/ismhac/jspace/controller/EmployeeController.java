@@ -161,8 +161,8 @@ public class EmployeeController {
     }
 
     @GetMapping("/posts/{postId}/applied-candidates")
-    public ApiResponse<PageResponse<CandidatePostDto>> getPageCandidateAppliedByPostId(@PathVariable("postId") int postId, @RequestParam(value = "candidateName", required = false) String candidateName, @RequestParam(value = "candidateEmail", required = false) String candidateEmail, @RequestParam(value = "candidatePhoneNumber", required = false) String candidatePhoneNumber, @RequestParam(value = "postStatus", required = false) String postStatus, Pageable pageable) {
-        return ApiResponse.<PageResponse<CandidatePostDto>>builder().result(employeeService.getPageCandidateAppliedByPostId(postId, candidateName, candidateEmail, candidatePhoneNumber, postStatus, pageable)).build();
+    public ApiResponse<PageResponse<CandidatePostDto>> getPageCandidateAppliedByPostId(@PathVariable("postId") int postId, @RequestParam(value = "candidateName", required = false) String candidateName, @RequestParam(value = "candidateEmail", required = false) String candidateEmail, @RequestParam(value = "candidatePhoneNumber", required = false) String candidatePhoneNumber, @RequestParam(value = "postStatus", required = false) String postStatus, @Schema(name = "applyStatus", allowableValues = {"PROGRESS", "APPROVE", "REJECT"})@RequestParam(value = "applyStatus", required = false) String applyStatus,Pageable pageable) {
+        return ApiResponse.<PageResponse<CandidatePostDto>>builder().result(employeeService.getPageCandidateAppliedByPostId(postId, candidateName, candidateEmail, candidatePhoneNumber, postStatus, applyStatus,pageable)).build();
     }
 
     @GetMapping("/companies/{companyId}/candidates/followed")
