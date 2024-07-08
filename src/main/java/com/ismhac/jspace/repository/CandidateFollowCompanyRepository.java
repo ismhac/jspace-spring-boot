@@ -32,7 +32,10 @@ public interface CandidateFollowCompanyRepository extends JpaRepository<Candidat
     @Query("""
             select cfp.id.candidate.id.user
             from CandidateFollowCompany cfp
-            where cfp.id.company.id = ?1
+            where cfp.id.company.id = :companyId
+                and (:name is null or :name = '' or lower(cfp.id.candidate.id.user.name) like lower(concat('%', :name, '%') ) )
+                and (:email is null or :email = '' or lower(cfp.id.candidate.id.user.email) like lower(concat('%', :email, '%') ) )
+                and (:phoneNumber is null or :phoneNumber = '' or lower(cfp.id.candidate.id.user.phone) like lower(concat('%', :phoneNumber, '%') ) )
             """)
-    Page<User> getPageUserFollowedCompanyByCompanyId(int companyId, Pageable pageable);
+    Page<User> getPageUserFollowedCompanyByCompanyId(int companyId, String name, String email, String phoneNumber,Pageable pageable);
 }

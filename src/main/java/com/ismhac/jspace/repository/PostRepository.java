@@ -46,7 +46,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                         or (:duration = 'expired' and (p.close_date < :now))
                         or (:duration = 'unexpired' and (p.close_date >= :now))
                     )
-                and p.deleted = fasle
+                and p.deleted = false
             """, nativeQuery = true, countQuery = """
             select p.*
             from tbl_post p
@@ -58,7 +58,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                         or (:duration = 'expired' and (p.close_date < :now))
                         or (:duration = 'unexpired' and (p.close_date >= :now))
                     )
-                and p.deleted = fasle
+                and p.deleted = false
             """)
     Page<Post> getPageByCompanyId(@Param("companyId") int companyId, String title, String postStatus, String duration, LocalDate now, Pageable pageable);
 
