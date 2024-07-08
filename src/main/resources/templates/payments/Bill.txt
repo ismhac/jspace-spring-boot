@@ -22,15 +22,15 @@ h1 {
   color: #222;
 }
 h2 {
-  font-size: 0.9em;
+  font-size: 1.4em;
 }
 h3 {
-  font-size: 1.2em;
+  font-size: 1.3em;
   font-weight: 300;
   line-height: 2em;
 }
 p {
-  font-size: 0.7em;
+  font-size: 0.9em;
   color: #666;
   line-height: 1.2em;
 }
@@ -84,6 +84,7 @@ p {
   background: url(#{company_logo}) no-repeat;
   background-size: 60px 60px;
   border-radius: 50px;
+  object-fit:cover;
 }
 .info {
   display: block;
@@ -118,7 +119,7 @@ td {
   width: 50%;
 }
 .itemtext {
-  font-size: 0.9em;
+  font-size: 1em;
 }
 
 form {
@@ -183,23 +184,21 @@ form {
 <body>
   <div id="invoiceholder">
 
-    <div id="headerimage"></div>
     <div id="invoice" class="effect2">
       <div id="invoice-top">
         <div class="info">
           <a href="https://jspace-fe.vercel.app/" class="logo-img">
             <img src="https://res.cloudinary.com/dtwo6h2t7/image/upload/v1720415215/bitt4sdwsscxpskrcra8.jpg" class="logo-top" >
           </a>
-          <p> jpasceapp27@.gmail.com </br>
-            Fax: (+84) - (28) - 38398946
-          </p>
-        </div><!--End Info-->
+          <p> jpasceapp27@.gmail.com </p>
+          <p>Fax: (+84) - (28) - 38398946 </p>
+        </div>
         <div class="title">
-          <h1>Invoice #</h1>
+          <h1>Invoice</h1>
           <p>Issued: #{purchase_date}
           </p>
-        </div><!--End Title-->
-      </div><!--End InvoiceTop-->
+        </div>
+      </div>
 
 
 
@@ -208,8 +207,8 @@ form {
         <div class="clientlogo"></div>
         <div class="info">
           <h2>#{company_name}</h2>
-          <p>#{company_email}</br>
-             #{company_phone_number}</br>
+          <p>#{company_email}</p>
+          <p>#{company_phone_number}</p>
         </div>
 
         <!-- <div id="project">
