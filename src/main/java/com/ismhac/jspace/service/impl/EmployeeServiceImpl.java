@@ -16,6 +16,7 @@ import com.ismhac.jspace.dto.post.request.PostUpdateRequest;
 import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.purchaseHistory.response.PurchaseHistoryDto;
 import com.ismhac.jspace.dto.purchasedProduct.response.PurchasedProductDto;
+import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -94,6 +95,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     private BeanUtils beanUtils;
     @Autowired
     private ResourceLoader resourceLoader;
+    @Autowired
+    private CandidateRepository candidateRepository;
 
     @Override
     public PageResponse<EmployeeDto> getPageByCompanyIdFilterByEmailAndName(int companyId, String email, String name, Pageable pageable) {
@@ -546,10 +549,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public PageResponse<UserDto> getPageFollowedCandidate(int companyId, Pageable pageable) {
+    public PageResponse<UserDto> getPageFollowedCandidate(int companyId, String name, String email, String phoneNumber,Pageable pageable) {
         var company = companyRepository.findById(companyId);
         if (company.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_COMPANY);
-        Page<User> users = candidateFollowCompanyRepository.getPageUserFollowedCompanyByCompanyId(companyId, pageUtils.adjustPageable(pageable));
+        Page<User> users = candidateFollowCompanyRepository.getPageUserFollowedCompanyByCompanyId(companyId, name,email, phoneNumber,pageUtils.adjustPageable(pageable));
         return pageUtils.toPageResponse(UserMapper.instance.toUserDtoPage(users));
     }
 
@@ -560,6 +563,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         if(post.getDeleted()) throw new AppException(ErrorCode.NOT_FOUND_POST);
         post.setDeleted(true);
         return true;
+    }
+
+    @Override
+    public PageResponse<CandidateDto> searchCandidate(String name, String email, String phoneNumber, Pageable pageable) {
+        return pageUtils.toPageResponse(CandidateMapper.instance.ePageToDtoPage(candidateRepository.recruiterSearchCandidate(name, email, phoneNumber, pageUtils.adjustPageable(pageable))));
     }
 
     @Override

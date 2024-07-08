@@ -13,6 +13,7 @@ import com.ismhac.jspace.dto.post.request.PostUpdateRequest;
 import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.purchaseHistory.response.PurchaseHistoryDto;
 import com.ismhac.jspace.dto.purchasedProduct.response.PurchasedProductDto;
+import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -166,12 +167,17 @@ public class EmployeeController {
     }
 
     @GetMapping("/companies/{companyId}/candidates/followed")
-    public ApiResponse<PageResponse<UserDto>> getPageFollowedCandidate(@PathVariable("companyId") int companyId, Pageable pageable) {
-        return ApiResponse.<PageResponse<UserDto>>builder().result(employeeService.getPageFollowedCandidate(companyId, pageable)).build();
+    public ApiResponse<PageResponse<UserDto>> getPageFollowedCandidate(@PathVariable("companyId") int companyId, @RequestParam(value = "name", required = false) String name, @RequestParam(value = "email", required = false)String email, @RequestParam(value = "phoneNumber", required = false)String phoneNUmber,Pageable pageable) {
+        return ApiResponse.<PageResponse<UserDto>>builder().result(employeeService.getPageFollowedCandidate(companyId, name, email, phoneNUmber,pageable)).build();
     }
 
     @DeleteMapping("/posts/{postId}")
     public ApiResponse<Boolean> deletePost(@PathVariable("postId")int postId){
         return  ApiResponse.<Boolean>builder().result(employeeService.deletePost(postId)).build();
+    }
+
+    @GetMapping("/candidates")
+    public ApiResponse<PageResponse<CandidateDto>> searchCandidate(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "email", required = false)String email, @RequestParam(value = "phoneNumber", required = false)String phoneNumber, Pageable pageable){
+        return ApiResponse.<PageResponse<CandidateDto>>builder().result(employeeService.searchCandidate(name, email, phoneNumber, pageable)).build();
     }
 }

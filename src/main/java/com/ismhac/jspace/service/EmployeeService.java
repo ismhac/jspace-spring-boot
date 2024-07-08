@@ -72,7 +72,9 @@ public interface EmployeeService {
 
     PageResponse<CandidatePostDto> getPageCandidateAppliedByPostId(int postId, String candidateName,String candidateEmail, String candidatePhoneNumber, String postStatus,String applyStatus,Pageable pageable);
 
-    PageResponse<UserDto> getPageFollowedCandidate(int companyId, Pageable pageable);
+    PageResponse<UserDto> getPageFollowedCandidate(int companyId, String name, String email, String phoneNumber,Pageable pageable);
 
     Boolean deletePost(int postId);
+
+    PageResponse<CandidateDto> searchCandidate(String name, String email, String phoneNumber,Pageable pageable);
 }
