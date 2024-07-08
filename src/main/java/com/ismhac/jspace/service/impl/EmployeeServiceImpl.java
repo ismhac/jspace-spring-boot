@@ -555,6 +555,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public Boolean deletePost(int postId) {
+        Post post = postRepository.findById(postId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_POST));
+        if(post.getDeleted()) throw new AppException(ErrorCode.NOT_FOUND_POST);
+        post.setDeleted(true);
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public PostDto createPost(PostCreateRequest req) {
         Company company = companyRepository.findById(req.getCompanyId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
 

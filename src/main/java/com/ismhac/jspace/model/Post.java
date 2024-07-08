@@ -50,4 +50,6 @@ public class Post extends BaseEntity {
     @Convert(converter = PostStatusConverter.class)
     @Builder.Default
     PostStatus postStatus = PostStatus.OPEN;
+    @Builder.Default
+    Boolean deleted = false;
 }

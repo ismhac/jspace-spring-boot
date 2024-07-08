@@ -20,6 +20,7 @@ import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.mapper.*;
 import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.enums.ApplyStatus;
+import com.ismhac.jspace.model.enums.NotificationTitle;
 import com.ismhac.jspace.model.enums.PostStatus;
 import com.ismhac.jspace.model.primaryKey.CandidateFollowCompanyId;
 import com.ismhac.jspace.model.primaryKey.CandidateId;
@@ -283,7 +284,7 @@ public class CandidateServiceImpl implements CandidateService {
         Post post = postRepository.findById(request.getPostId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST));
         Resume resume = resumeRepository.findById(request.getResumeId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_RESUME));
         CandidatePost candidatePost = CandidatePost.builder().id(CandidatePostId.builder().candidate(candidate).post(post).build()).resume(resume).applyStatus(ApplyStatus.PROGRESS).build();
-        CompanyNotification companyNotification = CompanyNotification.builder().company(post.getCompany()).notification("Candidate " + candidate.getId().getUser().getName() + " has applied for your post " + post.getTitle()).read(false).build();
+        CompanyNotification companyNotification = CompanyNotification.builder().company(post.getCompany()).title(NotificationTitle.NOTIFICATION_COMPANY_NEW_CANDIDATE_APPLY.getTitle()).notification("Candidate " + candidate.getId().getUser().getName() + " has applied for your post " + post.getTitle()).read(false).build();
         companyNotificationRepository.save(companyNotification);
         return CandidatePostMapper.instance.eToDto(candidatePostRepository.save(candidatePost), postSkillRepository, candidateFollowCompanyRepository);
     }
@@ -325,6 +326,8 @@ public class CandidateServiceImpl implements CandidateService {
         Optional<CandidateFollowCompany> candidateFollowCompanyOptional = candidateFollowCompanyRepository.findById(id);
         if (candidateFollowCompanyOptional.isPresent())
             throw new AppException(ErrorCode.CANDIDATE_FOLLOW_COMPANY_EXISTED);
+        CompanyNotification companyNotification = CompanyNotification.builder().company(company).title(NotificationTitle.NOTIFICATION_COMPANY_NEW_CANDIDATE_FOLLOW.getTitle()).notification("Candidate " + candidate.getId().getUser().getName() + " has follow for your company").read(false).build();
+        companyNotificationRepository.save(companyNotification);
         return CandidateFollowCompanyMapper.instance.eToDto(candidateFollowCompanyRepository.save(CandidateFollowCompany.builder().id(id).build()), candidateFollowCompanyRepository);
     }
 

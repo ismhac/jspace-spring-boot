@@ -26,4 +26,5 @@ public class Product extends BaseEntity{
     @Column(name = "duration_day_number")
     int durationDayNumber;
     String description;
+    Boolean deleted;
 }

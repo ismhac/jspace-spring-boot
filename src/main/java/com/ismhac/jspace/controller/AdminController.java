@@ -85,4 +85,9 @@ public class AdminController {
     public ApiResponse<PageResponse<PurchaseHistoryDto>> getPagePurchaseHistory(@RequestParam(value = "companyName", required = false) String companyName, @RequestParam(value = "productName", required = false) String productName, Pageable pageable) {
         return ApiResponse.<PageResponse<PurchaseHistoryDto>>builder().result(adminService.getPagePurchaseHistory(companyName, productName, pageUtils.adjustPageable(pageable))).build();
     }
+
+    @DeleteMapping("/products/{id}")
+    public ApiResponse<Boolean> deleteProduct(@PathVariable("id")int productId){
+        return ApiResponse.<Boolean>builder().result(adminService.deleteProduct(productId)).build();
+    }
 }

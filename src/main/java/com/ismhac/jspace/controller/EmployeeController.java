@@ -169,4 +169,9 @@ public class EmployeeController {
     public ApiResponse<PageResponse<UserDto>> getPageFollowedCandidate(@PathVariable("companyId") int companyId, Pageable pageable) {
         return ApiResponse.<PageResponse<UserDto>>builder().result(employeeService.getPageFollowedCandidate(companyId, pageable)).build();
     }
+
+    @DeleteMapping("/posts/{postId}")
+    public ApiResponse<Boolean> deletePost(@PathVariable("postId")int postId){
+        return  ApiResponse.<Boolean>builder().result(employeeService.deletePost(postId)).build();
+    }
 }

@@ -17,17 +17,17 @@ import java.util.Optional;
 public interface CandidatePostRepository extends JpaRepository<CandidatePost, CandidatePostId> {
 
     @Query("""
-            select cp from CandidatePost cp where cp.id.candidate.id.user.id = ?1 and cp.id.post.id = ?2
+            select cp from CandidatePost cp where cp.id.candidate.id.user.id = ?1 and cp.id.post.id = ?2 and cp.id.post.deleted = false
             """)
     Optional<CandidatePost> findByCandidateIdAndPostId(int candidateId, int PostId);
 
     @Query("""
-            select cp.id.post as post,cp.applyStatus as applyStatus from CandidatePost cp where cp.id.candidate.id.user.id = ?1
+            select cp.id.post as post,cp.applyStatus as applyStatus from CandidatePost cp where cp.id.candidate.id.user.id = ?1 and cp.id.post.deleted = false
             """)
     Page<Map<String, Object>> candidateGetPageAppliedPost(int candidateId, Pageable pageable);
 
     @Query("""
-            select cp from CandidatePost cp where cp.id.post.company.id = ?1
+            select cp from CandidatePost cp where cp.id.post.company.id = ?1 and cp.id.post.deleted = false
             """)
     Page<CandidatePost> getPageCandidateAppliedPost(int companyId, Pageable pageable);
 
@@ -35,6 +35,7 @@ public interface CandidatePostRepository extends JpaRepository<CandidatePost, Ca
             select cp
             from CandidatePost cp
             where cp.id.post.id = :postId
+                and cp.id.post.deleted = false
                 and (:candidateName is null or :candidateName = '' or lower(cp.id.candidate.id.user.name) like lower(concat('%',:candidateName, '%')) )
                 and (:candidateEmail is null or :candidateEmail = '' or lower(cp.id.candidate.id.user.email) like lower(concat('%',:candidateEmail, '%')))
                 and (:candidatePhoneNumber is null or :candidatePhoneNumber = '' or lower(cp.id.candidate.id.user.phone) like lower(concat('%',:candidatePhoneNumber, '%')))
@@ -44,7 +45,7 @@ public interface CandidatePostRepository extends JpaRepository<CandidatePost, Ca
     Page<CandidatePost> getPageCandidateAppliedByPostId(int postId, String candidateName, String candidateEmail, String candidatePhoneNumber, PostStatus postStatus, ApplyStatus applyStatus, Pageable pageable);
 
     @Query("""
-            select cp.id.candidate from CandidatePost cp where cp.id.post.id = ?1
+            select cp.id.candidate from CandidatePost cp where cp.id.post.id = ?1 and cp.id.post.deleted = false
             """)
     List<Candidate> getListCandidateByPostId(int postId);
 }

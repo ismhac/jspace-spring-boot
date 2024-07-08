@@ -21,6 +21,8 @@ public class CompanyNotification extends BaseEntity {
     @JoinColumn(name = "company_id", referencedColumnName = "id")
     Company company;
 
+    String title;
+
     @Column(name = "notification")
     String notification;
 

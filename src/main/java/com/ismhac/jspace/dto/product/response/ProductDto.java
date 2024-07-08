@@ -1,10 +1,13 @@
 package com.ismhac.jspace.dto.product.response;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductDto implements Serializable {
     int id;
     String name;
@@ -13,4 +16,5 @@ public class ProductDto implements Serializable {
     int postDuration;
     int durationDayNumber;
     String description;
+    Boolean deleted;
 }
