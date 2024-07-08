@@ -89,10 +89,21 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                 and(:quantity is null or p.quantity = :quantity)
                 and(:title is null or :title = '' or lower(p.title) like lower(concat('%', :title, '%') ) )
                 and(:companyName is null or :companyName = '' or lower(p.company.name) like lower(concat('%', :companyName, '%') ) )
-                and ((:minPay is null and :maxPay is null)
-                    or (:minPay is not null and :maxPay is null and p.minPay >= :minPay)
-                    or (:minPay is null and :maxPay is not null and p.maxPay <= :maxPay)
-                    or (:minPay is not null and :maxPay is not null and p.maxPay between :minPay and :maxPay and p.minPay between :minPay and :maxPay))
+                and (
+                        (:minPay is null and :maxPay is null)
+                        or
+                        (
+                            (:minPay is not null and :maxPay is not null and  (p.minPay between :minPay and :maxPay or p.maxPay between :minPay and :maxPay))
+                        )
+                        or
+                        (
+                            (:maxPay is null and :minPay is not null and p.minPay >= :minPay)
+                        )
+                        or
+                        (
+                            (:minPay is null and :maxPay is not null and p.maxPay <= :maxPay)
+                        )
+                    )
                 and p.closeDate >= :now
                 and p.postStatus = :postStatus
             """)
