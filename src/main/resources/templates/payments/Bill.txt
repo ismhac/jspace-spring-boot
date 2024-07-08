@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+@import url(https://fonts.googleapis.com/css?family=Roboto:100,300,400,900,700,500,300,100);
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
+body {
+  background: #e0e0e0;
+  font-family: "Roboto", sans-serif;
+  background-image: url("");
+  background-repeat: repeat-y;
+  background-size: 100%;
+}
+h1 {
+  font-size: 1.5em;
+  color: #222;
+}
+h2 {
+  font-size: 0.9em;
+}
+h3 {
+  font-size: 1.2em;
+  font-weight: 300;
+  line-height: 2em;
+}
+p {
+  font-size: 0.7em;
+  color: #666;
+  line-height: 1.2em;
+}
+
+#invoiceholder {
+  width: 100%;
+  height: 100%;
+  padding-top: 50px;
+  background: white;
+}
+#headerimage {
+  z-index: -1;
+  position: relative;
+  top: -50px;
+  height: 350px;
+  background: white
+
+}
+#invoice {
+  position: relative;
+  top: -290px;
+  margin: 0 auto;
+  width: 700px;
+  background: #fff;
+}
+
+[id*="invoice-"] {
+  /* Targets all id with 'col-' */
+  border-bottom: 1px solid #eee;
+  padding: 30px;
+}
+
+#invoice-top {
+  /* display: flex; */
+  min-height: 120px;
+}
+#invoice-mid {
+  min-height: 120px;
+
+}
+#invoice-bot {
+  min-height: 250px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+
+.clientlogo {
+  float: left;
+  height: 60px;
+  width: 60px;
+  background: url(#{company_logo}) no-repeat;
+  background-size: 60px 60px;
+  border-radius: 50px;
+}
+.info {
+  display: block;
+  float: left;
+  margin-left: 20px;
+}
+.title {
+  float: right;
+}
+.title p {
+  text-align: right;
+}
+#project {
+  margin-left: 52%;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+td {
+  padding: 5px 0 5px 15px;
+  border: 1px solid #eee;
+}
+.tabletitle {
+  padding: 5px;
+  background: #eee;
+}
+.service {
+  border: 1px solid #eee;
+}
+.item {
+  width: 50%;
+}
+.itemtext {
+  font-size: 0.9em;
+}
+
+form {
+  float: right;
+  margin-top: 30px;
+  text-align: right;
+}
+
+.effect2 {
+  position: relative;
+}
+.effect2:before,
+.effect2:after {
+  z-index: -1;
+  position: absolute;
+  content: "";
+  bottom: 15px;
+  left: 10px;
+  width: 50%;
+  top: 80%;
+  max-width: 300px;
+  background: #777;
+  -webkit-box-shadow: 0 15px 10px #777;
+  -moz-box-shadow: 0 15px 10px #777;
+  box-shadow: 0 15px 10px #777;
+  -webkit-transform: rotate(-3deg);
+  -moz-transform: rotate(-3deg);
+  -o-transform: rotate(-3deg);
+  -ms-transform: rotate(-3deg);
+  transform: rotate(-3deg);
+}
+.effect2:after {
+  -webkit-transform: rotate(3deg);
+  -moz-transform: rotate(3deg);
+  -o-transform: rotate(3deg);
+  -ms-transform: rotate(3deg);
+  transform: rotate(3deg);
+  right: 10px;
+  left: auto;
+}
+
+.legal {
+  width: 70%;
+}
+.footer-bill{
+  display: flex;
+  margin-top: 30px;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer-bill .img-logo{
+  width: 150px;
+}
+.logo-img{
+  display: block;
+}
+.logo-top{
+  width: 100px;
+}
+    </style>
+</head>
+<body>
+  <div id="invoiceholder">
+
+    <div id="headerimage"></div>
+    <div id="invoice" class="effect2">
+      <div id="invoice-top">
+        <div class="info">
+          <a href="https://jspace-fe.vercel.app/" class="logo-img">
+            <img src="https://res.cloudinary.com/dtwo6h2t7/image/upload/v1720415215/bitt4sdwsscxpskrcra8.jpg" class="logo-top" >
+          </a>
+          <p> jpasceapp27@.gmail.com </br>
+            Fax: (+84) - (28) - 38398946
+          </p>
+        </div><!--End Info-->
+        <div class="title">
+          <h1>Invoice ##{purchase_history_id}</h1>
+          <p>Issued: #{purchase_date}
+          </p>
+        </div><!--End Title-->
+      </div><!--End InvoiceTop-->
+
+
+
+      <div id="invoice-mid">
+
+        <div class="clientlogo"></div>
+        <div class="info">
+          <h2>#{company_name}</h2>
+          <p>#{company_email}</br>
+             #{company_phone_number}</br>
+        </div>
+
+        <!-- <div id="project">
+          <h2>Project Description</h2>
+          <p>Proin cursus, dui non tincidunt elementum, tortor ex feugiat enim, at elementum enim quam vel purus. Curabitur semper malesuada urna ut suscipit.</p>
+        </div>    -->
+
+      </div><!--End Invoice Mid-->
+
+      <div id="invoice-bot">
+
+        <div id="table">
+          <table>
+            <tr class="tabletitle">
+              <td class="item"><h2>Item Description</h2></td>
+              <td class="Hours"><h2>Quantity</h2></td>
+              <td class="Rate"><h2>Rate</h2></td>
+              <td class="subtotal"><h2>Sub-total</h2></td>
+            </tr>
+
+            #{table_content}
+
+            <tr class="tabletitle">
+              <td></td>
+              <td></td>
+              <td class="Rate"><h2>Total</h2></td>
+              <td class="payment"><h2>#{total_amount}</h2></td>
+            </tr>
+
+          </table>
+        </div><!--End Table-->
+
+        <div class="footer-bill">
+          <div id="legalcopy">
+            <p class="legal"><strong>Thank you for your business!</strong>  Payment is expected within 31 days; please process this invoice within that time. There will be a 5% interest charge per month on late invoices.
+            </p>
+          </div>
+        <a href="https://jspace-fe.vercel.app/">
+          <img src="https://res.cloudinary.com/dtwo6h2t7/image/upload/v1720415215/bitt4sdwsscxpskrcra8.jpg" class="img-logo" ></a>
+        </div>
+
+        </div><!--End InvoiceBot-->
+    </div><!--End Invoice-->
+  </div><!-- End Invoice Holder-->
+</body>
+</html>

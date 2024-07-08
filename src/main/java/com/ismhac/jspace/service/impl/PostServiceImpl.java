@@ -53,6 +53,7 @@ public class PostServiceImpl implements PostService {
                 maxPay,
                 minPay,
                 LocalDate.now(),
+                PostStatus.OPEN,
                 pageable);
         List<Map<String, Object>> results = resultPage.getContent().stream().map(result -> {
             Map<String, Object> map = new HashMap<>(result);

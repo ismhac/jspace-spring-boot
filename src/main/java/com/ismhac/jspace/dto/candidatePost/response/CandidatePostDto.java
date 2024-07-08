@@ -12,4 +12,5 @@ public class CandidatePostDto {
     PostDto post;
     ResumeDto resume;
     ApplyStatusDto applyStatus;
+    String note;
 }

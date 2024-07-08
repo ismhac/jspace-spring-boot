@@ -2,6 +2,7 @@ package com.ismhac.jspace.repository;
 
 import com.ismhac.jspace.model.Candidate;
 import com.ismhac.jspace.model.CandidatePost;
+import com.ismhac.jspace.model.enums.PostStatus;
 import com.ismhac.jspace.model.primaryKey.CandidatePostId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,9 +31,15 @@ public interface CandidatePostRepository extends JpaRepository<CandidatePost, Ca
     Page<CandidatePost> getPageCandidateAppliedPost(int companyId, Pageable pageable);
 
     @Query("""
-            select cp from CandidatePost cp where cp.id.post.id = ?1
+            select cp
+            from CandidatePost cp
+            where cp.id.post.id = :postId
+                and (:candidateName is null or :candidateName = '' or lower(cp.id.candidate.id.user.name) like lower(concat('%',:candidateName, '%')) )
+                and (:candidateEmail is null or :candidateEmail = '' or lower(cp.id.candidate.id.user.email) like lower(concat('%',:candidateEmail, '%')))
+                and (:candidatePhoneNumber is null or :candidatePhoneNumber = '' or lower(cp.id.candidate.id.user.phone) like lower(concat('%',:candidatePhoneNumber, '%')))
+                and (:postStatus is null or (:postStatus is not null and cp.id.post.postStatus = :postStatus))
             """)
-    Page<CandidatePost> getPageCandidateAppliedByPostId(int postId, Pageable pageable);
+    Page<CandidatePost> getPageCandidateAppliedByPostId(int postId, String candidateName, String candidateEmail, String candidatePhoneNumber, PostStatus postStatus, Pageable pageable);
 
     @Query("""
             select cp.id.candidate from CandidatePost cp where cp.id.post.id = ?1
