@@ -195,7 +195,7 @@ form {
           </p>
         </div><!--End Info-->
         <div class="title">
-          <h1>Invoice ##{purchase_history_id}</h1>
+          <h1>Invoice #</h1>
           <p>Issued: #{purchase_date}
           </p>
         </div><!--End Title-->

@@ -1,10 +1,7 @@
 package com.ismhac.jspace.listener;
 
 import com.ismhac.jspace.dto.common.request.SendMailRequest;
-import com.ismhac.jspace.event.CreateAdminEvent;
-import com.ismhac.jspace.event.ForgotPasswordEvent;
-import com.ismhac.jspace.event.RequestCompanyToVerifyForEmployeeEvent;
-import com.ismhac.jspace.event.RequestCompanyVerifyEmailEvent;
+import com.ismhac.jspace.event.*;
 import com.ismhac.jspace.service.common.MailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -25,6 +22,18 @@ public class MailListener {
                 .subject(event.getAdminForgotPasswordRequest().getSubject())
                 .build());
     }
+
+
+    @EventListener
+    @Async
+    public void handleAdminSendBillEvent(SendBillEvent event) {
+        mailService.sendMail(SendMailRequest.builder()
+                .email(event.getSendMailRequest().getEmail())
+                .body(event.getSendMailRequest().getBody())
+                .subject(event.getSendMailRequest().getSubject())
+                .build());
+    }
+
 
     @EventListener
     @Async
