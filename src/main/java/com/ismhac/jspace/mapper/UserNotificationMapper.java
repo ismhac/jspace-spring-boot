@@ -16,6 +16,7 @@ public interface UserNotificationMapper {
 
     @Mapping(target = "userId", source = "id.user.id")
     @Mapping(target = "notification", source = "id.notification", qualifiedByName = "convertNotificationToDto")
+    @Mapping(target = "notificationTime", source = "createdAt")
     UserNotificationDto eToDto(UserNotification e);
 
     default Page<UserNotificationDto> ePageToDtoPage(Page<UserNotification> ePage){

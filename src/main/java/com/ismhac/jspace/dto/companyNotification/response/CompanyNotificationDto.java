@@ -2,6 +2,8 @@ package com.ismhac.jspace.dto.companyNotification.response;
 
 import lombok.Data;
 
+import java.time.Instant;
+
 @Data
 public class CompanyNotificationDto {
     long id;
@@ -9,4 +11,5 @@ public class CompanyNotificationDto {
     String title;
     String notification;
     boolean read;
+    Instant notificationTime;
 }
