@@ -90,4 +90,9 @@ public class AdminController {
     public ApiResponse<Boolean> deleteProduct(@PathVariable("id")int productId){
         return ApiResponse.<Boolean>builder().result(adminService.deleteProduct(productId)).build();
     }
+
+    @PostMapping("/companies/{companyId}/request-verify-info")
+    public ApiResponse<Boolean> requestCompanyVerifyInfo(@PathVariable("companyId") int companyId){
+        return ApiResponse.<Boolean>builder().result(adminService.requestCompanyVerifyInfo(companyId)).build();
+    }
 }

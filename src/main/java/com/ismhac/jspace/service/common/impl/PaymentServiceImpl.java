@@ -134,7 +134,7 @@ public class PaymentServiceImpl implements PaymentService {
         SendMailRequest sendMailRequest = SendMailRequest.builder()
                 .email(company.getEmail())
                 .body(billContent)
-                .subject("Verification of Company Information")
+                .subject("Bill of the payment")
                 .build();
 
         SendBillEvent sendBillEvent = new SendBillEvent(this, sendMailRequest);
