@@ -29,6 +29,7 @@ public interface CandidateRepository extends JpaRepository<Candidate, CandidateI
             where(:name is null or :name = '' or lower(c.id.user.name) like lower(concat('%', :name, '%') ) )
                 and (:email is null or :email = '' or lower(c.id.user.email) like lower(concat('%', :email, '%') ) )
                 and (:phoneNumber is null or :phoneNumber = '' or lower(c.id.user.phone) like lower(concat('%', :phoneNumber, '%') ) )
+                and c.publicProfile = true
             """)
     Page<Candidate> recruiterSearchCandidate(String name, String email, String phoneNumber, Pageable pageable);
 }
