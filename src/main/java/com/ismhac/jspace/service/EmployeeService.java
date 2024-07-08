@@ -70,7 +70,7 @@ public interface EmployeeService {
 
     PageResponse<CandidatePostDto> getPageCandidateAppliedPost(int companyId, Pageable pageable);
 
-    PageResponse<CandidatePostDto> getPageCandidateAppliedByPostId(int postId, String candidateName,String candidateEmail, String candidatePhoneNumber, String postStatus,Pageable pageable);
+    PageResponse<CandidatePostDto> getPageCandidateAppliedByPostId(int postId, String candidateName,String candidateEmail, String candidatePhoneNumber, String postStatus,String applyStatus,Pageable pageable);
 
     PageResponse<UserDto> getPageFollowedCandidate(int companyId, Pageable pageable);
 }
