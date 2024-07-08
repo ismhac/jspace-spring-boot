@@ -21,7 +21,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             (case when exists (select 1 from CandidatePost cp where cp.id.post.id=p.id and cp.id.candidate.id.user.id= :candidateId) then true else false end) as applied
             from Post p
             where p.closeDate >= :now
-            and p.postStatus = :postStatus
+                and p.postStatus = :postStatus
+                and p.deleted = false
             """)
     Page<Map<String, Object>> candidateGetPagePost(@Param("candidateId") int candidateId, @Param("now") LocalDate now, PostStatus postStatus,Pageable pageable);
 
@@ -30,6 +31,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             select 1 from CandidatePostLiked cpl where cpl.id.post.id=p.id and cpl.id.candidate.id.user.id= :candidateId) then true else false end) as liked,(case when exists (
             select 1 from CandidatePost cp where cp.id.post.id=p.id and cp.id.candidate.id.user.id= :candidateId) then true else false end) as applied
             from Post p where p.id= :postId
+            and p.deleted = false
             """)
     Map<String, Object> candidateFindPostById(@Param("candidateId") int candidateId, @Param("postId") int postId);
 
@@ -44,6 +46,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                         or (:duration = 'expired' and (p.close_date < :now))
                         or (:duration = 'unexpired' and (p.close_date >= :now))
                     )
+                and p.deleted = fasle
             """, nativeQuery = true, countQuery = """
             select p.*
             from tbl_post p
@@ -55,6 +58,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                         or (:duration = 'expired' and (p.close_date < :now))
                         or (:duration = 'unexpired' and (p.close_date >= :now))
                     )
+                and p.deleted = fasle
             """)
     Page<Post> getPageByCompanyId(@Param("companyId") int companyId, String title, String postStatus, String duration, LocalDate now, Pageable pageable);
 
@@ -65,6 +69,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                 (case when :candidateId is null then null else (case when exists (select 1 from CandidatePost cp where cp.id.post.id=p.id and cp.id.candidate.id.user.id= :candidateId) then true else false end) end) as applied
             from Post p
             where p.id = :postId
+            and p.deleted = false
             """)
     Tuple findPostByIdAndCandidateId(@Param("postId") int postId, @Param("candidateId") Integer candidateId);
 
@@ -75,7 +80,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                 (case when :candidateId is null then null else (case when exists (select 1 from CandidatePostLiked cpl where cpl.id.post.id=p.id and cpl.id.candidate.id.user.id= :candidateId) then true else false end) end)as liked,
                 (case when :candidateId is null then null else (case when exists (select 1 from CandidatePost cp where cp.id.post.id=p.id and cp.id.candidate.id.user.id= :candidateId) then true else false end) end) as applied
             from Post p
-            where (:experience is null or :experience = '' or lower(p.experience) like lower(concat('%', :experience, '%') ) )
+            where p.deleted = false
+                and (:experience is null or :experience = '' or lower(p.experience) like lower(concat('%', :experience, '%') ) )
                 and(:gender is null or :gender = '' or lower(p.gender) like lower(concat('%', :gender, '%') ) )
                 and(:jobType is null or :jobType = '' or lower(p.jobType) like lower(concat('%', :jobType, '%')))
                 and(:location is null or p.location = :location)
