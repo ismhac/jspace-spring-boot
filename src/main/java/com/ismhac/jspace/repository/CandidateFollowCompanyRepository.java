@@ -1,6 +1,5 @@
 package com.ismhac.jspace.repository;
 
-import com.ismhac.jspace.model.Candidate;
 import com.ismhac.jspace.model.CandidateFollowCompany;
 import com.ismhac.jspace.model.Company;
 import com.ismhac.jspace.model.User;
