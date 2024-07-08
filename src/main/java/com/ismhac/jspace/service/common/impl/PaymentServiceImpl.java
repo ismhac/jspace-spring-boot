@@ -111,6 +111,7 @@ public class PaymentServiceImpl implements PaymentService {
         billContent = billContent.replace("#{company_name}", company.getName());
         billContent = billContent.replace("#{company_email}", company.getEmail());
         billContent = billContent.replace("#{company_phone_number}", company.getPhone());
+        billContent = billContent.replace("#{purchase_date}", String.valueOf(LocalDate.now()));
 
 
         double totalAmount = 0;
@@ -127,6 +128,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         billContent = billContent.replace("#{total_amount}", String.valueOf(totalAmount));
+        billContent = billContent.replace("#{table_content}", tableContent);
 
 
         SendMailRequest sendMailRequest = SendMailRequest.builder()
