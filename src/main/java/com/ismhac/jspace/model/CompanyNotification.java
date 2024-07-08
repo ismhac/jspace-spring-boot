@@ -10,7 +10,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "tbl_company")
+@Table(name = "tbl_company_notification")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CompanyNotification extends BaseEntity {
     @Id

@@ -88,6 +88,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                     or (:minPay is null and :maxPay is not null and p.maxPay <= :maxPay)
                     or (:minPay is not null and :maxPay is not null and p.maxPay between :minPay and :maxPay and p.minPay between :minPay and :maxPay))
                 and p.closeDate >= :now
+                and p.postStatus = :postStatus
             """)
     Page<Map<String, Object>> getPageAndFilter(
             @Param("candidateId") Integer candidateId,
@@ -102,5 +103,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             @Param("maxPay") Integer maxPay,
             @Param("minPay") Integer minPay,
             @Param("now") LocalDate now,
+            @Param("postStatus") PostStatus postStatus,
             Pageable pageable);
 }

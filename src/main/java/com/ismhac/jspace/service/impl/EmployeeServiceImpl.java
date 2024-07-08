@@ -358,7 +358,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public PageResponse<Map<String, Object>> getPagePosted(int companyId, String title, PostStatus postStatus, String duration, Pageable pageable) {
-        Page<Post> posts = postRepository.getPageByCompanyId(companyId, title, postStatus == null ? null :postStatus.getStatus(), duration, LocalDate.now(), pageable);
+        Page<Post> posts = postRepository.getPageByCompanyId(companyId, title, postStatus == null ? null : postStatus.getStatus(), duration, LocalDate.now(), pageable);
 
         List<Map<String, Object>> customContent = new ArrayList<>();
         for (Post post : posts.getContent()) {
@@ -491,6 +491,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (candidatePost.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_CANDIDATE_POST_APPLIED);
 
         candidatePost.get().setApplyStatus(request.getApplyStatus());
+        candidatePost.get().setNote(request.getNotification());
         candidatePostRepository.save(candidatePost.get());
 
         Notification notification = Notification.builder()
@@ -538,8 +539,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public PageResponse<CandidatePostDto> getPageCandidateAppliedByPostId(int postId, Pageable pageable) {
-        return pageUtils.toPageResponse(CandidatePostMapper.instance.ePageToDtoPage(candidatePostRepository.getPageCandidateAppliedByPostId(postId, pageable), postSkillRepository, candidateFollowCompanyRepository));
+    public PageResponse<CandidatePostDto> getPageCandidateAppliedByPostId(int postId, String candidateName, String candidateEmail, String candidatePhoneNumber, String postStatus, Pageable pageable) {
+        PostStatus postStatusFilter = null;
+        if (StringUtils.isNotBlank(postStatus)) postStatusFilter = PostStatus.resolve(postStatus);
+        return pageUtils.toPageResponse(CandidatePostMapper.instance.ePageToDtoPage(candidatePostRepository.getPageCandidateAppliedByPostId(postId, candidateName, candidateEmail, candidatePhoneNumber, postStatusFilter, pageUtils.adjustPageable(pageable)), postSkillRepository, candidateFollowCompanyRepository));
     }
 
     @Override

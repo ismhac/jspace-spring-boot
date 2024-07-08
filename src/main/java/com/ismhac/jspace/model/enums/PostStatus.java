@@ -12,4 +12,13 @@ public enum PostStatus {
     OPEN("open"),
     CLOSE("close");
     String status;
+
+    public static PostStatus resolve(String enumString) {
+        for (PostStatus postStatus : PostStatus.values()) {
+            if (postStatus.status.equalsIgnoreCase(enumString)) {
+                return postStatus;
+            }
+        }
+        throw new IllegalArgumentException("No enum constant for " + enumString);
+    }
 }

@@ -24,4 +24,5 @@ public class CandidatePost extends BaseEntity {
     @Column(name = "apply_status")
     @Convert(converter = ApplyStatusConverter.class)
     ApplyStatus applyStatus;
+    String note;
 }
