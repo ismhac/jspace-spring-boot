@@ -12,6 +12,7 @@ public interface CompanyNotificationMapper {
     CompanyNotificationMapper INSTANCE = Mappers.getMapper(CompanyNotificationMapper.class);
 
     @Mapping(source = "company.id", target = "companyId")
+    @Mapping(target = "notificationTime", source = "createdAt")
     CompanyNotificationDto toDto(CompanyNotification companyNotification);
 
     default Page<CompanyNotificationDto> toDtoPage(Page<CompanyNotification> companyNotifications) {

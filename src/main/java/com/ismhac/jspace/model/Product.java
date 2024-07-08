@@ -1,5 +1,6 @@
 package com.ismhac.jspace.model;
 
+import com.ismhac.jspace.model.enums.ProductType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -27,4 +28,7 @@ public class Product extends BaseEntity{
     int durationDayNumber;
     String description;
     Boolean deleted;
+    @Column(name = "product_type")
+    @Enumerated(EnumType.STRING)
+    ProductType productType;
 }
