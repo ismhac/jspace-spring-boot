@@ -572,6 +572,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public Boolean requestCompanyVerifyEmployeeInformation(int companyId, int employeeId) {
+        Employee employee = employeeRepository.findByUserId(employeeId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_USER));
+        Company company = companyRepository.findById(companyId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+        _sendMailWhenPickCompany(company, employee);
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public PostDto createPost(PostCreateRequest req) {
         Company company = companyRepository.findById(req.getCompanyId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
 

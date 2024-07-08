@@ -180,4 +180,9 @@ public class EmployeeController {
     public ApiResponse<PageResponse<CandidateDto>> searchCandidate(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "email", required = false)String email, @RequestParam(value = "phoneNumber", required = false)String phoneNumber, Pageable pageable){
         return ApiResponse.<PageResponse<CandidateDto>>builder().result(employeeService.searchCandidate(name, email, phoneNumber, pageable)).build();
     }
+
+    @PostMapping("/{employeeId}/companies/{companyId}/request-verify-info")
+    public ApiResponse<Boolean> requestCompanyVerifyEmployeeInformation(@PathVariable("companyId") int companyId, @PathVariable("employeeId") int employeeId){
+        return ApiResponse.<Boolean>builder().result(employeeService.requestCompanyVerifyEmployeeInformation(companyId, employeeId)).build();
+    }
 }

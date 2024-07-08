@@ -1,6 +1,7 @@
 package com.ismhac.jspace.service.impl;
 
 import com.ismhac.jspace.config.security.jwt.JwtService;
+import com.ismhac.jspace.dto.common.request.SendMailRequest;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.companyRequestReview.response.CompanyRequestReviewDto;
@@ -13,6 +14,8 @@ import com.ismhac.jspace.dto.user.admin.response.AdminDto;
 import com.ismhac.jspace.dto.user.request.UpdateActivatedUserRequest;
 import com.ismhac.jspace.dto.user.response.UserDto;
 import com.ismhac.jspace.event.CreateAdminEvent;
+import com.ismhac.jspace.event.RequestCompanyToVerifyForEmployeeEvent;
+import com.ismhac.jspace.event.RequestCompanyVerifyEmailEvent;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
 import com.ismhac.jspace.exception.NotFoundException;
@@ -27,10 +30,13 @@ import com.ismhac.jspace.util.PageUtils;
 import com.ismhac.jspace.util.UserUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,8 +44,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -65,6 +77,9 @@ public class AdminServiceImpl implements AdminService {
     private final JwtService jwtService;
     private final PurchaseHistoryRepository purchaseHistoryRepository;
     private final CandidateFollowCompanyRepository candidateFollowCompanyRepository;
+    private final CompanyVerifyEmailRequestHistoryRepository companyVerifyEmailRequestHistoryRepository;
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     @Autowired
     private com.ismhac.jspace.util.BeanUtils beanUtils;
@@ -245,5 +260,59 @@ public class AdminServiceImpl implements AdminService {
         Product product = productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PRODUCT));
         product.setDeleted(true);
         return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean requestCompanyVerifyInfo(int companyId) {
+        Company company = companyRepository.findById(companyId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+        sendMailRequestCompanyVerifyInformation(company);
+        return true;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    protected void sendMailRequestCompanyVerifyInformation(Company company) {
+
+        String token = String.valueOf(UUID.randomUUID());
+        LocalDateTime expiryTime = LocalDateTime.now().plusHours(24);
+
+        String template = readEmailTemplate("classpath:templates/VerifyCompanyInformation.txt");
+        String bodyMailRequestCompanyVerifyEmail = template
+                .replace("#{companyName}", company.getName())
+                .replace("#{address}", StringUtils.isBlank(company.getAddress()) ? "" : company.getAddress())
+                .replace("#{email}", StringUtils.isBlank(company.getEmail()) ? "" : company.getEmail())
+                .replace("#{phone}", StringUtils.isBlank(company.getPhone()) ? "" : company.getPhone())
+                .replace("#{companySize}", StringUtils.isBlank(company.getCompanySize()) ? "" : company.getCompanySize())
+                .replace("#{expiryTime}", expiryTime.toString())
+                .replace("#{token}", token);
+
+        SendMailRequest sendMailRequestCompanyVerifyEmail = SendMailRequest.builder()
+                .email(company.getEmail())
+                .body(bodyMailRequestCompanyVerifyEmail)
+                .subject("Verification of Company Information")
+                .build();
+
+        RequestCompanyVerifyEmailEvent requestCompanyVerifyEmailEvent = new RequestCompanyVerifyEmailEvent(
+                this, sendMailRequestCompanyVerifyEmail);
+
+        CompanyVerifyEmailRequestHistory companyVerifyEmailRequestHistory = CompanyVerifyEmailRequestHistory.builder()
+                .company(company)
+                .token(token)
+                .expiryTime(expiryTime)
+                .build();
+
+        companyVerifyEmailRequestHistoryRepository.save(companyVerifyEmailRequestHistory);
+
+        applicationEventPublisher.publishEvent(requestCompanyVerifyEmailEvent);
+    }
+
+    private String readEmailTemplate(String filePath) {
+        Resource resource = resourceLoader.getResource(filePath);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
+            return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }
     }
 }

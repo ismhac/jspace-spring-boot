@@ -77,4 +77,6 @@ public interface EmployeeService {
     Boolean deletePost(int postId);
 
     PageResponse<CandidateDto> searchCandidate(String name, String email, String phoneNumber,Pageable pageable);
+
+    Boolean requestCompanyVerifyEmployeeInformation(int companyId, int employeeId);
 }
