@@ -39,5 +39,5 @@ public interface AdminService {
 
     PageResponse<PurchaseHistoryDto> getPagePurchaseHistory(String companyName, String productName, Pageable pageable);
 
-
+    Boolean deleteProduct(int productId);
 }

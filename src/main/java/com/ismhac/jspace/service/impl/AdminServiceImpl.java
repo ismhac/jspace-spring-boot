@@ -221,6 +221,7 @@ public class AdminServiceImpl implements AdminService {
     @Transactional(rollbackFor = Exception.class)
     public ProductDto createProduct(ProductCreateRequest request) {
         Product product = ProductMapper.instance.createReqToE(request);
+        product.setDeleted(false);
         return ProductMapper.instance.eToDto(productRepository.save(product));
     }
 
@@ -228,7 +229,7 @@ public class AdminServiceImpl implements AdminService {
     @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
     @Transactional(rollbackFor = Exception.class)
     public ProductDto updateProduct(int id, ProductUpdateRequest request) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COMPANY_EXISTED));
+        Product product = productRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PRODUCT));
         BeanUtils.copyProperties(request, product, beanUtils.getNullPropertyNames(request));
         return ProductMapper.instance.eToDto(productRepository.save(product));
     }
@@ -236,5 +237,13 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public PageResponse<PurchaseHistoryDto> getPagePurchaseHistory(String companyName, String productName, Pageable pageable) {
         return pageUtils.toPageResponse(PurchaseHistoryMapper.instance.ePageToDtoPage(purchaseHistoryRepository.findAndFilter(companyName, productName, pageable), candidateFollowCompanyRepository));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean deleteProduct(int productId) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PRODUCT));
+        product.setDeleted(true);
+        return true;
     }
 }

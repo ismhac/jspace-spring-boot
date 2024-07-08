@@ -6,6 +6,7 @@ import lombok.Data;
 public class CompanyNotificationDto {
     long id;
     int companyId;
+    String title;
     String notification;
     boolean read;
 }

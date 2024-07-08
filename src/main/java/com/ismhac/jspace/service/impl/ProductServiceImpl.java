@@ -30,6 +30,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDto getById(int productId) {
         Product product = productRepository.findById(productId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_PRODUCT));
+        if(product.getDeleted()) throw new AppException(ErrorCode.NOT_FOUND_PRODUCT);
         return ProductMapper.instance.eToDto(product);
     }
 }
