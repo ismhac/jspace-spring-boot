@@ -63,14 +63,15 @@ public class TestController {
         if (skillsId.isEmpty()) return;
         List<Post> matchSkills = postSkills
                 .stream().filter(item -> skillsId.contains(item.getId().getSkill().getId())).toList()
-                .stream().map(postSkill -> postSkill.getId().getPost()).toList();
+                .stream().map(postSkill -> postSkill.getId().getPost()).toList().stream().distinct().toList();
 
         String suggestionTemplate = readEmailTemplate("classpath:templates/suggestions/SuggestionTemplate.txt");
         String content = "";
         for (Post post : matchSkills) {
             String postTemplate = readEmailTemplate("classpath:templates/suggestions/PostItem.txt");
             String postItemString = postTemplate
-                    .replace("#{postTitle}", String.valueOf(post.getId()))
+                    .replace("#{companyLogo}", post.getCompany().getLogo())
+                    .replace("#{postId}", String.valueOf(post.getId()))
                     .replace("#{postTitle}", post.getTitle())
                     .replace("#{companyName}", post.getCompany().getName())
                     .replace("#{postLocation}", post.getLocation().getProvince());
