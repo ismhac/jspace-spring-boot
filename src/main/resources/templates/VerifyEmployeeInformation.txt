@@ -875,6 +875,7 @@
                               >
                                 <div
                                   style="
+
                                     flex-direction: column;
                                     gap: 10px;
                                     font-size: 14px;
