@@ -75,8 +75,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     Tuple findPostByIdAndCandidateId(@Param("postId") int postId, @Param("candidateId") Integer candidateId);
 
 
-    @Query("""
-            select distinct (p) as post,
+    @Query(value = """
+            select distinct p as post,
                 (case when :candidateId is null then 'guest' else 'candidate' end) as userMode,
                 (case when :candidateId is null then null else (case when exists (select 1 from CandidatePostLiked cpl where cpl.id.post.id=p.id and cpl.id.candidate.id.user.id= :candidateId) then true else false end) end)as liked,
                 (case when :candidateId is null then null else (case when exists (select 1 from CandidatePost cp where cp.id.post.id=p.id and cp.id.candidate.id.user.id= :candidateId) then true else false end) end) as applied
@@ -110,6 +110,38 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                 and (:skills is null or (:skills is not null and s.id in :skills))
                 and p.closeDate >= :now
                 and p.postStatus = :postStatus
+            """, countQuery = """
+                        select count (*)
+                        from Post p
+                        join PostSkill ps on p.id = ps.id.post.id
+                        join Skill s on s.id = ps.id.skill.id
+                        where p.deleted = false
+                            and (:experience is null or :experience = '' or lower(p.experience) like lower(concat('%', :experience, '%') ) )
+                            and(:gender is null or :gender = '' or lower(p.gender) like lower(concat('%', :gender, '%') ) )
+                            and(:jobType is null or :jobType = '' or lower(p.jobType) like lower(concat('%', :jobType, '%')))
+                            and(:location is null or p.location = :location)
+                            and(:rank is null or :rank = '' or lower(p.rank) like lower(concat('%', :rank, '%') ) )
+                            and(:quantity is null or p.quantity = :quantity)
+                            and(:title is null or :title = '' or lower(p.title) like lower(concat('%', :title, '%') ) )
+                            and(:companyName is null or :companyName = '' or lower(p.company.name) like lower(concat('%', :companyName, '%') ) )
+                            and (
+                                    (:minPay is null and :maxPay is null)
+                                    or
+                                    (
+                                        (:minPay is not null and :maxPay is not null and  (p.minPay between :minPay and :maxPay or p.maxPay between :minPay and :maxPay))
+                                    )
+                                    or
+                                    (
+                                        (:maxPay is null and :minPay is not null and p.minPay >= :minPay)
+                                    )
+                                    or
+                                    (
+                                        (:minPay is null and :maxPay is not null and p.maxPay <= :maxPay)
+                                    )
+                                )
+                            and (:skills is null or (:skills is not null and s.id in :skills))
+                            and p.closeDate >= :now
+                            and p.postStatus = :postStatus
             """)
     Page<Map<String, Object>> getPageAndFilter(
             @Param("candidateId") Integer candidateId,
