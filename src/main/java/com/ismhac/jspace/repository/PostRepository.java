@@ -107,7 +107,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                             (:minPay is null and :maxPay is not null and p.maxPay <= :maxPay)
                         )
                     )
-                and (:skills is null or s.id in :skills)
+                and (:skills is null or (:skills is not null and s.id in :skills))
                 and p.closeDate >= :now
                 and p.postStatus = :postStatus
             """)

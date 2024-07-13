@@ -54,7 +54,7 @@ public class PostServiceImpl implements PostService {
                 minPay,
                 LocalDate.now(),
                 PostStatus.OPEN,
-                skills_id.isEmpty() ? null : skills_id,
+                skills_id,
                 pageable);
         List<Map<String, Object>> results = resultPage.getContent().stream().map(result -> {
             Map<String, Object> map = new HashMap<>(result);
