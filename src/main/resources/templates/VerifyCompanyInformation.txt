@@ -662,7 +662,7 @@
                                     word-wrap: break-word;
                                     width: 100%;
                                   ">
-                                <div style="display: flex; align-items: start">
+                                <div style="align-items: start">
                                   <span style="width: 35%">Company name:</span>
                                   <span style="
                                         font-weight: 600;
@@ -687,7 +687,7 @@
                                   <span style="font-weight: 600; width: 65%">#{companySize}</span>
                                 </div>
                                 <div style="display: flex; align-items: start">
-                                  <span style="font-weight: 600; width: 65%">The confirmation will expire at
+                                  <span style="font-weight: 600; width: 100%">The confirmation will expire at
                                     #{expiryTime}</span>
                                 </div>
                               </div>
@@ -715,7 +715,7 @@
                                 [endif]-->
                               <div align="center">
                                 <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://unlayer.com" style="height:60px; v-text-anchor:middle; width:371px;" arcsize="5%"  stroke="f" fillcolor="#4f4fea"><w:anchorlock/><center style="color:#FFFFFF;"><![endif]-->
-                                <a href="http://35.197.133.113:8081/jspace-service/api/v1/companies/verify-email?mac=#{token}"
+                                <a href="https://jspace.space/jspace-service/api/v1/companies/verify-email?mac=#{token}"
                                   target="_blank" class="v-button v-size-width" style="
                                       box-sizing: border-box;
                                       display: inline-block;

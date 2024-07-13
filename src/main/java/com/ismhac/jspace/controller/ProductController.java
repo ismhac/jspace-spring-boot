@@ -22,7 +22,7 @@ public class ProductController {
     private final PageUtils pageUtils;
 
     @GetMapping()
-    public ApiResponse<PageResponse<ProductDto>> getAll(@RequestParam("name") String name, Pageable pageable) {
+    public ApiResponse<PageResponse<ProductDto>> getAll(@RequestParam(value = "name", required = false) String name, Pageable pageable) {
         return ApiResponse.<PageResponse<ProductDto>>builder().result(productService.getPage(name,pageUtils.adjustPageable(pageable))).build();
     }
 

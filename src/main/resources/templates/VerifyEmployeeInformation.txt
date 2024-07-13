@@ -875,7 +875,6 @@
                               >
                                 <div
                                   style="
-                                    display: flex;
                                     flex-direction: column;
                                     gap: 10px;
                                     font-size: 14px;
@@ -921,7 +920,7 @@
                                   <div
                                     style="display: flex; align-items: start"
                                   >
-                                    <span style="font-weight: 600; width: 65%"
+                                    <span style="font-weight: 600; width: 100%"
                                       >The confirmation will expire at #{expiryTime}</span
                                     >
                                   </div>
@@ -962,7 +961,7 @@
                                 <div align="center">
                                   <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://unlayer.com" style="height:60px; v-text-anchor:middle; width:371px;" arcsize="5%"  stroke="f" fillcolor="#4f4fea"><w:anchorlock/><center style="color:#FFFFFF;"><![endif]-->
                                   <a
-                                    href="hhttps://jspace.space/jspace-service/api/v1/companies/verify-employee?mac=#{token}"
+                                    href="https://jspace.space/jspace-service/api/v1/companies/verify-employee?mac=#{token}"
                                     target="_blank"
                                     class="v-button v-size-width"
                                     style="
