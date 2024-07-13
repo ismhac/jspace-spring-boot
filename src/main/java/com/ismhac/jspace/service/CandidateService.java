@@ -9,6 +9,7 @@ import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
+import com.ismhac.jspace.dto.skill.response.SkillDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
 import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public interface CandidateService {
@@ -58,4 +60,8 @@ public interface CandidateService {
     CandidateDto setDefaultResume(int candidateId, int resumeId);
 
     CandidateDto updatePublicProfile(int candidateId, boolean publicProfile);
+
+    Boolean candidatePickSkills(int candidateId, List<Integer> skillsId);
+
+    List<SkillDto> getSkillOfCandidate(int candidateId);
 }

@@ -9,7 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     @Query("""
-            select product from Product product where product.deleted = false
+            select product from Product product where product.deleted = false 
+            and(:name is null or :name = '' or lower(product.name) like lower(concat('%', :name, '%') ) )
             """)
-    Page<Product> getPage(Pageable pageable);
+    Page<Product> getPage(String name,Pageable pageable);
 }

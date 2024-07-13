@@ -712,6 +712,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         String template = readEmailTemplate("classpath:templates/VerifyCompanyInformation.txt");
         String bodyMailRequestCompanyVerifyEmail = template
+                .replace("#{date}", LocalDate.now().toString())
                 .replace("#{companyName}", company.getName())
                 .replace("#{address}", StringUtils.isBlank(company.getAddress()) ? "" : company.getAddress())
                 .replace("#{email}", StringUtils.isBlank(company.getEmail()) ? "" : company.getEmail())

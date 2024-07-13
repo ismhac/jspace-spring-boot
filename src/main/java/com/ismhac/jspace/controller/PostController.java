@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -39,7 +40,8 @@ public class PostController {
             @RequestParam(value = "companyName", required = false) String companyName,
             @RequestParam(value = "maxPay", required = false) Integer maxPay,
             @RequestParam(value = "minPay", required = false) Integer minPay,
+            @RequestParam(value = "skills", required = false) List<Integer> skills_id,
             Pageable pageable) {
-        return ApiResponse.<PageResponse<Map<String, Object>>>builder().result(postService.getAllAndFilter(candidateId, experience, gender, jobType, location, rank, quantity, title, companyName, maxPay, minPay, pageUtils.adjustPageable(pageable))).build();
+        return ApiResponse.<PageResponse<Map<String, Object>>>builder().result(postService.getAllAndFilter(candidateId, experience, gender, jobType, location, rank, quantity, title, companyName, maxPay, minPay, skills_id,pageUtils.adjustPageable(pageable))).build();
     }
 }

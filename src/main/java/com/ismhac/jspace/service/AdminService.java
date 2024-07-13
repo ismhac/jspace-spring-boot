@@ -25,7 +25,7 @@ public interface AdminService {
 
     UserDto updateActivatedUser(UpdateActivatedUserRequest updateActivatedUserRequest);
 
-    PageResponse<CompanyRequestReviewDto> getRequestReviewDtoPageResponse(Boolean reviewed, Pageable pageable);
+    PageResponse<CompanyRequestReviewDto> getRequestReviewDtoPageResponse(String name, String address, String email, String phone,Boolean reviewed, Pageable pageable);
 
     CompanyRequestReviewDto adminVerifyForCompany(Integer companyId, Boolean reviewed);
 

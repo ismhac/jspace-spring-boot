@@ -11,10 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -25,8 +22,8 @@ public class ProductController {
     private final PageUtils pageUtils;
 
     @GetMapping()
-    public ApiResponse<PageResponse<ProductDto>> getAll(Pageable pageable) {
-        return ApiResponse.<PageResponse<ProductDto>>builder().result(productService.getPage(pageUtils.adjustPageable(pageable))).build();
+    public ApiResponse<PageResponse<ProductDto>> getAll(@RequestParam("name") String name, Pageable pageable) {
+        return ApiResponse.<PageResponse<ProductDto>>builder().result(productService.getPage(name,pageUtils.adjustPageable(pageable))).build();
     }
 
     @GetMapping("/{id}")

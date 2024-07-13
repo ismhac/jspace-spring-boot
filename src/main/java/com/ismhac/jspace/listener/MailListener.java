@@ -64,4 +64,14 @@ public class MailListener {
                 .subject(event.getSendMailRequest().getSubject())
                 .build());
     }
+
+    @EventListener
+    @Async
+    public void suggestJobs(SuggestJobs event) {
+        mailService.sendMail(SendMailRequest.builder()
+                .email(event.getSendMailRequest().getEmail())
+                .body(event.getSendMailRequest().getBody())
+                .subject(event.getSendMailRequest().getSubject())
+                .build());
+    }
 }

@@ -2,6 +2,8 @@ package com.ismhac.jspace.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.ismhac.jspace.dto.candidateFollowCompany.request.CandidateFollowCompanyCreateRequest;
 import com.ismhac.jspace.dto.candidateFollowCompany.response.CandidateFollowCompanyDto;
 import com.ismhac.jspace.dto.candidatePost.request.CandidatePostCreateRequest;
@@ -12,6 +14,7 @@ import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.other.ApplyStatusDto;
 import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
+import com.ismhac.jspace.dto.skill.response.SkillDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
 import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -71,6 +74,8 @@ public class CandidateServiceImpl implements CandidateService {
     private final CompanyNotificationRepository companyNotificationRepository;
     @Autowired
     private BeanUtils beanUtils;
+    @Autowired
+    private SkillRepository skillRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -360,6 +365,28 @@ public class CandidateServiceImpl implements CandidateService {
         if(candidate.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_USER);
         candidate.get().setPublicProfile(publicProfile);
         return CandidateMapper.instance.eToDto(candidateRepository.save(candidate.get()));
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Boolean candidatePickSkills(int candidateId, List<Integer> skillsId) {
+        if(skillsId.size() != skillRepository.findAllByIdList(skillsId).size()){
+            throw new AppException(ErrorCode.NOT_FOUND_SKILL);
+        }
+        Candidate candidate = candidateRepository.findByUserId(candidateId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_USER));
+        candidate.setSkills(skillsId.toString());
+        candidateRepository.save(candidate);
+        return true;
+    }
+
+    @Override
+    public List<SkillDto> getSkillOfCandidate(int candidateId) {
+        Gson gson = new Gson();
+        Candidate candidate = candidateRepository.findByUserId(candidateId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_USER));
+        String skillString = candidate.getSkills();
+        List<Integer> skillInteger = gson.fromJson(skillString, new TypeToken<List<Integer>>() {
+        }.getType());
+        return SkillMapper.instance.eListToDtoList(skillRepository.findAllByIdList(skillInteger));
     }
 
     @Transactional(rollbackFor = Exception.class)

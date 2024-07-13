@@ -51,8 +51,8 @@ public class AdminController {
     }
 
     @GetMapping("/company-request-reviews")
-    public ApiResponse<PageResponse<CompanyRequestReviewDto>> getRequestReviewDtoPageResponse(@RequestParam(value = "reviewed", required = false) Boolean reviewed, Pageable pageable) {
-        return ApiResponse.<PageResponse<CompanyRequestReviewDto>>builder().result(adminService.getRequestReviewDtoPageResponse(reviewed, pageUtils.adjustPageable(pageable))).build();
+    public ApiResponse<PageResponse<CompanyRequestReviewDto>> getRequestReviewDtoPageResponse(@RequestParam(value = "name", required = false)String name, @RequestParam(value = "address", required = false)String address, @RequestParam(value = "email", required = false)String email, @RequestParam(value = "phone", required = false)String phone,@RequestParam(value = "reviewed", required = false) Boolean reviewed, Pageable pageable) {
+        return ApiResponse.<PageResponse<CompanyRequestReviewDto>>builder().result(adminService.getRequestReviewDtoPageResponse(name,address, email, phone,reviewed, pageUtils.adjustPageable(pageable))).build();
     }
 
     @PutMapping("/company-request-reviews")

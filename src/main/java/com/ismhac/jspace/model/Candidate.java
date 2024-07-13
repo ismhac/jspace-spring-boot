@@ -22,4 +22,7 @@ public class Candidate extends BaseEntity {
     @Column(name = "public_profile")
     @Builder.Default
     Boolean publicProfile = false;
+    @Column(name = "skill")
+    @Builder.Default
+    String skills = "";
 }
