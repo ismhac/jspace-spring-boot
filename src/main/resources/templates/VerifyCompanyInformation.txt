@@ -652,7 +652,7 @@
                                   font-family: 'Lato', sans-serif;
                                 " align="left">
                               <div style="
-                                    display: flex;
+
                                     flex-direction: column;
                                     gap: 10px;
                                     font-size: 14px;
@@ -662,7 +662,7 @@
                                     word-wrap: break-word;
                                     width: 100%;
                                   ">
-                                <div style="align-items: start">
+                                <div style="display: flex; align-items: start">
                                   <span style="width: 35%">Company name:</span>
                                   <span style="
                                         font-weight: 600;
@@ -686,7 +686,7 @@
                                   <span style="width: 35%">Company Size:</span>
                                   <span style="font-weight: 600; width: 65%">#{companySize}</span>
                                 </div>
-                                <div style="display: flex; align-items: start">
+                                <div style="">
                                   <span style="font-weight: 600; width: 100%">The confirmation will expire at
                                     #{expiryTime}</span>
                                 </div>
