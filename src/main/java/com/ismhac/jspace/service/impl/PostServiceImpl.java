@@ -39,7 +39,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PageResponse<Map<String, Object>> getAllAndFilter(Integer candidateId, Experience experience, Gender gender, JobType jobType, Location location, Rank rank, Integer quantity, String title, String companyName, Integer maxPay, Integer minPay, Pageable pageable) {
+    public PageResponse<Map<String, Object>> getAllAndFilter(Integer candidateId, Experience experience, Gender gender, JobType jobType, Location location, Rank rank, Integer quantity, String title, String companyName, Integer maxPay, Integer minPay, List<Integer> skills_id,Pageable pageable) {
         Page<Map<String, Object>> resultPage = postRepository.getPageAndFilter(
                 candidateId,
                 Objects.isNull(experience) ? null : experience.getCode(),
@@ -54,6 +54,7 @@ public class PostServiceImpl implements PostService {
                 minPay,
                 LocalDate.now(),
                 PostStatus.OPEN,
+                skills_id.isEmpty() ? null : skills_id,
                 pageable);
         List<Map<String, Object>> results = resultPage.getContent().stream().map(result -> {
             Map<String, Object> map = new HashMap<>(result);

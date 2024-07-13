@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 public interface PostRepository extends JpaRepository<Post, Integer> {
@@ -80,6 +81,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                 (case when :candidateId is null then null else (case when exists (select 1 from CandidatePostLiked cpl where cpl.id.post.id=p.id and cpl.id.candidate.id.user.id= :candidateId) then true else false end) end)as liked,
                 (case when :candidateId is null then null else (case when exists (select 1 from CandidatePost cp where cp.id.post.id=p.id and cp.id.candidate.id.user.id= :candidateId) then true else false end) end) as applied
             from Post p
+            join PostSkill ps on p.id = ps.id.post.id
+            join Skill s on s.id = ps.id.skill.id
             where p.deleted = false
                 and (:experience is null or :experience = '' or lower(p.experience) like lower(concat('%', :experience, '%') ) )
                 and(:gender is null or :gender = '' or lower(p.gender) like lower(concat('%', :gender, '%') ) )
@@ -104,6 +107,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                             (:minPay is null and :maxPay is not null and p.maxPay <= :maxPay)
                         )
                     )
+                and (:skills is null or s.id in :skills)
                 and p.closeDate >= :now
                 and p.postStatus = :postStatus
             """)
@@ -121,5 +125,13 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             @Param("minPay") Integer minPay,
             @Param("now") LocalDate now,
             @Param("postStatus") PostStatus postStatus,
+            @Param("skills") List<Integer> skills_id,
             Pageable pageable);
+
+    @Query("""
+            select p
+            from Post p
+            where date(p.createdAt) = :now
+            """)
+    List<Post> findPostByDate(LocalDate now);
 }

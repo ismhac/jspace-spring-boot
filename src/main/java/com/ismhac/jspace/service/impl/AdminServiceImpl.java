@@ -48,6 +48,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -198,8 +199,8 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @PreAuthorize("hasAnyRole({'SUPER_ADMIN', 'ADMIN'})")
-    public PageResponse<CompanyRequestReviewDto> getRequestReviewDtoPageResponse(Boolean reviewed, Pageable pageable) {
-        return pageUtils.toPageResponse(CompanyRequestReviewMapper.instance.ePageToDtoPage(companyRequestReviewRepository.getPageFilterByReviewed(reviewed, pageable), candidateFollowCompanyRepository));
+    public PageResponse<CompanyRequestReviewDto> getRequestReviewDtoPageResponse(String name, String address, String email, String phone,Boolean reviewed, Pageable pageable) {
+        return pageUtils.toPageResponse(CompanyRequestReviewMapper.instance.ePageToDtoPage(companyRequestReviewRepository.getPageFilterByReviewed(name, address, email, phone,reviewed, pageable), candidateFollowCompanyRepository));
     }
 
     @Override
@@ -278,6 +279,7 @@ public class AdminServiceImpl implements AdminService {
 
         String template = readEmailTemplate("classpath:templates/VerifyCompanyInformation.txt");
         String bodyMailRequestCompanyVerifyEmail = template
+                .replace("#{date}", LocalDate.now().toString())
                 .replace("#{companyName}", company.getName())
                 .replace("#{address}", StringUtils.isBlank(company.getAddress()) ? "" : company.getAddress())
                 .replace("#{email}", StringUtils.isBlank(company.getEmail()) ? "" : company.getEmail())

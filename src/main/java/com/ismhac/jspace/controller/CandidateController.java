@@ -10,6 +10,7 @@ import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.post.response.PostDto;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
+import com.ismhac.jspace.dto.skill.response.SkillDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
 import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
@@ -23,6 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -150,5 +152,17 @@ public class CandidateController {
     @PreAuthorize("hasRole('CANDIDATE')")
     public ApiResponse<CandidateDto> updatePublicProfile(@PathVariable("id") int candidateId, @RequestParam("publicProfile") boolean publicProfile){
         return ApiResponse.<CandidateDto>builder().result(candidateService.updatePublicProfile(candidateId, publicProfile)).build();
+    }
+
+    @PutMapping("/{id}/pick-skills")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public ApiResponse<Boolean> candidatePickSkills(@PathVariable("id") int candidateId, @RequestBody List<Integer> skillsId){
+        return ApiResponse.<Boolean>builder().result(candidateService.candidatePickSkills(candidateId, skillsId)).build();
+    }
+
+    @PutMapping("/{id}/skills")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public ApiResponse<List<SkillDto>> getSkillOfCandidate(@PathVariable("id") int candidateId){
+        return ApiResponse.<List<SkillDto>>builder().result(candidateService.getSkillOfCandidate(candidateId)).build();
     }
 }

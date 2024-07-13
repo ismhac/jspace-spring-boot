@@ -22,8 +22,8 @@ public class ProductServiceImpl implements ProductService {
     private final PageUtils pageUtils;
 
     @Override
-    public PageResponse<ProductDto> getPage(Pageable pageable) {
-        Page<Product> productPage = productRepository.getPage(pageable);
+    public PageResponse<ProductDto> getPage(String name,Pageable pageable) {
+        Page<Product> productPage = productRepository.getPage(name,pageable);
         return pageUtils.toPageResponse(ProductMapper.instance.ePageToDtoPage(productPage));
     }
 
