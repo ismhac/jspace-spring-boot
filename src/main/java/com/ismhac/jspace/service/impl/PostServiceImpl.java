@@ -38,6 +38,7 @@ public class PostServiceImpl implements PostService {
         }};
     }
 
+
     @Override
     public PageResponse<Map<String, Object>> getAllAndFilter(Integer candidateId, Experience experience, Gender gender, JobType jobType, Location location, Rank rank, Integer quantity, String title, String companyName, Integer maxPay, Integer minPay, List<Integer> skills_id,Pageable pageable) {
         Page<Map<String, Object>> resultPage = postRepository.getPageAndFilter(
