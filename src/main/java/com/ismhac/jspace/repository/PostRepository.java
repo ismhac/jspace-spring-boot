@@ -164,7 +164,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                 and (:skills is null or (:skills is not null and ps.id.skill.id in :skills))
                 and ps.id.post.closeDate >= :now
                 and ps.id.post.postStatus = :postStatus
-                group by p, ps.id.post.id
+                group by p, ps.id.post.id, ps.id.post.closeDate
 """, countQuery = """
             select count (*)
                         from PostSkill ps
@@ -197,7 +197,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                 and (:skills is null or (:skills is not null and ps.id.skill.id in :skills))
                 and ps.id.post.closeDate >= :now
                 and ps.id.post.postStatus = :postStatus
-                group by p, ps.id.post.id
+                group by p, ps.id.post.id, ps.id.post.closeDate
             """)
     Page<Map<String, Object>> getPageAndFilter(
             @Param("candidateId") Integer candidateId,
