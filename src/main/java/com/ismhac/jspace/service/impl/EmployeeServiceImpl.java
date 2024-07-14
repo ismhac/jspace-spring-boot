@@ -584,9 +584,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public PostDto createPost(PostCreateRequest req) {
         Company company = companyRepository.findById(req.getCompanyId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
 
-        if (req.isUseTrialPost()) {
-            handleTrialPost(company);
-        }
+        if (req.isUseTrialPost()) handleTrialPost(company);
 
         List<Skill> skillList = validateAndFetchSkills(req.getSkillIdList());
         List<Skill> newSkills = createNewSkills(req.getNewSkills());
