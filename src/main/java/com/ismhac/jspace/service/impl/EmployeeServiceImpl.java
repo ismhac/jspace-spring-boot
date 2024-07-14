@@ -586,8 +586,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         if (req.isUseTrialPost()) {
             handleTrialPost(company);
-        } else {
-            handlePurchasedProduct(req);
         }
 
         List<Skill> skillList = validateAndFetchSkills(req.getSkillIdList());

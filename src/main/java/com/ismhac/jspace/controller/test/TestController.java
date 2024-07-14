@@ -6,11 +6,10 @@ import com.ismhac.jspace.dto.common.request.SendMailRequest;
 import com.ismhac.jspace.event.SuggestJobs;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
-import com.ismhac.jspace.model.Candidate;
-import com.ismhac.jspace.model.Post;
-import com.ismhac.jspace.model.PostSkill;
-import com.ismhac.jspace.repository.CandidateRepository;
-import com.ismhac.jspace.repository.PostSkillRepository;
+import com.ismhac.jspace.model.*;
+import com.ismhac.jspace.model.enums.RoleCode;
+import com.ismhac.jspace.model.primaryKey.EmployeeId;
+import com.ismhac.jspace.repository.*;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,11 +41,16 @@ import java.util.stream.Collectors;
 @Slf4j
 @Hidden
 public class TestController {
+    @Autowired
+    private UserRepository userRepository;
     private final CandidateRepository candidateRepository;
     private final PostSkillRepository postSkillRepository;
+    private final SkillRepository skillRepository;
     @Autowired
     private ResourceLoader resourceLoader;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final RoleRepository roleRepository;
+    private final EmployeeRepository employeeRepository;
 
 //    @Scheduled(cron = "0 0 19 * * *")
     @PostMapping("/check-send-mail-suggest-jobs")
@@ -52,6 +59,40 @@ public class TestController {
         List<PostSkill> posts = postSkillRepository.findAllByDate(now);
         List<Candidate> candidates = candidateRepository.findAll();
         candidates.forEach(candidate -> suggestForOneCandidate(candidate, posts));
+    }
+
+    @PostMapping("/save-skills")
+    @Transactional(rollbackFor = Exception.class)
+    public void saveSkills(@RequestBody List<String> skillsName){
+        List<Skill> skills = skillsName.stream().map(item->Skill.builder().name(item).build()).toList();
+        skillRepository.saveAll(skills);
+    }
+
+    @PostMapping("/save-employees")
+    public void saveEmployee(){
+        var role = roleRepository.findRoleByCode(RoleCode.EMPLOYEE);
+
+        List<User> users = new ArrayList<>();
+        for(int i = 3; i <= 33; i++){
+            User user = User.builder()
+                    .activated(true)
+                    .email(String.format("employer%s@gmail.com", i))
+                    .name(String.format("Employer%s", i))
+                    .password("$2a$10$0HzWws07Q9b/oTILcGzLGuKPE69xR4/3CZ4S414.IXZu5fsEIa8jm")
+                    .role(role.get())
+                    .build();
+            users.add(user);
+        }
+
+        List<User> saveUsers = userRepository.saveAll(users);
+
+        List<Employee> employees = saveUsers.stream().map(user-> Employee.builder()
+                .id(EmployeeId.builder()
+                        .user(user)
+                        .build())
+                .build()).toList();
+
+        employeeRepository.saveAll(employees);
     }
 
     private void suggestForOneCandidate(Candidate candidate, List<PostSkill> postSkills) {
