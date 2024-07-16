@@ -28,4 +28,6 @@ public class CompanyNotification extends BaseEntity {
 
     @Column(name = "read")
     boolean read;
+
+    String custom;
 }

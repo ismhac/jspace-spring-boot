@@ -175,6 +175,9 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .title(NotificationTitle.NOTIFICATION_ADMIN_NEW_COMPANY.getTitle())
                 .type(NotificationType.NEW_COMPANY)
                 .content(String.format("Công ty %s được đăng ký trên hệ thống lúc %s", savedCompany.getName(), Instant.now().toString()))
+                .custom(new HashMap<>(){{
+                    put("companyId", savedCompany.getId());
+                }}.toString())
                 .build();
 
         Notification savedNotification = notificationRepository.save(notification);
@@ -498,6 +501,9 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .title(NotificationTitle.NOTIFICATION_CANDIDATE_UPDATE_APPLY_STATUS.getTitle())
                 .type(NotificationType.EMPLOYEE_UPDATE_STATUS_APPLIED)
                 .content(request.getNotification())
+                .custom(new HashMap<>(){{
+                    put("postId", request.getPostId());
+                }}.toString())
                 .build();
 
         Notification savedNotification = notificationRepository.save(notification);

@@ -3,6 +3,7 @@ package com.ismhac.jspace.dto.companyNotification.response;
 import lombok.Data;
 
 import java.time.Instant;
+import java.util.Map;
 
 @Data
 public class CompanyNotificationDto {
@@ -12,4 +13,5 @@ public class CompanyNotificationDto {
     String notification;
     boolean read;
     Instant notificationTime;
+    Map<String, Object> custom;
 }

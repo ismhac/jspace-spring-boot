@@ -23,4 +23,5 @@ public class Notification extends BaseEntity{
     @Convert(converter = NotificationTypeConverter.class)
     NotificationType type;
     String title;
+    String custom;
 }
