@@ -289,7 +289,14 @@ public class CandidateServiceImpl implements CandidateService {
         Post post = postRepository.findById(request.getPostId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST));
         Resume resume = resumeRepository.findById(request.getResumeId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_RESUME));
         CandidatePost candidatePost = CandidatePost.builder().id(CandidatePostId.builder().candidate(candidate).post(post).build()).resume(resume).applyStatus(ApplyStatus.PROGRESS).build();
-        CompanyNotification companyNotification = CompanyNotification.builder().company(post.getCompany()).title(NotificationTitle.NOTIFICATION_COMPANY_NEW_CANDIDATE_APPLY.getTitle()).notification("Candidate " + candidate.getId().getUser().getName() + " has applied for your post " + post.getTitle()).read(false).build();
+        CompanyNotification companyNotification = CompanyNotification.builder()
+                .company(post.getCompany())
+                .title(NotificationTitle.NOTIFICATION_COMPANY_NEW_CANDIDATE_APPLY.getTitle())
+                .notification("Candidate " + candidate.getId().getUser().getName() + " has applied for your post " + post.getTitle())
+                .custom(new HashMap<>(){{
+                    put("candidateId", candidate.getId());
+                }}.toString())
+                .read(false).build();
         companyNotificationRepository.save(companyNotification);
         return CandidatePostMapper.instance.eToDto(candidatePostRepository.save(candidatePost), postSkillRepository, candidateFollowCompanyRepository);
     }

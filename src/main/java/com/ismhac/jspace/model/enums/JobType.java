@@ -15,9 +15,8 @@ public enum JobType {
     TEMPORARY("Temporary"),
     CONTRACT("Contract"),
     INTERNSHIP("Internship"),
-    COMMISSION("Commission"),
     NEW_GRAD("New grad"),
-    PERMANENT("Permanent")
+    REMOTE("Remote")
     ;
 
     String code;

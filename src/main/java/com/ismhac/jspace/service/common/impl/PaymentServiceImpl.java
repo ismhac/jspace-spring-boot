@@ -16,6 +16,7 @@ import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
@@ -88,8 +89,10 @@ public class PaymentServiceImpl implements PaymentService {
                 Product product = cart.getProduct();
                 int quantity = cart.getQuantity();
 
-                PurchaseHistory purchaseHistory = createPurchaseHistory(company, product, quantity, paymentMethod, status);
-                PurchasedProduct purchasedProduct = createPurchasedProduct(company, product, quantity);
+                String randomMac= " #".concat(RandomStringUtils.randomAlphabetic(5));
+
+                PurchaseHistory purchaseHistory = createPurchaseHistory(company, product, quantity, paymentMethod, status, randomMac);
+                PurchasedProduct purchasedProduct = createPurchasedProduct(company, product, quantity, randomMac);
 
                 purchaseHistories.add(purchaseHistory);
                 purchasedProducts.add(purchasedProduct);
@@ -142,10 +145,10 @@ public class PaymentServiceImpl implements PaymentService {
         applicationEventPublisher.publishEvent(sendBillEvent);
     }
 
-    private PurchaseHistory createPurchaseHistory(Company company, Product product, int quantity, String paymentMethod, String status) {
+    private PurchaseHistory createPurchaseHistory(Company company, Product product, int quantity, String paymentMethod, String status, String randomMac) {
         return PurchaseHistory.builder()
                 .company(company)
-                .productName(product.getName())
+                .productName(product.getName().concat(randomMac))
                 .productPrice(product.getPrice())
                 .productNumberOfPost(product.getNumberOfPost())
                 .productPostDuration(product.getPostDuration())
@@ -159,10 +162,10 @@ public class PaymentServiceImpl implements PaymentService {
                 .build();
     }
 
-    private PurchasedProduct createPurchasedProduct(Company company, Product product, int quantity) {
+    private PurchasedProduct createPurchasedProduct(Company company, Product product, int quantity, String randomMac) {
         return PurchasedProduct.builder()
                 .company(company)
-                .productName(product.getName())
+                .productName(product.getName().concat(randomMac))
                 .productPrice(product.getPrice())
                 .productNumberOfPost(product.getNumberOfPost() * quantity)
                 .productPostDuration(product.getPostDuration())

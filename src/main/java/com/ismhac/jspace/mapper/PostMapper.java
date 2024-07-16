@@ -1,5 +1,6 @@
 package com.ismhac.jspace.mapper;
 
+import com.ismhac.jspace.dto.common.dictionary.Dictionary;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.other.*;
 import com.ismhac.jspace.dto.post.response.PostDto;
@@ -48,27 +49,46 @@ public interface PostMapper {
 
     @Named("convertJobTypeToDto")
     default JobTypeDto convertJobTypeToDto(JobType jobType) {
-        return JobTypeDto.builder().value(jobType.name()).code(jobType.getCode()).build();
+        return JobTypeDto.builder()
+                .value(jobType.name())
+                .code(jobType.getCode())
+                .language(Dictionary.jobTypeDictionary.get(jobType.name()))
+                .build();
     }
 
     @Named("convertGenderToDto")
     default GenderDto convertGenderToDto(Gender gender) {
-        return GenderDto.builder().value(gender.name()).code(gender.getCode()).build();
+        return GenderDto.builder()
+                .value(gender.name())
+                .code(gender.getCode())
+                .language(Dictionary.genderDictionary.get(gender.name()))
+                .build();
     }
 
     @Named("convertPostStatusToDto")
     default PostStatusDto convertPostStatusToDto(PostStatus postStatus) {
-        return PostStatusDto.builder().value(postStatus.name()).code(postStatus.getStatus()).build();
+        return PostStatusDto.builder()
+                .value(postStatus.name())
+                .code(postStatus.getStatus())
+                .build();
     }
 
     @Named("convertRankToDto")
     default RankDto convertRankToDto(Rank rank) {
-        return RankDto.builder().value(rank.name()).code(rank.getCode()).build();
+        return RankDto.builder()
+                .value(rank.name())
+                .code(rank.getCode())
+                .language(Dictionary.rankDictionary.get(rank.name()))
+                .build();
     }
 
     @Named("convertExperienceToDto")
     default ExperienceDto convertExperienceToDto(Experience experience) {
-        return ExperienceDto.builder().value(experience.name()).code(experience.getCode()).build();
+        return ExperienceDto.builder()
+                .value(experience.name())
+                .code(experience.getCode())
+                .language(Dictionary.experienceDictionary.get(experience.name()))
+                .build();
     }
 
     default List<SkillDto> getSkillDtoList(int postId, @Context PostSkillRepository postSkillRepository) {
