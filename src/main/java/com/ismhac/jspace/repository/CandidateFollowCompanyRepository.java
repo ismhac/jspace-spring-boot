@@ -1,5 +1,6 @@
 package com.ismhac.jspace.repository;
 
+import com.ismhac.jspace.model.Candidate;
 import com.ismhac.jspace.model.CandidateFollowCompany;
 import com.ismhac.jspace.model.Company;
 import com.ismhac.jspace.model.User;
@@ -9,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 
 public interface CandidateFollowCompanyRepository extends JpaRepository<CandidateFollowCompany, CandidateFollowCompanyId> {
 
@@ -37,4 +40,11 @@ public interface CandidateFollowCompanyRepository extends JpaRepository<Candidat
                 and (:phoneNumber is null or :phoneNumber = '' or lower(cfp.id.candidate.id.user.phone) like lower(concat('%', :phoneNumber, '%') ) )
             """)
     Page<User> getPageUserFollowedCompanyByCompanyId(int companyId, String name, String email, String phoneNumber,Pageable pageable);
+
+    @Query("""
+            select cfp.id.candidate
+            from CandidateFollowCompany cfp
+            where cfp.id.company.id = :companyId
+            """)
+    List<Candidate> getListFollowedCompany(int companyId);
 }

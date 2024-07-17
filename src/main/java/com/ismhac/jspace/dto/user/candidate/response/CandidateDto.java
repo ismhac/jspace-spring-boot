@@ -16,4 +16,5 @@ public class CandidateDto {
     UserDto user;
     ResumeDto defaultResume;
     Boolean publicProfile;
+    Boolean surveyed;
 }

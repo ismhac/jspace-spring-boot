@@ -17,7 +17,7 @@ import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
-import com.ismhac.jspace.model.enums.PostStatus;
+import com.ismhac.jspace.model.enums.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -77,7 +77,13 @@ public interface EmployeeService {
 
     Boolean deletePost(int postId);
 
-    PageResponse<CandidateDto> searchCandidate(String name, String email, String phoneNumber,Pageable pageable);
+    PageResponse<CandidateDto> searchCandidate(
+            Gender gender,
+            Experience experience,
+            Rank rank,
+            Location location,
+            Pageable pageable
+    );
 
     Boolean requestCompanyVerifyEmployeeInformation(int companyId, int employeeId);
 }

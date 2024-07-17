@@ -30,6 +30,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -67,6 +68,7 @@ public class AuthServiceImpl implements AuthService {
     AdminMapper adminMapper;
     AdminRequestVerifyEmailRepository adminRequestVerifyEmailRepository;
     CandidateFollowCompanyRepository candidateFollowCompanyRepository;
+    CandidateProfileRepository candidateProfileRepository;
 
     /* */
     @Override
@@ -272,16 +274,31 @@ public class AuthServiceImpl implements AuthService {
 
         if(candidate.isEmpty()) throw new AppException(ErrorCode.UNAUTHENTICATED);
 
-        return CandidateMapper.instance.eToDto(candidate.get());
+        boolean surveyed = false;
+        var candidateProfile = candidateProfileRepository.findCandidateProfileById_Candidate_Id_User_Id(candidate.get().getId().getUser().getId());
+        if(candidateProfile.isPresent()
+        ){
+            if(candidateProfile.get().getGender() != null &&
+               candidateProfile.get().getExperience() != null &&
+               candidateProfile.get().getMinSalary() != null &&
+               candidateProfile.get().getMaxSalary() != null &&
+               candidateProfile.get().getRank() != null &&
+               candidateProfile.get().getLocation() != null &&
+               StringUtils.isNotBlank(candidateProfile.get().getDetailAddress()) &&
+               StringUtils.isNotBlank(candidateProfile.get().getSkills())
+            ){
+                surveyed = true;
+            }
+        }
+        CandidateDto candidateDto = CandidateMapper.instance.eToDto(candidate.get());
+        candidateDto.setSurveyed(surveyed);
+        return candidateDto;
     }
 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public AdminDto handleVerifyEmail(AdminVerifyEmailRequest adminVerifyEmailRequest) {
-//        Jwt jwt = Jwt.withTokenValue(adminVerifyEmailRequest.getToken()).build();
-//
-//        String username = (String) jwt.getClaims().get("sub");
 
         Optional<AdminRequestVerifyEmail> adminRequestVerifyEmail = adminRequestVerifyEmailRepository.findByToken(adminVerifyEmailRequest.getToken());
 
