@@ -3,6 +3,8 @@ package com.ismhac.jspace.model;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Getter
 @Setter
@@ -29,5 +31,7 @@ public class CompanyNotification extends BaseEntity {
     @Column(name = "read")
     boolean read;
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
     String custom;
 }

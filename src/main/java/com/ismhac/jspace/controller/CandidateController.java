@@ -5,6 +5,10 @@ import com.ismhac.jspace.dto.candidateFollowCompany.response.CandidateFollowComp
 import com.ismhac.jspace.dto.candidatePost.request.CandidatePostCreateRequest;
 import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.candidatePostLiked.response.CandidatePostLikedDto;
+import com.ismhac.jspace.dto.candidateProfile.request.CandidateSurveyRequest;
+import com.ismhac.jspace.dto.candidateProfile.response.CandidateProfileDto;
+import com.ismhac.jspace.dto.candidateProfile.response.EducationInformationDto;
+import com.ismhac.jspace.dto.candidateProfile.response.ExperienceInformationDto;
 import com.ismhac.jspace.dto.common.response.ApiResponse;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
@@ -164,5 +168,29 @@ public class CandidateController {
     @PreAuthorize("hasRole('CANDIDATE')")
     public ApiResponse<List<SkillDto>> getSkillOfCandidate(@PathVariable("id") int candidateId){
         return ApiResponse.<List<SkillDto>>builder().result(candidateService.getSkillOfCandidate(candidateId)).build();
+    }
+
+    @PostMapping("/survey")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public ApiResponse<CandidateProfileDto> createCandidateSurvey(@RequestBody CandidateSurveyRequest request){
+        return ApiResponse.<CandidateProfileDto>builder().result(candidateService.createCandidateSurvey(request)).build();
+    }
+
+    @PutMapping("/{id}/profiles/education-info")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public ApiResponse<CandidateProfileDto> editEducationInformation(@PathVariable("id") int candidateId, @RequestBody EducationInformationDto request){
+        return ApiResponse.<CandidateProfileDto>builder().result(candidateService.editEducationInformation(candidateId, request)).build();
+    }
+
+    @PutMapping("/{id}/profiles/experience-info")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public ApiResponse<CandidateProfileDto> editExperienceInformation(@PathVariable("id") int candidateId, @RequestBody ExperienceInformationDto request){
+        return ApiResponse.<CandidateProfileDto>builder().result(candidateService.editExperienceInformation(candidateId, request)).build();
+    }
+
+    @GetMapping("/{id}/profiles/details")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public ApiResponse<CandidateProfileDto> getProfileDetail(@PathVariable("id") int candidateId){
+        return ApiResponse.<CandidateProfileDto>builder().result(candidateService.getProfileDetail(candidateId)).build();
     }
 }

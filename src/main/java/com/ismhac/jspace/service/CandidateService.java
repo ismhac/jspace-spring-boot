@@ -5,6 +5,10 @@ import com.ismhac.jspace.dto.candidateFollowCompany.response.CandidateFollowComp
 import com.ismhac.jspace.dto.candidatePost.request.CandidatePostCreateRequest;
 import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.candidatePostLiked.response.CandidatePostLikedDto;
+import com.ismhac.jspace.dto.candidateProfile.request.CandidateSurveyRequest;
+import com.ismhac.jspace.dto.candidateProfile.response.CandidateProfileDto;
+import com.ismhac.jspace.dto.candidateProfile.response.EducationInformationDto;
+import com.ismhac.jspace.dto.candidateProfile.response.ExperienceInformationDto;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.post.response.PostDto;
@@ -64,4 +68,12 @@ public interface CandidateService {
     Boolean candidatePickSkills(int candidateId, List<Integer> skillsId);
 
     List<SkillDto> getSkillOfCandidate(int candidateId);
+
+    CandidateProfileDto createCandidateSurvey(CandidateSurveyRequest request);
+
+    CandidateProfileDto editEducationInformation(int candidateId,EducationInformationDto request);
+
+    CandidateProfileDto editExperienceInformation(int candidateId, ExperienceInformationDto request);
+
+    CandidateProfileDto getProfileDetail(int candidateId);
 }

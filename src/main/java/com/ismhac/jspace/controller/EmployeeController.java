@@ -1,5 +1,6 @@
 package com.ismhac.jspace.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ismhac.jspace.dto.candidatePost.request.ApplyStatusUpdateRequest;
 import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.cart.request.CartCreateRequest;
@@ -147,7 +148,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/posts/update-apply-status")
-    public ApiResponse<Object> updateAppliedStatus(@RequestBody ApplyStatusUpdateRequest request) {
+    public ApiResponse<Object> updateAppliedStatus(@RequestBody ApplyStatusUpdateRequest request) throws JsonProcessingException {
         return ApiResponse.builder().result(employeeService.updateAppliedStatus(request)).build();
     }
 

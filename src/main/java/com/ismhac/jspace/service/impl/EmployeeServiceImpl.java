@@ -2,10 +2,15 @@ package com.ismhac.jspace.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.ismhac.jspace.dto.candidatePost.request.ApplyStatusUpdateRequest;
 import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.cart.request.CartCreateRequest;
 import com.ismhac.jspace.dto.cart.response.CartDto;
+import com.ismhac.jspace.dto.common.dictionary.Dictionary;
 import com.ismhac.jspace.dto.common.request.SendMailRequest;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.request.CompanyCreateRequest;
@@ -35,6 +40,7 @@ import com.ismhac.jspace.service.EmployeeService;
 import com.ismhac.jspace.util.BeanUtils;
 import com.ismhac.jspace.util.PageUtils;
 import com.ismhac.jspace.util.UserUtils;
+import com.ismhac.jspace.util.adapter.LocalDateAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -175,9 +181,9 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .title(NotificationTitle.NOTIFICATION_ADMIN_NEW_COMPANY.getTitle())
                 .type(NotificationType.NEW_COMPANY)
                 .content(String.format("Công ty %s được đăng ký trên hệ thống lúc %s", savedCompany.getName(), Instant.now().toString()))
-                .custom(new HashMap<>(){{
-                    put("companyId", savedCompany.getId());
-                }}.toString())
+//                .custom(new HashMap<>() {{
+//                    put("companyId", savedCompany.getId());
+//                }})
                 .build();
 
         Notification savedNotification = notificationRepository.save(notification);
@@ -372,7 +378,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         return new PageResponse<>(posts.getNumber(), posts.getSize(), posts.getTotalElements(), posts.getTotalPages(), posts.getNumberOfElements(), customContent);
-//        return pageUtils.toPageResponse(PostMapper.instance.ePageToDtoPage(posts, postSkillRepository, candidateFollowCompanyRepository));
     }
 
     @Override
@@ -489,21 +494,22 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Object updateAppliedStatus(ApplyStatusUpdateRequest request) {
+    @Transactional(rollbackFor = Exception.class)
+    public Object updateAppliedStatus(ApplyStatusUpdateRequest request) throws JsonProcessingException {
         var candidatePost = candidatePostRepository.findByCandidateIdAndPostId(request.getCandidateId(), request.getPostId());
         if (candidatePost.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_CANDIDATE_POST_APPLIED);
 
         candidatePost.get().setApplyStatus(request.getApplyStatus());
         candidatePost.get().setNote(request.getNotification());
-        candidatePostRepository.save(candidatePost.get());
+        CandidatePost updatedCandidatePost = candidatePostRepository.save(candidatePost.get());
+
+        String customJson = this.buildCustomFieldForNotificationWhenUpdateApplyStatus(updatedCandidatePost);
 
         Notification notification = Notification.builder()
                 .title(NotificationTitle.NOTIFICATION_CANDIDATE_UPDATE_APPLY_STATUS.getTitle())
                 .type(NotificationType.EMPLOYEE_UPDATE_STATUS_APPLIED)
                 .content(request.getNotification())
-                .custom(new HashMap<>(){{
-                    put("postId", request.getPostId());
-                }}.toString())
+                .custom(customJson)
                 .build();
 
         Notification savedNotification = notificationRepository.save(notification);
@@ -523,6 +529,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             put("applyStatus", ApplyStatusDto.builder()
                     .code(request.getApplyStatus().name())
                     .value(request.getApplyStatus().getStatus())
+                    .language(Dictionary.applyStatusDictionary.get(request.getApplyStatus().name()))
                     .build());
         }};
     }
@@ -545,28 +552,28 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public PageResponse<CandidatePostDto> getPageCandidateAppliedByPostId(int postId, String candidateName, String candidateEmail, String candidatePhoneNumber, String postStatus, String applyStatus,Pageable pageable) {
+    public PageResponse<CandidatePostDto> getPageCandidateAppliedByPostId(int postId, String candidateName, String candidateEmail, String candidatePhoneNumber, String postStatus, String applyStatus, Pageable pageable) {
         PostStatus postStatusFilter = null;
         if (StringUtils.isNotBlank(postStatus)) postStatusFilter = PostStatus.resolve(postStatus);
         ApplyStatus applyStatusFilter = null;
-        if(StringUtils.isNotBlank(applyStatus)) applyStatusFilter = ApplyStatus.resolve(applyStatus);
+        if (StringUtils.isNotBlank(applyStatus)) applyStatusFilter = ApplyStatus.resolve(applyStatus);
 
-        return pageUtils.toPageResponse(CandidatePostMapper.instance.ePageToDtoPage(candidatePostRepository.getPageCandidateAppliedByPostId(postId, candidateName, candidateEmail, candidatePhoneNumber, postStatusFilter, applyStatusFilter,pageUtils.adjustPageable(pageable)), postSkillRepository, candidateFollowCompanyRepository));
+        return pageUtils.toPageResponse(CandidatePostMapper.instance.ePageToDtoPage(candidatePostRepository.getPageCandidateAppliedByPostId(postId, candidateName, candidateEmail, candidatePhoneNumber, postStatusFilter, applyStatusFilter, pageUtils.adjustPageable(pageable)), postSkillRepository, candidateFollowCompanyRepository));
     }
 
     @Override
-    public PageResponse<UserDto> getPageFollowedCandidate(int companyId, String name, String email, String phoneNumber,Pageable pageable) {
+    public PageResponse<UserDto> getPageFollowedCandidate(int companyId, String name, String email, String phoneNumber, Pageable pageable) {
         var company = companyRepository.findById(companyId);
         if (company.isEmpty()) throw new AppException(ErrorCode.NOT_FOUND_COMPANY);
-        Page<User> users = candidateFollowCompanyRepository.getPageUserFollowedCompanyByCompanyId(companyId, name,email, phoneNumber,pageUtils.adjustPageable(pageable));
+        Page<User> users = candidateFollowCompanyRepository.getPageUserFollowedCompanyByCompanyId(companyId, name, email, phoneNumber, pageUtils.adjustPageable(pageable));
         return pageUtils.toPageResponse(UserMapper.instance.toUserDtoPage(users));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean deletePost(int postId) {
-        Post post = postRepository.findById(postId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_POST));
-        if(post.getDeleted()) throw new AppException(ErrorCode.NOT_FOUND_POST);
+        Post post = postRepository.findById(postId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST));
+        if (post.getDeleted()) throw new AppException(ErrorCode.NOT_FOUND_POST);
         post.setDeleted(true);
         return true;
     }
@@ -579,8 +586,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean requestCompanyVerifyEmployeeInformation(int companyId, int employeeId) {
-        Employee employee = employeeRepository.findByUserId(employeeId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_USER));
-        Company company = companyRepository.findById(companyId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_COMPANY));
+        Employee employee = employeeRepository.findByUserId(employeeId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_USER));
+        Company company = companyRepository.findById(companyId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_COMPANY));
         _sendMailWhenPickCompany(company, employee);
         return true;
     }
@@ -815,5 +822,21 @@ public class EmployeeServiceImpl implements EmployeeService {
             log.error(e.getMessage());
             throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
+    }
+
+    private String buildCustomFieldForNotificationWhenUpdateApplyStatus(CandidatePost candidatePost) {
+        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateAdapter()).create();
+        Map<String, Object> customMap = new HashMap<>() {{
+            put("post", PostMapper.instance.eToDto(candidatePost.getId().getPost(), postSkillRepository, candidateFollowCompanyRepository));
+            put("candidate", CandidateMapper.instance.eToDto(candidatePost.getId().getCandidate()));
+            put("appliedStatus", ApplyStatusDto.builder()
+                    .value(candidatePost.getApplyStatus().name())
+                    .code(candidatePost.getApplyStatus().getStatus())
+                    .language(Dictionary.applyStatusDictionary.get(candidatePost.getApplyStatus().name()))
+                    .build());
+        }};
+
+        return gson.toJson(customMap, new TypeToken<Map<String, Object>>() {
+        }.getType());
     }
 }
