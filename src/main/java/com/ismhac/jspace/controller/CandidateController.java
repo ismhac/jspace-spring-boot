@@ -193,4 +193,9 @@ public class CandidateController {
     public ApiResponse<CandidateProfileDto> getProfileDetail(@PathVariable("id") int candidateId){
         return ApiResponse.<CandidateProfileDto>builder().result(candidateService.getProfileDetail(candidateId)).build();
     }
+
+    @GetMapping("/{id}/post/{postId}/detail")
+    public ApiResponse<CandidatePostDto> getDetailApplyPost(@PathVariable("id") int candidateId,  @PathVariable("postId") int post){
+        return ApiResponse.<CandidatePostDto>builder().result(candidateService.getDetailApplyPost(candidateId, post)).build();
+    }
 }

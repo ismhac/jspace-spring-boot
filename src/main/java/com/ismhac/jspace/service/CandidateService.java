@@ -17,6 +17,7 @@ import com.ismhac.jspace.dto.skill.response.SkillDto;
 import com.ismhac.jspace.dto.user.candidate.request.CandidateUpdateRequest;
 import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
+import com.ismhac.jspace.model.CandidatePost;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -76,4 +77,6 @@ public interface CandidateService {
     CandidateProfileDto editExperienceInformation(int candidateId, ExperienceInformationDto request);
 
     CandidateProfileDto getProfileDetail(int candidateId);
+
+    CandidatePostDto getDetailApplyPost(int candidateId, int post);
 }

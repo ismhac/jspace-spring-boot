@@ -37,6 +37,7 @@ import com.ismhac.jspace.util.BeanUtils;
 import com.ismhac.jspace.util.PageUtils;
 import com.ismhac.jspace.util.UserUtils;
 import com.ismhac.jspace.util.adapter.InstantDeserializer;
+import com.ismhac.jspace.util.adapter.LocalDateAdapter;
 import com.ismhac.jspace.util.adapter.LocalDateTimeTypeAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -300,9 +301,7 @@ public class CandidateServiceImpl implements CandidateService {
                 .company(post.getCompany())
                 .title(NotificationTitle.NOTIFICATION_COMPANY_NEW_CANDIDATE_APPLY.getTitle())
                 .notification("Candidate " + candidate.getId().getUser().getName() + " has applied for your post " + post.getTitle())
-                .custom(new HashMap<>(){{
-                    put("candidateId", candidate.getId().getUser().getId());
-                }}.toString())
+                .custom(new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateAdapter()).create().toJson(CandidatePostMapper.instance.eToDto(candidatePostRepository.save(candidatePost), postSkillRepository, candidateFollowCompanyRepository)))
                 .read(false).build();
         companyNotificationRepository.save(companyNotification);
         return CandidatePostMapper.instance.eToDto(candidatePostRepository.save(candidatePost), postSkillRepository, candidateFollowCompanyRepository);
@@ -474,6 +473,11 @@ public class CandidateServiceImpl implements CandidateService {
     @Override
     public CandidateProfileDto getProfileDetail(int candidateId) {
         return CandidateProfileMapper.instance.eToDto(candidateProfileRepository.findCandidateProfileById_Candidate_Id_User_Id(candidateId).orElse(null));
+    }
+
+    @Override
+    public CandidatePostDto getDetailApplyPost(int candidateId, int postId) {
+        return CandidatePostMapper.instance.eToDto(candidatePostRepository.findByCandidateIdAndPostId(candidateId, postId).orElse(null), postSkillRepository, candidateFollowCompanyRepository);
     }
 
     @Transactional(rollbackFor = Exception.class)

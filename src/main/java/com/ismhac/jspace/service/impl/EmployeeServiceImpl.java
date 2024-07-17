@@ -579,8 +579,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public PageResponse<CandidateDto> searchCandidate(String name, String email, String phoneNumber, Pageable pageable) {
-        return pageUtils.toPageResponse(CandidateMapper.instance.ePageToDtoPage(candidateRepository.recruiterSearchCandidate(name, email, phoneNumber, pageUtils.adjustPageable(pageable))));
+    public PageResponse<CandidateDto> searchCandidate(
+            Gender gender,
+            Experience experience,
+            Rank rank,
+            Location location, Pageable pageable) {
+        return pageUtils.toPageResponse(CandidateMapper.instance.ePageToDtoPage(candidateRepository.recruiterSearchCandidate(gender, experience, rank, location, pageUtils.adjustPageable(pageable))));
     }
 
     @Override
@@ -606,6 +610,28 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         createAndSavePostHistory(savedPost, company);
         createAndSavePostSkills(savedPost, skillList, newSkills);
+
+        List<Candidate> followers = candidateFollowCompanyRepository.getListFollowedCompany(req.getCompanyId());
+
+        Notification notification = Notification.builder()
+                .title(NotificationTitle.NOTIFICATION_CANDIDATE_COMPANY_HAS_NEW_POST.getTitle())
+                .type(NotificationType.COMPANY_IS_FOLLOWING_HAS_NEW_POST)
+                .content(String.format("Công ty %s bạn đã theo dõi vừa đăng tin tuyển dụng, xem chi tiết tại đây", company.getName()))
+                .custom(new GsonBuilder().registerTypeAdapter(LocalDate.class, new LocalDateAdapter()).create().toJson(PostMapper.instance.eToDto(savedPost, postSkillRepository, candidateFollowCompanyRepository)))
+                .build();
+
+        Notification savedNotification = notificationRepository.save(notification);
+
+        List<UserNotification> userNotifications = followers.stream().map(follower -> UserNotification.builder()
+                        .id(UserNotificationId.builder()
+                                .notification(savedNotification)
+                                .user(follower.getId().getUser())
+                                .build())
+                        .read(false)
+                        .build())
+                .toList();
+
+        userNotificationRepository.saveAll(userNotifications);
 
         return PostMapper.instance.eToDto(savedPost, postSkillRepository, candidateFollowCompanyRepository);
     }

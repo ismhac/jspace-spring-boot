@@ -18,7 +18,7 @@ import com.ismhac.jspace.dto.user.candidate.response.CandidateDto;
 import com.ismhac.jspace.dto.user.employee.request.EmployeeUpdateRequest;
 import com.ismhac.jspace.dto.user.employee.response.EmployeeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
-import com.ismhac.jspace.model.enums.PostStatus;
+import com.ismhac.jspace.model.enums.*;
 import com.ismhac.jspace.service.EmployeeService;
 import com.ismhac.jspace.util.PageUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -178,8 +178,13 @@ public class EmployeeController {
     }
 
     @GetMapping("/candidates")
-    public ApiResponse<PageResponse<CandidateDto>> searchCandidate(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "email", required = false)String email, @RequestParam(value = "phoneNumber", required = false)String phoneNumber, Pageable pageable){
-        return ApiResponse.<PageResponse<CandidateDto>>builder().result(employeeService.searchCandidate(name, email, phoneNumber, pageable)).build();
+    public ApiResponse<PageResponse<CandidateDto>> searchCandidate(
+            @RequestParam(value = "gender", required = false) Gender gender,
+            @RequestParam(value = "experience", required = false) Experience experience,
+            @RequestParam(value = "rank", required = false) Rank rank,
+            @RequestParam(value = "location", required = false) Location location,
+            Pageable pageable){
+        return ApiResponse.<PageResponse<CandidateDto>>builder().result(employeeService.searchCandidate(gender, experience, rank, location, pageable)).build();
     }
 
     @PostMapping("/{employeeId}/companies/{companyId}/request-verify-info")
