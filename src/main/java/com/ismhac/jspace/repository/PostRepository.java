@@ -167,7 +167,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                 group by p, ps.id.post.id, ps.id.post.closeDate
 """, countQuery = """
             select count (*)
-                        from PostSkill ps
+            from PostSkill ps
             join Post p on ps.id.post.id = p.id
             join Skill s on s.id = ps.id.skill.id
             where ps.id.post.deleted = false

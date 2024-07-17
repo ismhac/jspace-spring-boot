@@ -3,12 +3,17 @@ package com.ismhac.jspace.service.impl;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.ismhac.jspace.dto.candidateFollowCompany.request.CandidateFollowCompanyCreateRequest;
 import com.ismhac.jspace.dto.candidateFollowCompany.response.CandidateFollowCompanyDto;
 import com.ismhac.jspace.dto.candidatePost.request.CandidatePostCreateRequest;
 import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
 import com.ismhac.jspace.dto.candidatePostLiked.response.CandidatePostLikedDto;
+import com.ismhac.jspace.dto.candidateProfile.request.CandidateSurveyRequest;
+import com.ismhac.jspace.dto.candidateProfile.response.CandidateProfileDto;
+import com.ismhac.jspace.dto.candidateProfile.response.EducationInformationDto;
+import com.ismhac.jspace.dto.candidateProfile.response.ExperienceInformationDto;
 import com.ismhac.jspace.dto.common.response.PageResponse;
 import com.ismhac.jspace.dto.company.response.CompanyDto;
 import com.ismhac.jspace.dto.other.ApplyStatusDto;
@@ -25,15 +30,14 @@ import com.ismhac.jspace.model.*;
 import com.ismhac.jspace.model.enums.ApplyStatus;
 import com.ismhac.jspace.model.enums.NotificationTitle;
 import com.ismhac.jspace.model.enums.PostStatus;
-import com.ismhac.jspace.model.primaryKey.CandidateFollowCompanyId;
-import com.ismhac.jspace.model.primaryKey.CandidateId;
-import com.ismhac.jspace.model.primaryKey.CandidatePostId;
-import com.ismhac.jspace.model.primaryKey.CandidatePostLikedId;
+import com.ismhac.jspace.model.primaryKey.*;
 import com.ismhac.jspace.repository.*;
 import com.ismhac.jspace.service.CandidateService;
 import com.ismhac.jspace.util.BeanUtils;
 import com.ismhac.jspace.util.PageUtils;
 import com.ismhac.jspace.util.UserUtils;
+import com.ismhac.jspace.util.adapter.InstantDeserializer;
+import com.ismhac.jspace.util.adapter.LocalDateTimeTypeAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +50,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +78,7 @@ public class CandidateServiceImpl implements CandidateService {
     private final CandidateFollowCompanyRepository candidateFollowCompanyRepository;
     private final CompanyRepository companyRepository;
     private final CompanyNotificationRepository companyNotificationRepository;
+    private final CandidateProfileRepository candidateProfileRepository;
     @Autowired
     private BeanUtils beanUtils;
     @Autowired
@@ -294,7 +301,7 @@ public class CandidateServiceImpl implements CandidateService {
                 .title(NotificationTitle.NOTIFICATION_COMPANY_NEW_CANDIDATE_APPLY.getTitle())
                 .notification("Candidate " + candidate.getId().getUser().getName() + " has applied for your post " + post.getTitle())
                 .custom(new HashMap<>(){{
-                    put("candidateId", candidate.getId());
+                    put("candidateId", candidate.getId().getUser().getId());
                 }}.toString())
                 .read(false).build();
         companyNotificationRepository.save(companyNotification);
@@ -394,6 +401,79 @@ public class CandidateServiceImpl implements CandidateService {
         List<Integer> skillInteger = gson.fromJson(skillString, new TypeToken<List<Integer>>() {
         }.getType());
         return SkillMapper.instance.eListToDtoList(skillRepository.findAllByIdList(skillInteger));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CandidateProfileDto createCandidateSurvey(CandidateSurveyRequest request) {
+        Candidate candidate = candidateRepository.findByUserId(request.getCandidateId()).orElseThrow(()->new AppException(ErrorCode.NOT_FOUND_USER));
+
+        Gson gson = new Gson();
+
+        List<Skill> skills = skillRepository.findAllByIdList(request.getSkills());
+        String skillJson = gson.toJson(skills);
+
+        CandidateProfile candidateProfile = CandidateProfile.builder()
+                .id(CandidateProfileId.builder()
+                        .candidate(candidate)
+                        .build())
+                .gender(request.getGender())
+                .experience(request.getExperience())
+                .minSalary(request.getMinSalary())
+                .maxSalary(request.getMaxSalary())
+                .rank(request.getRank())
+                .location(request.getLocation())
+                .detailAddress(request.getDetailAddress())
+                .skills(skillJson)
+                .build();
+
+        return CandidateProfileMapper.instance.eToDto(candidateProfileRepository.save(candidateProfile));
+    }
+
+    @Override
+    public CandidateProfileDto editEducationInformation(int candidateId, EducationInformationDto request) {
+        var candidateProfile = candidateProfileRepository.findCandidateProfileById_Candidate_Id_User_Id(candidateId);
+
+        Gson gson = new Gson();
+        String educationInfoJson = gson.toJson(request);
+        if(candidateProfile.isEmpty()){
+            CandidateProfile newCandidateProfile = CandidateProfile.builder()
+                    .id(CandidateProfileId.builder()
+                            .candidate(candidateRepository.findByUserId(candidateId).get())
+                            .build())
+                    .educationInfo(educationInfoJson)
+                    .build();
+
+            return CandidateProfileMapper.instance.eToDto(candidateProfileRepository.save(newCandidateProfile));
+        }else {
+            candidateProfile.get().setEducationInfo(educationInfoJson);
+            return CandidateProfileMapper.instance.eToDto(candidateProfileRepository.save(candidateProfile.get()));
+        }
+    }
+
+    @Override
+    public CandidateProfileDto editExperienceInformation(int candidateId, ExperienceInformationDto request) {
+        var candidateProfile = candidateProfileRepository.findCandidateProfileById_Candidate_Id_User_Id(candidateId);
+        Gson gson = new Gson();
+        String experienceInfoJson = gson.toJson(request);
+        if(candidateProfile.isEmpty()){
+            CandidateProfile newCandidateProfile = CandidateProfile.builder()
+                    .id(CandidateProfileId.builder()
+                            .candidate(candidateRepository.findByUserId(candidateId).get())
+                            .build())
+                    .experienceInfo(experienceInfoJson)
+                    .build();
+
+            return CandidateProfileMapper.instance.eToDto(candidateProfileRepository.save(newCandidateProfile));
+        }else {
+            candidateProfile.get().setExperienceInfo(experienceInfoJson);
+            return CandidateProfileMapper.instance.eToDto(candidateProfileRepository.save(candidateProfile.get()));
+        }
+    }
+
+    @Override
+    public CandidateProfileDto getProfileDetail(int candidateId) {
+        return CandidateProfileMapper.instance.eToDto(candidateProfileRepository.findCandidateProfileById_Candidate_Id_User_Id(candidateId).orElse(null));
     }
 
     @Transactional(rollbackFor = Exception.class)

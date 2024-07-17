@@ -17,11 +17,11 @@ public class Dictionary {
             }});
             put("ONE_TO_THREE_YEARS", new HashMap<>() {{
                 put("en", "One to Three year");
-                put("vi", "1 đến 3 năm kinh nghiệm");
+                put("vi", "Từ 1 - 3 năm kinh nghiệm");
             }});
             put("THREE_TO_FIVE_YEARS", new HashMap<>() {{
                 put("en", "Three to five year");
-                put("vi", "3 đến 5 năm kinh nghiệm");
+                put("vi", "Từ 3 - 5 năm kinh nghiệm");
             }});
             put("MORE_THAN_FIVE_YEARS", new HashMap<>() {{
                 put("en", "More than five year");

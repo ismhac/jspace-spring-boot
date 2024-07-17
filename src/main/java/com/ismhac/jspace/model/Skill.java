@@ -14,7 +14,7 @@ import java.util.logging.Level;
 @Entity
 @Table(name = "tbl_skill")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Skill extends BaseEntity{
+public class Skill{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
