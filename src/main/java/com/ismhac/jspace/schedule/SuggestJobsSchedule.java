@@ -6,9 +6,9 @@ import com.ismhac.jspace.dto.common.request.SendMailRequest;
 import com.ismhac.jspace.event.SuggestJobs;
 import com.ismhac.jspace.exception.AppException;
 import com.ismhac.jspace.exception.ErrorCode;
-import com.ismhac.jspace.model.Candidate;
-import com.ismhac.jspace.model.Post;
-import com.ismhac.jspace.model.PostSkill;
+import com.ismhac.jspace.mapper.SkillMapper;
+import com.ismhac.jspace.model.*;
+import com.ismhac.jspace.repository.CandidateProfileRepository;
 import com.ismhac.jspace.repository.CandidateRepository;
 import com.ismhac.jspace.repository.PostSkillRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 public class SuggestJobsSchedule {
     private final CandidateRepository candidateRepository;
     private final PostSkillRepository postSkillRepository;
+    private final CandidateProfileRepository candidateProfileRepository;
     @Autowired
     private ResourceLoader resourceLoader;
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -44,7 +46,8 @@ public class SuggestJobsSchedule {
         LocalDate now = LocalDate.now();
         List<PostSkill> posts = postSkillRepository.findAllByDate(now);
         List<Candidate> candidates = candidateRepository.findAll();
-        candidates.forEach(candidate -> suggestForOneCandidate(candidate, posts));
+//        candidates.forEach(candidate -> suggestForOneCandidate(candidate, posts));
+        candidates.forEach(candidate -> suggestForCandidate(candidate, posts));
     }
 
     private void suggestForOneCandidate(Candidate candidate, List<PostSkill> postSkills) {
@@ -56,6 +59,71 @@ public class SuggestJobsSchedule {
         if (skillsId.isEmpty()) return;
         List<Post> matchSkills = postSkills
                 .stream().filter(item -> skillsId.contains(item.getId().getSkill().getId())).toList()
+                .stream().map(postSkill -> postSkill.getId().getPost()).toList().stream().distinct().toList();
+
+        String suggestionTemplate = readEmailTemplate("classpath:templates/suggestions/SuggestionTemplate.txt");
+        String content = "";
+        for (Post post : matchSkills) {
+            String postTemplate = readEmailTemplate("classpath:templates/suggestions/PostItem.txt");
+            String postItemString = postTemplate
+                    .replace("#{companyLogo}", post.getCompany().getLogo())
+                    .replace("#{postId}", String.valueOf(post.getId()))
+                    .replace("#{postTitle}", post.getTitle())
+                    .replace("#{companyName}", post.getCompany().getName())
+                    .replace("#{postLocation}", post.getLocation().getProvince());
+
+            content = content.concat(postItemString).concat("");
+        }
+
+        suggestionTemplate = suggestionTemplate
+                .replace("#{currentDate}", LocalDate.now().toString())
+                .replace("#{content}", content);
+
+        SendMailRequest sendMailRequest = SendMailRequest.builder()
+                .email(candidate.getId().getUser().getEmail())
+                .body(suggestionTemplate)
+                .subject("New Jobs")
+                .build();
+
+        SuggestJobs suggestJobs = new SuggestJobs(
+                this, sendMailRequest);
+
+        applicationEventPublisher.publishEvent(suggestJobs);
+    }
+
+
+    private void suggestForCandidate(Candidate candidate, List<PostSkill> postSkills) {
+        CandidateProfile candidateProfile = candidateProfileRepository.findCandidateProfileById_Candidate_Id_User_Id(candidate.getId()
+                .getUser().getId()).orElse(null);
+        if(candidateProfile == null){
+            return;
+        }
+
+        List<Skill> skillList = null;
+
+        Gson gsonSkill = new Gson();
+        if(StringUtils.isNotBlank(candidateProfile.getSkills())){
+            skillList= gsonSkill.fromJson(candidateProfile.getSkills(), new TypeToken<List<Skill>>() {
+            }.getType());
+        }
+
+        List<Integer> skillIDs;
+        if(skillList != null){
+            skillIDs = skillList.stream().map(Skill::getId).toList();
+        } else {
+            skillIDs = new ArrayList<>();
+        }
+
+        if(skillIDs.isEmpty()) return;
+
+        List<Post> matchSkills = postSkills
+                .stream().filter(item ->
+                        skillIDs.contains(item.getId().getSkill().getId()) ||
+                        candidateProfile.getRank() == item.getId().getPost().getRank() ||
+                        candidateProfile.getExperience() == item.getId().getPost().getExperience() ||
+                        candidateProfile.getLocation() == item.getId().getPost().getLocation() ||
+                        candidateProfile.getGender() == item.getId().getPost().getGender()
+                ).toList()
                 .stream().map(postSkill -> postSkill.getId().getPost()).toList().stream().distinct().toList();
 
         String suggestionTemplate = readEmailTemplate("classpath:templates/suggestions/SuggestionTemplate.txt");
