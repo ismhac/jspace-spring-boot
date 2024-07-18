@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -54,5 +55,10 @@ public class CompanyController {
     @GetMapping()
     public ApiResponse<PageResponse<Map<String, Object>>> getPageAndFilter(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "address", required = false) String address, @RequestParam(value = "email", required = false) String email, @RequestParam(value = "phone", required = false) String phone, @RequestParam(value = "companySize", required = false) String companySize, @RequestParam(value = "candidateId", required = false) Integer candidateId, Pageable pageable) {
         return ApiResponse.<PageResponse<Map<String, Object>>>builder().result(companyService.getPageAndFilter(name, address, email, phone, companySize, candidateId, pageable)).build();
+    }
+
+    @GetMapping("/logos")
+    public ApiResponse<List<Map<String, Object>>> getCompanyLogos(){
+        return ApiResponse.<List<Map<String, Object>>>builder().build();
     }
 }

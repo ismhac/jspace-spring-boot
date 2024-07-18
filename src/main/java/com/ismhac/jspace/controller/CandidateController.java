@@ -189,7 +189,6 @@ public class CandidateController {
     }
 
     @GetMapping("/{id}/profiles/details")
-    @PreAuthorize("hasRole('CANDIDATE')")
     public ApiResponse<CandidateProfileDto> getProfileDetail(@PathVariable("id") int candidateId){
         return ApiResponse.<CandidateProfileDto>builder().result(candidateService.getProfileDetail(candidateId)).build();
     }

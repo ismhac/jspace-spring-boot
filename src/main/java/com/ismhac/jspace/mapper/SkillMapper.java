@@ -15,6 +15,7 @@ public interface SkillMapper {
     SkillDto eToDto(Skill e);
 
     default List<SkillDto> eListToDtoList(List<Skill> eList){
+        if(eList == null || eList.isEmpty()) return null;
         return eList.stream().map(this::eToDto).toList();
     }
 
