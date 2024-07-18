@@ -17,5 +17,5 @@ public class CandidatePostDto {
     ApplyStatusDto applyStatus;
     String note;
     @JsonProperty("updatedTime")
-    Instant updatedAt;
+    String updatedAt;
 }
