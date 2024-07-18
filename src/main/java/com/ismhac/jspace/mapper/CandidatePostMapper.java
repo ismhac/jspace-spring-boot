@@ -19,6 +19,8 @@ import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 
+import java.time.Instant;
+
 @Mapper(componentModel = "spring")
 public interface CandidatePostMapper {
     CandidatePostMapper instance = Mappers.getMapper(CandidatePostMapper.class);
@@ -27,6 +29,7 @@ public interface CandidatePostMapper {
     @Mapping(target = "post", expression = "java(convertPostToDto(e.getId().getPost(), postSkillRepository, candidateFollowCompanyRepository))")
     @Mapping(target = "resume", source = "resume", qualifiedByName = "convertResumeToDto")
     @Mapping(target = "applyStatus", source = "applyStatus", qualifiedByName = "convertApplyStatusToDto")
+    @Mapping(target = "updatedAt", source = "updatedAt", qualifiedByName = "convertInstantToString")
     CandidatePostDto eToDto(CandidatePost e, @Context PostSkillRepository postSkillRepository, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository);
 
     default Page<CandidatePostDto> ePageToDtoPage(Page<CandidatePost> ePage, @Context PostSkillRepository postSkillRepository, @Context CandidateFollowCompanyRepository candidateFollowCompanyRepository){
@@ -50,5 +53,11 @@ public interface CandidatePostMapper {
     @Named("convertApplyStatusToDto")
     default ApplyStatusDto convertApplyStatusToDto(ApplyStatus applyStatus){
         return ApplyStatusDto.builder().value(applyStatus.name()).code(applyStatus.getStatus()).build();
+    }
+
+    @Named("convertInstantToString")
+    default String convertInstantToString(Instant instant){
+        if(instant == null) return null;
+        return instant.toString();
     }
 }
