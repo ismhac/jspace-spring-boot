@@ -63,7 +63,8 @@ public class SecurityConfig {
             "/api/v1/companies",
             "/api/v1/companies/{id}",
             "/api/v1/paypal/**",
-            "/api/v1/test/**"
+            "/api/v1/test/**",
+            "api/v1/companies/logos"
     };
 
     @Bean

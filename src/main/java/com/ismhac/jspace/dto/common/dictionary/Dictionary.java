@@ -72,7 +72,7 @@ public class Dictionary {
         }});
         put("OTHER", new HashMap<>(){{
             put("en", "Unisex");
-            put("vi", "Cả nam và nữ");
+            put("vi", "Tất cả");
         }});
     }};
 

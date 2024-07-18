@@ -148,4 +148,15 @@ public class CompanyServiceImpl implements CompanyService {
         }).toList();
         return pageUtils.toPageResponse(new PageImpl<>(contents, results.getPageable(), results.getTotalElements()));
     }
+
+    @Override
+    public List<Map<String, Object>> getCompanyLogos() {
+        return companyRepository.findAll().stream().map(company -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("name", company.getName());
+            map.put("logo", company.getLogo());
+            map.put("id", company.getId());
+            return map;
+        }).toList();
+    }
 }
