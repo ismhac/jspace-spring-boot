@@ -59,6 +59,6 @@ public class CompanyController {
 
     @GetMapping("/logos")
     public ApiResponse<List<Map<String, Object>>> getCompanyLogos(){
-        return ApiResponse.<List<Map<String, Object>>>builder().build();
+        return ApiResponse.<List<Map<String, Object>>>builder().result(companyService.getCompanyLogos()).build();
     }
 }
