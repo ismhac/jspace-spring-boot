@@ -22,7 +22,7 @@ public interface CandidatePostRepository extends JpaRepository<CandidatePost, Ca
     Optional<CandidatePost> findByCandidateIdAndPostId(int candidateId, int PostId);
 
     @Query("""
-            select cp.id.post as post,cp.applyStatus as applyStatus from CandidatePost cp where cp.id.candidate.id.user.id = ?1 and cp.id.post.deleted = false
+            select cp.id.post as post,cp.applyStatus as applyStatus, cp.createdAt as appliedDate from CandidatePost cp where cp.id.candidate.id.user.id = ?1 and cp.id.post.deleted = false
             """)
     Page<Map<String, Object>> candidateGetPageAppliedPost(int candidateId, Pageable pageable);
 

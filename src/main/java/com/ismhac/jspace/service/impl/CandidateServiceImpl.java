@@ -327,6 +327,7 @@ public class CandidateServiceImpl implements CandidateService {
                             .code(((ApplyStatus) result.get("applyStatus")).name())
                             .value(((ApplyStatus) result.get("applyStatus")).getStatus())
                     .build());
+            map.put("appliedDate", result.get("appliedDate"));
             return map;
         }).toList();
 
