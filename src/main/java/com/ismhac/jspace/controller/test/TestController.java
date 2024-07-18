@@ -30,8 +30,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @RestController
@@ -46,20 +46,90 @@ public class TestController {
     private final CandidateRepository candidateRepository;
     private final PostSkillRepository postSkillRepository;
     private final SkillRepository skillRepository;
+    private final CandidateProfileRepository candidateProfileRepository;
     @Autowired
     private ResourceLoader resourceLoader;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final RoleRepository roleRepository;
     private final EmployeeRepository employeeRepository;
 
-//    @Scheduled(cron = "0 0 19 * * *")
     @PostMapping("/check-send-mail-suggest-jobs")
     public void suggestJobs() {
         LocalDate now = LocalDate.now();
         List<PostSkill> posts = postSkillRepository.findAllByDate(now);
         List<Candidate> candidates = candidateRepository.findAll();
-        candidates.forEach(candidate -> suggestForOneCandidate(candidate, posts));
+
+        Gson gson = new Gson();
+        Map<Integer, CandidateProfile> candidateProfileCache = new ConcurrentHashMap<>();
+
+        candidates.parallelStream().forEach(candidate -> {
+            CandidateProfile candidateProfile = candidateProfileCache.computeIfAbsent(candidate.getId().getUser().getId(), id -> {
+                return candidateProfileRepository.findCandidateProfileById_Candidate_Id_User_Id(id).orElse(null);
+            });
+
+            if (candidateProfile == null) {
+                return;
+            }
+
+            Set<Integer> skillIDs = new HashSet<>();
+
+            if (StringUtils.isNotBlank(candidateProfile.getSkills())) {
+                List<Skill> skillList = gson.fromJson(candidateProfile.getSkills(), new TypeToken<List<Skill>>() {}.getType());
+                skillIDs.addAll(skillList.stream().map(Skill::getId).collect(Collectors.toSet()));
+            }
+
+            if (skillIDs.isEmpty()) return;
+
+            List<Post> matchSkills = posts.stream()
+                    .filter(item -> skillIDs.contains(item.getId().getSkill().getId()) ||
+                                    candidateProfile.getRank() == item.getId().getPost().getRank() ||
+                                    candidateProfile.getExperience() == item.getId().getPost().getExperience() ||
+                                    candidateProfile.getLocation() == item.getId().getPost().getLocation() ||
+                                    candidateProfile.getGender() == item.getId().getPost().getGender())
+                    .map(postSkill -> postSkill.getId().getPost())
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            String suggestionTemplate = readEmailTemplate("classpath:templates/suggestions/SuggestionTemplate.txt");
+            String content = "";
+            for (Post post : matchSkills) {
+                String postTemplate = readEmailTemplate("classpath:templates/suggestions/PostItem.txt");
+                String postItemString = postTemplate
+                        .replace("#{companyLogo}", post.getCompany().getLogo())
+                        .replace("#{postId}", String.valueOf(post.getId()))
+                        .replace("#{postTitle}", post.getTitle())
+                        .replace("#{companyName}", post.getCompany().getName())
+                        .replace("#{postLocation}", post.getLocation().getProvince());
+
+                content = content.concat(postItemString).concat("");
+            }
+
+            suggestionTemplate = suggestionTemplate
+                    .replace("#{currentDate}", LocalDate.now().toString())
+                    .replace("#{content}", content);
+
+            SendMailRequest sendMailRequest = SendMailRequest.builder()
+                    .email(candidate.getId().getUser().getEmail())
+                    .body(suggestionTemplate)
+                    .subject("New Jobs")
+                    .build();
+
+            SuggestJobs suggestJobs = new SuggestJobs(
+                    this, sendMailRequest);
+
+            applicationEventPublisher.publishEvent(suggestJobs);
+        });
     }
+
+//    @Scheduled(cron = "0 0 19 * * *")
+//    @PostMapping("/check-send-mail-suggest-jobs")
+//    public void suggestJobs() {
+//        LocalDate now = LocalDate.now();
+//        List<PostSkill> posts = postSkillRepository.findAllByDate(now);
+//        List<Candidate> candidates = candidateRepository.findAll();
+////        candidates.forEach(candidate -> suggestForOneCandidate(candidate, posts));
+//        candidates.forEach(candidate -> suggestForCandidate(candidate, posts));
+//    }
 
     @PostMapping("/save-skills")
     @Transactional(rollbackFor = Exception.class)
@@ -93,6 +163,70 @@ public class TestController {
                 .build()).toList();
 
         employeeRepository.saveAll(employees);
+    }
+
+    private void suggestForCandidate(Candidate candidate, List<PostSkill> postSkills) {
+        CandidateProfile candidateProfile = candidateProfileRepository.findCandidateProfileById_Candidate_Id_User_Id(candidate.getId()
+                .getUser().getId()).orElse(null);
+        if(candidateProfile == null){
+            return;
+        }
+
+        List<Skill> skillList = null;
+
+        Gson gsonSkill = new Gson();
+        if(StringUtils.isNotBlank(candidateProfile.getSkills())){
+            skillList= gsonSkill.fromJson(candidateProfile.getSkills(), new TypeToken<List<Skill>>() {
+            }.getType());
+        }
+
+        List<Integer> skillIDs;
+        if(skillList != null){
+            skillIDs = skillList.stream().map(Skill::getId).toList();
+        } else {
+            skillIDs = new ArrayList<>();
+        }
+
+        if(skillIDs.isEmpty()) return;
+
+        List<Post> matchSkills = postSkills
+                .stream().filter(item ->
+                        skillIDs.contains(item.getId().getSkill().getId()) ||
+                        candidateProfile.getRank() == item.getId().getPost().getRank() ||
+                        candidateProfile.getExperience() == item.getId().getPost().getExperience() ||
+                        candidateProfile.getLocation() == item.getId().getPost().getLocation() ||
+                        candidateProfile.getGender() == item.getId().getPost().getGender()
+                ).toList()
+                .stream().map(postSkill -> postSkill.getId().getPost()).toList().stream().distinct().toList();
+
+        String suggestionTemplate = readEmailTemplate("classpath:templates/suggestions/SuggestionTemplate.txt");
+        String content = "";
+        for (Post post : matchSkills) {
+            String postTemplate = readEmailTemplate("classpath:templates/suggestions/PostItem.txt");
+            String postItemString = postTemplate
+                    .replace("#{companyLogo}", post.getCompany().getLogo())
+                    .replace("#{postId}", String.valueOf(post.getId()))
+                    .replace("#{postTitle}", post.getTitle())
+                    .replace("#{companyName}", post.getCompany().getName())
+                    .replace("#{postLocation}", post.getLocation().getProvince());
+
+            content = content.concat(postItemString).concat("");
+        }
+
+        suggestionTemplate = suggestionTemplate
+                .replace("#{currentDate}", LocalDate.now().toString())
+                .replace("#{content}", content);
+
+        SendMailRequest sendMailRequest = SendMailRequest.builder()
+                .email(candidate.getId().getUser().getEmail())
+                .body(suggestionTemplate)
+                .subject("New Jobs")
+                .build();
+
+        SuggestJobs suggestJobs = new SuggestJobs(
+                this, sendMailRequest);
+
+        applicationEventPublisher.publishEvent(suggestJobs);
     }
 
     private void suggestForOneCandidate(Candidate candidate, List<PostSkill> postSkills) {
