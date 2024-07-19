@@ -8,6 +8,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.ismhac.jspace.dto.candidatePost.request.ApplyStatusUpdateRequest;
 import com.ismhac.jspace.dto.candidatePost.response.CandidatePostDto;
+import com.ismhac.jspace.dto.candidateProfile.response.CandidateProfileDto;
 import com.ismhac.jspace.dto.cart.request.CartCreateRequest;
 import com.ismhac.jspace.dto.cart.response.CartDto;
 import com.ismhac.jspace.dto.common.dictionary.Dictionary;
@@ -103,6 +104,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     private ResourceLoader resourceLoader;
     @Autowired
     private CandidateRepository candidateRepository;
+    @Autowired
+    private CandidateProfileRepository candidateProfileRepository;
 
     @Override
     public PageResponse<EmployeeDto> getPageByCompanyIdFilterByEmailAndName(int companyId, String email, String name, Pageable pageable) {
@@ -584,7 +587,15 @@ public class EmployeeServiceImpl implements EmployeeService {
             Experience experience,
             Rank rank,
             Location location, Pageable pageable) {
-        return pageUtils.toPageResponse(CandidateMapper.instance.ePageToDtoPage(candidateRepository.recruiterSearchCandidate(gender, experience, rank, location, pageUtils.adjustPageable(pageable))));
+        Page<CandidateDto> candidateDtos = CandidateMapper.instance.ePageToDtoPage(candidateRepository.recruiterSearchCandidate(gender, experience, rank, location, pageUtils.adjustPageable(pageable)));
+        List<CandidateDto> converted = candidateDtos.getContent().stream().map(item-> {
+            CandidateProfile candidateProfile = candidateProfileRepository.findCandidateProfileById_Candidate_Id_User_Id(item.getUser().getId()).orElse(null);
+            CandidateProfileDto candidateProfileDto = CandidateProfileMapper.instance.eToDto(candidateProfile);
+            item.setProfile(candidateProfileDto);
+            return item;
+        }).toList();
+
+        return new PageResponse<>(candidateDtos.getNumber(), candidateDtos.getSize(), candidateDtos.getTotalElements(), candidateDtos.getTotalPages(), candidateDtos.getNumberOfElements(), converted);
     }
 
     @Override
