@@ -41,6 +41,7 @@ public interface CandidateProfileMapper {
 
     @Named("convertGenDerToDto")
     default GenderDto convertGenDerToDto(Gender gender) {
+        if(gender == null) return null;
         return GenderDto.builder()
                 .value(gender.name())
                 .code(gender.getCode())
@@ -50,6 +51,7 @@ public interface CandidateProfileMapper {
 
     @Named("convertExperienceToDto")
     default ExperienceDto convertExperienceToDto(Experience experience) {
+        if(experience == null) return null;
         return ExperienceDto.builder()
                 .value(experience.name())
                 .code(experience.getCode())
@@ -59,6 +61,7 @@ public interface CandidateProfileMapper {
 
     @Named("convertRankToDto")
     default RankDto convertRankToDto(Rank rank) {
+        if(rank == null) return null;
         return RankDto.builder()
                 .value(rank.name())
                 .code(rank.getCode())
@@ -68,6 +71,7 @@ public interface CandidateProfileMapper {
 
     @Named("convertLocationToDto")
     default LocationDto convertLocationToDto(Location location) {
+        if (location == null) return null;
         return LocationDto.builder()
                 .value(location.name())
                 .areaCode(location.getAreaCode())
@@ -77,6 +81,7 @@ public interface CandidateProfileMapper {
 
     @Named("convertSkillJsonToListSkillDto")
     default List<SkillDto> convertSkillJsonToListSkillDto(String skillJson) {
+        if(StringUtils.isBlank(skillJson)) return null;
         Gson gson = new Gson();
         List<Skill> skills = gson.fromJson(skillJson, new TypeToken<List<Skill>>() {
         }.getType());
