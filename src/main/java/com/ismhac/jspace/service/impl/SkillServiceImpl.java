@@ -58,6 +58,9 @@ public class SkillServiceImpl implements SkillService {
         Gson gson = new Gson();
         Map<Integer, CandidateProfile> candidateProfileCache = new ConcurrentHashMap<>();
 
+        String suggestMain = readEmailTemplate("classpath:templates/SuggestionTemplate.txt");
+        String postTemplateMain = readEmailTemplate("classpath:templates/PostItem.txt");
+
         candidates.parallelStream().forEach(candidate -> {
             CandidateProfile candidateProfile = candidateProfileCache.computeIfAbsent(candidate.getId().getUser().getId(), id -> {
                 return candidateProfileRepository.findCandidateProfileById_Candidate_Id_User_Id(id).orElse(null);
@@ -86,10 +89,12 @@ public class SkillServiceImpl implements SkillService {
                     .distinct()
                     .collect(Collectors.toList());
 
-            String suggestionTemplate = readEmailTemplate("classpath:templates/suggestions/SuggestionTemplate.txt");
+//            String suggestionTemplate = readEmailTemplate("classpath:templates/SuggestionTemplate.txt");
+            String suggestionTemplate = suggestMain;
             String content = "";
             for (Post post : matchSkills) {
-                String postTemplate = readEmailTemplate("classpath:templates/suggestions/PostItem.txt");
+//                String postTemplate = readEmailTemplate("classpath:templates/PostItem.txt");
+                String postTemplate = postTemplateMain;
                 String postItemString = postTemplate
                         .replace("#{companyLogo}", post.getCompany().getLogo())
                         .replace("#{postId}", String.valueOf(post.getId()))
