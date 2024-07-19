@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface SkillService {
     List<SkillDto> getAllSkills();
+
+    void suggestJobs();
 }
