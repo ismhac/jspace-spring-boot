@@ -1,7 +1,9 @@
 package com.ismhac.jspace.dto.user.candidate.response;
 
+import com.ismhac.jspace.dto.candidateProfile.response.CandidateProfileDto;
 import com.ismhac.jspace.dto.resume.response.ResumeDto;
 import com.ismhac.jspace.dto.user.response.UserDto;
+import com.ismhac.jspace.model.CandidateProfile;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,4 +19,5 @@ public class CandidateDto {
     ResumeDto defaultResume;
     Boolean publicProfile;
     Boolean surveyed;
+    CandidateProfileDto profile;
 }
