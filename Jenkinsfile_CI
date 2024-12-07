@@ -1,0 +1,68 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'maven-3.9.5'
+    }
+
+    environment {
+        SERVICE_NAME = "jspace-service"
+        IMAGE_NAME = "jspace-service:${env.GIT_COMMIT}"
+        IMAGE_TAR = "jspace-service.tar"
+        DOCKER_HUB_REPO = "hacit1412/jspace-service"
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building..'
+//                sh 'mvn clean package -DskipTests=false'
+                sh 'mvn clean install -U'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Testing..'
+                sh 'mvn test'
+            }
+        }
+
+        stage('Package Image') {
+            steps {
+                echo 'Docker build image....'
+                echo "Git SHA:  ${env.GIT_COMMIT}"
+                echo "Git branch: ${env.GIT_BRANCH}"
+
+                script {
+                    sh "docker build -t ${IMAGE_NAME} ."
+                    sh "docker images"
+                    sh "docker save -o ${IMAGE_NAME}.tar ${IMAGE_NAME}"
+                }
+            }
+        }
+
+        stage('Push Image To Docker Hub') {
+            steps {
+                echo "Push Image to Docker Hub"
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-account', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh "docker login -u ${USERNAME} -p ${PASSWORD}"
+                        sh "docker tag ${IMAGE_NAME} ${DOCKER_HUB_REPO}:${env.GIT_COMMIT}"
+                        sh "docker push ${DOCKER_HUB_REPO}:${env.GIT_COMMIT}"
+                    }
+                }
+            }
+        }
+
+        stage('Clean up') {
+            steps {
+                echo "Clean up local Docker images"
+                sh "docker rmi ${IMAGE_NAME} ${DOCKER_HUB_REPO}:${env.GIT_COMMIT}"
+                sh 'find /var/lib/jenkins/workspace -name "*.tar" -type f -delete'
+            }
+        }
+
+    }
+}
+

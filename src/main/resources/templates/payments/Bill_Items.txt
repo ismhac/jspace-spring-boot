@@ -1,0 +1,6 @@
+<tr class="service">
+      <td class="tableitem"><p class="itemtext">#{product_name}</p></td>
+      <td class="tableitem"><p class="itemtext">#{quantity}</p></td>
+      <td class="tableitem"><p class="itemtext">$#{price}</p></td>
+      <td class="tableitem"><p class="itemtext">$#{total_price}</p></td>
+</tr>

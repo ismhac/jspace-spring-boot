@@ -1,0 +1,53 @@
+init:
+    admin:
+        password: ENC(OiYnKeBtvO7/y8d1L3kiM3IBVNj1I+3rSo4zahW18uV/Wiw9QPOMjHWQ5Y0MDPRQ)
+        username: ENC(GvJrKBbVuexsG/nQJqvm1wNZGh7OubgUT+QBgYp//w9pkaJKYUfjY9THADaNpG8u)
+spring:
+    data:
+        web:
+            pageable:
+                default-page-size: 10
+    datasource:
+        driver-class-name: org.postgresql.Driver
+        password: ENC(Ac5vC6XjIGtAfVjKSduzGKcvQH2xpD8f0iKYKWjLEKSPMb2I5kEH6hASLfi8TC6TtlCeC8dGXrA4tWKlMh+H/1FndPEYpPRX/O9+R/yYUNqZSrb0YY0MXz9mSxFT/LlChCF+sG+5F4vAIPFivE/Q9Q==)
+        url: ENC(PFQsGd4eyYzGvSNa9KH7Zqduc1hPeUWzStTQVpMLYZfnPMytVOoO9xpiOiTSgISa9pGHLI8Y7K9sWoc+BEuUSO7srKG0psppxSx4LH8xgRO2GPSVv7koqNbYHfrEGXzbScBXCYxszHCjkCmwhNBwMzAknZiW5yVWgZMSJuBBlwSFSmXO+vAZpIasOz2GurWL)
+        username: ENC(9xhPGG0PxKvIJTBq4YSRK6yXEzCzg3h+A4bYZKhBdfKmCgCEhDuKgQ8g0pRRHLZV)
+    jpa:
+        hibernate:
+            ddl-auto: none
+        open-in-view: false
+        properties:
+            hibernate:
+                format_sql: true
+            javax:
+                persistence:
+                    schema-generation:
+                        scripts:
+                            action: create
+                            create-source: metadata
+                            create-target: src/main/resources/migrations/create.sql
+        show-sql: false
+    mail:
+        host: smtp.gmail.com
+        password: ENC(s733gtymVGQ/IQtr1QV4CBCGLps3+eFtj83GZFVKLDCNhC5cf/nc1NYoyCd4RoZCxr2EzXeZw35XqXR7IqQKIA==)
+        port: 587
+        properties:
+            mail:
+                debug: false
+                smtp:
+                    auth: true
+                    ssl:
+                        protocols: TLSv1.2
+                    starttls:
+                        enable: true
+                transport:
+                    protocol: smtp
+        username: ENC(SouhUt3yuDNMaACH0giGMboHpqC4RznX4aTM+0zykpyUVRg6qH0D9cXkFSkvwmjC7PKWQj8fkad8tM3iqxtqCw==)
+storage:
+    cloudinary:
+        api:
+            key: ENC(G5kcnqKag2dgeC2TkQSdA3wWBCekRvoz3rpRFu1mZSzzMY7xqd2gvVN56DsC4Hz+)
+            secret:
+                key: ENC(vE/Il+h56XGbIPBfzE4DscJSYBA7JDhfkun2DK2SypJNU6HpqEWMX8aDSNAj05my7VCYjsdaCBYSm9ML9+Es7g==)
+        cloud:
+            name: ENC(prdtE2XHZVGuXYuUY2pLgQ4hD4E8XhpG9LeSX65h0EfZBpToErHsGg+JDdO38Zzf)

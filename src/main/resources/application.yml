@@ -1,0 +1,26 @@
+jwt:
+    refresh:
+        token:
+            exppiration: 604800000
+    secret-key: ENC(ntZL1NceyFZ2AZ4SzT80xrty8ThW/MFkosMjFX6JbTYMlg3JmRFAHwrw9C/1xLcRwyQMG8KVbsKDdHtbhCsQtzdQk0UnUB4ldU1U4Onndj5YwBwP2vpbo3rK5fTZ2QhD0LFjgQMwLVi1KiPpWqQskg==)
+    token:
+        expiration: 86400000
+paypal:
+    client:
+        id: AQez7D1tRkx9K9ZvZZN_LSeJO2RAsidMS3OUA3cdFkdj1E7zF-4keH_kWvb1aLUghzXU71Pz3PVu7O3E
+        secret: EHLfYGCNLY7vGSv5O_j37_pO2cY-XvTafGu_swGUvchwG0H_oGmrAqPD-GQD9XSQK49pMGUGOrhT4voP
+    mode: sandbox
+server:
+    port: 8081
+    servlet:
+        context-path: /jspace-service
+spring:
+    application:
+        name: jspace-service
+    jpa:
+        properties:
+            hibernate:
+                jdbc:
+                    time_zone: Asia/Ho_Chi_Minh
+    profiles:
+        active: aiven
