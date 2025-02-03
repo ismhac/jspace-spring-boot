@@ -62,7 +62,6 @@ pipeline {
                 sh 'find /var/lib/jenkins/workspace -name "*.tar" -type f -delete'
             }
         }
-
     }
 }
 
