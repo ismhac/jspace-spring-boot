@@ -12,7 +12,7 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'GIT_SHA', defaultValue: '', description: 'Input GIT SHA to deploy')
+        string(name: 'GIT_SHA', defaultValue: 'aiven', description: 'Input GIT SHA to deploy')
         choice(name: 'ENV', choices: ['dev', 'production', 'aiven'], description: 'Select environment to deploy')
     }
 
